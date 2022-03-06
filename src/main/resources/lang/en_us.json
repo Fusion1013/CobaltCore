@@ -1,0 +1,66 @@
+{
+  "": "",
+  "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
+  "cobalt.player.join": "&7This server is running &3Cobalt v&3%version%",
+
+  "connection.join": "&3%player% &7joined the game",
+  "connection.quit": "&3%player% &7left the game",
+
+  "commands.error.incorrect_syntax": "&7Incorrect Syntax",
+  "command-not-implemented": "&7Command not yet implemented",
+  "command-unknown": "&7Unknown command",
+  "commands.player_not_found": "&7Player &3%player% &7not found",
+
+  "database.tables": "&3%count% &7tables found: &3%tables%",
+  "database.reset_table": "&7Reset table &3%table%",
+
+  "list-header": "<g:#00aaaa:#0066aa>----- %header% -----",
+  "list-item-name": "&7Name: &3%name%",
+  "list-item-location": "&7Location: &3%x%&7x &3%y%&7y &3%z%&7z &7World: &3%world%",
+  "list-item-id-name-location": "&7[&3%id%&7] &7Name: &3%name% &7Location: &3%x%&7x &3%y%&7y &3%z%&7z",
+
+  "version.version": "&3%plugin_name% &7v&3%version%",
+  "version.author": "&7Author: &3Fusion1013",
+  "version.github_issues": "&7Issues: &3%github_issues_link%",
+
+  "commands.cobalt.config.edit": "&7Changed value of &3%key% &7from &3%old_value% &7to &3%value%",
+  "commands.cobalt.config.get": "&7Key &3%key% &7has value &3%value%",
+  "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
+  "commands.cobalt.update": "&7Pushed file &3%file% to the server",
+
+  "commands.setting.get": "&7Key &3%key% &7has value &3%value%",
+  "commands.setting.set.success": "&7Changed value of &3%key% &7from &3%old_value% &7to &3%value%",
+  "commands.setting.set.fail": "&7Failed to change value of &3%key% &7from &3%old_value% &7to &3%value%",
+
+  "commands.trades.add_recipe": "&7Added new &3%recipe_type% &7recipe. Cost: &3%cost_count%&7x&3%cost_item%&7. Result: &3%result_count%&7x&3%result_item%&7. Can be used &3%uses% &7times",
+  "commands.trades.remove_recipe": "&7Removed recipe &3%recipe%",
+  "commands.trades.trade_info": "&7- &3%cost_count%&7x&3%cost_item% &7-> &3%result_count%&7x&3%result_item%&7. Weight: &3%weight%",
+  "commands.trades.no_trades_found": "&7No %recipe_type% &7trades found",
+
+  "commands.csummon.summoned_entity": "&7Summoned entity &3%name% &7at %location%",
+  "commands.csummon.could_not_summon": "&7Failed to summon entity &3%name% &7at %location%",
+
+
+  "commands.cparticle.style.create.success": "&7Created new particle style with name &3%name%",
+  "commands.cparticle.style.create.error.already_exists": "&7A particle style with the name &3%name% &7already exists",
+
+  "commands.cparticle.style.list.error.no_styles_found": "&7No particle styles found",
+  "commands.cparticle.style.list.item": "&7- [&3%name%&7] Type: &3%internal_style%&7, Particle: &3%particle%",
+
+  "commands.cparticle.style.extra.set": "&7Updated extra settings for particle style &3%name%:",
+
+
+  "particle.style.abstract.info": "&7Name: &3%name%&7. Particle: &3%particle%&7. Offset: &3%offset%&7. Particle Count: &3%count%&7. Particle Speed: &3%speed%",
+  "particle.style.point.info": "&7No extra info",
+  "particle.style.sphere.info": "&7Density: &3%radius%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
+
+
+  "debug.event.subscribed": "&7Subscribed player &3%player% &7to debug event &3%event%",
+  "debug.event.unsubscribed": "&7Unsubscribed player &3%player% &7from debug event &3%event%",
+
+
+  "events.spectate.info.ejected": "&7You have been ejected from &3%player%",
+
+  "gradient": "<g:#ff1100:#00ff1e>GRADIENT",
+  "rainbow": "&7[<r:1:1>ThisIsAReallyLongRainbowText&7]"
+}
