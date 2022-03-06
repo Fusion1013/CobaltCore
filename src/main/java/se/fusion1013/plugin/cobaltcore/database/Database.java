@@ -3,17 +3,50 @@ package se.fusion1013.plugin.cobaltcore.database;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to access and edit/retrieve values from the database
  */
 public abstract class Database {
+
+    // ----- VARIABLES -----
+
     CobaltCore plugin;
     Connection connection;
+
+    // ----- CONSTRUCTOR -----
 
     public Database(CobaltCore instance){
         plugin = instance;
     }
+
+    // ----- DATABASE INFO -----
+
+    public static String[] getDatabaseTables() {
+        List<String> tables = new ArrayList<>();
+
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%'");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tables.add(rs.getString("name"));
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return tables.toArray(new String[0]);
+    }
+
+    // ----- GETTERS / SETTERS -----
 
     public abstract Connection getSQLConnection();
 
