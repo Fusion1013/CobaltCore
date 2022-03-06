@@ -19,4 +19,10 @@ public interface CobaltPlugin extends Plugin {
     default void reloadManagers() {}
 
     default void initDatabaseTables() {}
+
+    default void preInit() {}
+
+    default void postInit() {}
+
+    default String getPrefix() { return "prefix.core"; }
 }
