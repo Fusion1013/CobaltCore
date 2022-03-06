@@ -2,3 +2,7 @@ name: CobaltCore
 version: '${project.version}'
 main: se.fusion1013.plugin.cobaltcore.CobaltCore
 api-version: 1.18
+depend:
+  - CommandAPI
+softdepend:
+  - VanishNoPacket
