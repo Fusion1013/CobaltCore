@@ -1,7 +1,9 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -30,6 +32,17 @@ public final class HexUtils {
      */
     public static void sendMessage(Player sender, String message){
         sender.sendMessage(colorify(message));
+    }
+
+    /**
+     * Broadcasts a message to the server.
+     *
+     * @param message the message to broadcast.
+     */
+    public static void broadcastMessage(String message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            sendMessage(p, message);
+        }
     }
 
     /**
