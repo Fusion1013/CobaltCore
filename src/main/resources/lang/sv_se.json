@@ -1,0 +1,26 @@
+{
+  "": "",
+  "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
+
+  "commands.error.incorrect_syntax": "&7Inkorrekt Syntax",
+  "command-not-implemented": "&7Kommand ej implementerat",
+  "command-unknown": "&7Okänt kommando",
+  "commands.player_not_found": "&7Spelare &3%player% &7hittades ej",
+
+  "database.tables": "&3%count% &7tables hittade: &3%tables%",
+
+  "list-header": "<g:#00aaaa:#0066aa>------ %header% ------",
+  "list-item-name": "&7Namn: &3%name%",
+  "list-item-location": "&7Position: &3%x%&7x &3%y%&7y &3%z%&7z &7Värld: &3%world%",
+  "list-item-id-name-location": "&7[&3%id%&7] &7Namn: &3%name% &7Position: &3%x%&7x &3%y%&7y &3%z%&7z",
+
+  "version.version": "&3%plugin_name% &7v&3%version%",
+  "version.author": "&7Skapare: &3Fusion1013",
+  "version.github_issues": "&7Issues: &3%github_issues_link%",
+
+  "commands.cobalt.config.edit": "&7Ändrade värde av &3%key% &7från &3%old_value% &7till &3%value%",
+  "commands.cobalt.config.get": "&7Nyckel &3%key% &7har värdet &3%value%",
+
+  "gradient": "<g:#ff1100:#00ff1e>GRADIENT",
+  "rainbow": "&7[<r:1:1>ThisIsAReallyLongRainbowText&7]"
+}
