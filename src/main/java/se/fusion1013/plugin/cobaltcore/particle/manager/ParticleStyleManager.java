@@ -5,6 +5,7 @@ import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleCube;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStylePoint;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleSphere;
 
@@ -34,6 +35,7 @@ public class ParticleStyleManager extends Manager {
 
     /**
      * Gets a <code>ParticleStyle</code> registered under the given name.
+     *
      * @param name the name of the style to get.
      * @return a <code>ParticleStyle</code>, or null if not found.
      */
@@ -129,6 +131,7 @@ public class ParticleStyleManager extends Manager {
 
     public static final ParticleStyle PARTICLE_STYLE_POINT = register(new ParticleStylePoint("default_point"));
     public static final ParticleStyle PARTICLE_STYLE_SPHERE = register(new ParticleStyleSphere("default_sphere"));
+    public static final ParticleStyle PARTICLE_STYLE_CUBE = register(new ParticleStyleCube("default_cube"));
 
     /**
      * Registers a new <code>ParticleStyle</code>.
