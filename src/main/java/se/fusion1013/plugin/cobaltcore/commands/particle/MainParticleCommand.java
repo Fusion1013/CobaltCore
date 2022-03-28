@@ -10,6 +10,7 @@ public class MainParticleCommand {
         new CommandAPICommand("cparticle")
                 .withPermission("cobalt.core.command.cparticle")
                 .withSubcommand(ParticleStyleCommand.createParticleStyleCommand())
+                .withSubcommand(ParticleGroupCommand.createParticleGroupCommand())
                 .register();
     }
 
