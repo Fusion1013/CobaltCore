@@ -2,12 +2,9 @@ package se.fusion1013.plugin.cobaltcore.database;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.manager.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.manager.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.settings.PlayerSettingHolder;
-import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
 
 import java.io.File;
@@ -112,9 +109,9 @@ public class SQLite extends Database {
         }
     }
 
-    public static PreCalculateWeightsRandom<MerchantRecipe> getMerchantTrades() {
+    public static PreCalculateWeightsRandom<CustomTradesManager.MerchantRecipePlaceholder> getMerchantTrades() {
 
-        PreCalculateWeightsRandom<MerchantRecipe> list = new PreCalculateWeightsRandom<>();
+        PreCalculateWeightsRandom<CustomTradesManager.MerchantRecipePlaceholder> list = new PreCalculateWeightsRandom<>();
 
         try {
             Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
@@ -122,24 +119,17 @@ public class SQLite extends Database {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                ItemStack result = CustomItemManager.getItemStack(rs.getString("result_item"));
+                String costItemName = rs.getString("cost_item");
+                int costCount = rs.getInt("cost_count");
 
-                if (result != null) {
-                    int resultCount = rs.getInt("result_count");
-                    result.setAmount(resultCount);
+                String resultItemName = rs.getString("result_item");
+                int resultCount = rs.getInt("result_count");
 
-                    MerchantRecipe mr = new MerchantRecipe(result, rs.getInt("max_uses"));
+                int maxUses = rs.getInt("max_uses");
 
-                    ItemStack cost = CustomItemManager.getItemStack(rs.getString("cost_item"));
+                CustomTradesManager.MerchantRecipePlaceholder mr = new CustomTradesManager.MerchantRecipePlaceholder(costItemName, costCount, resultItemName, resultCount, maxUses);
 
-                    if (cost != null) {
-                        int costCount = rs.getInt("cost_count");
-                        cost.setAmount(costCount);
-
-                        mr.addIngredient(cost);
-                        list.addItem(mr, rs.getInt("weight"));
-                    }
-                }
+                list.addItem(mr, rs.getInt("weight"));
             }
             conn.close();
 
@@ -150,17 +140,17 @@ public class SQLite extends Database {
         return list;
     }
 
-    public static void saveMerchantTrades(List<MerchantRecipe> recipes, List<Integer> weights) {
+    public static void saveMerchantTrades(List<CustomTradesManager.MerchantRecipePlaceholder> recipes, List<Integer> weights) {
         try {
             Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
             conn.setAutoCommit(false);
             PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO merchant_trades(cost_item, cost_count, result_item, result_count, max_uses, weight) VALUES(?, ?, ?, ?, ?, ?)");
             for (int i = 0; i < recipes.size(); i++) {
-                MerchantRecipe mr = recipes.get(i);
-                ps.setString(1, CustomItemManager.getItemName(mr.getIngredients().get(0)));
-                ps.setInt(2, mr.getIngredients().get(0).getAmount());
-                ps.setString(3, CustomItemManager.getItemName(mr.getResult()));
-                ps.setInt(4, mr.getResult().getAmount());
+                CustomTradesManager.MerchantRecipePlaceholder mr = recipes.get(i);
+                ps.setString(1, mr.getCostItemName());
+                ps.setInt(2, mr.getCostAmount());
+                ps.setString(3, mr.getResultItemName());
+                ps.setInt(4, mr.getResultAmount());
                 ps.setInt(5, mr.getMaxUses());
                 ps.setInt(6, weights.get(i));
                 ps.executeUpdate();
