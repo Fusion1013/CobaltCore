@@ -33,15 +33,6 @@ public class ParticleStyleSphere extends ParticleStyle {
         super("sphere", name);
     }
 
-    public ParticleStyleSphere(ParticleStyleSphere target) {
-        super(target);
-
-        this.density = target.density;
-        this.radius = target.radius;
-
-        this.inSphere = target.inSphere;
-    }
-
     // ----- INFO -----
 
     @Override
@@ -83,9 +74,14 @@ public class ParticleStyleSphere extends ParticleStyle {
     // ----- PARTICLE GETTING -----
 
     @Override
-    public ParticleContainer[] getParticles(Location location){
+    public ParticleContainer[] getParticleContainers(Location location){
         if (inSphere) return particlesInSphere(location);
         else return particlesOnSphere(location);
+    }
+
+    @Override
+    public ParticleContainer[] getParticleContainers(Location location1, Location location2) {
+        return new ParticleContainer[0];
     }
 
     private ParticleContainer[] particlesOnSphere(Location center){
@@ -114,6 +110,15 @@ public class ParticleStyleSphere extends ParticleStyle {
     }
 
     // ----- CLONE -----
+
+    public ParticleStyleSphere(ParticleStyleSphere target) {
+        super(target);
+
+        this.density = target.density;
+        this.radius = target.radius;
+
+        this.inSphere = target.inSphere;
+    }
 
     @Override
     public ParticleStyleSphere clone() {
