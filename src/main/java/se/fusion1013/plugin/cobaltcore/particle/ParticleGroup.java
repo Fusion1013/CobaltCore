@@ -7,6 +7,7 @@ import se.fusion1013.plugin.cobaltcore.particle.styles.IParticleStyle;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +19,8 @@ public class ParticleGroup implements Cloneable {
     // ----- VARIABLES -----
 
     UUID uuid;
-    private List<ParticleStyle> particleStyleList;
+    String name;
+    private final List<ParticleStyle> particleStyleList;
 
     // ----- CONSTRUCTORS -----
 
@@ -28,7 +30,10 @@ public class ParticleGroup implements Cloneable {
      * @param name the name of the group.
      */
     public ParticleGroup(String name) {
+        this.name = name;
         this.uuid = UUID.randomUUID();
+
+        this.particleStyleList = new ArrayList<>();
     }
 
     /**
@@ -38,7 +43,10 @@ public class ParticleGroup implements Cloneable {
      * @param name the name of the group.
      */
     public ParticleGroup(UUID uuid, String name) {
+        this.name = name;
         this.uuid = uuid;
+
+        this.particleStyleList = new ArrayList<>();
     }
 
     /**
@@ -100,6 +108,15 @@ public class ParticleGroup implements Cloneable {
     }
 
     // ----- GETTERS / SETTERS -----
+
+    public int getParticleStyleCount() {
+        if (particleStyleList != null) return particleStyleList.size();
+        else return 0;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public void addParticleStyle(ParticleStyle style) {
         particleStyleList.add(style);
