@@ -71,6 +71,28 @@ public class PlayerUtil {
     // ----- VANISH -----
 
     /**
+     * Gets the number of players that are currently not vanished.
+     *
+     * @return the number of players that are currently not vanished.
+     */
+    public static int getUnvanishedPlayerCount() {
+        return Bukkit.getOnlinePlayers().size() - getVanishPlayerCount();
+    }
+
+    /**
+     * Gets the number of players that are currently vanished.
+     *
+     * @return the number of vanished players.
+     */
+    public static int getVanishPlayerCount() {
+        int count = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (isVanished(p)) count++;
+        }
+        return count;
+    }
+
+    /**
      * Sets the vanished state of a player.
      *
      * @param player the player to set the vanished state of.
@@ -148,6 +170,25 @@ public class PlayerUtil {
     }
 
     // ----- PLAYER FINDER METHODS -----
+
+    /**
+     * Gets the closest player to the <code>Location</code>.
+     *
+     * @param location the location to get the closest player to.
+     * @return the closest player, or null if no player was found.
+     */
+    public static Player getClosestPlayer(Location location) {
+        Player current = null;
+        double currentDistance = Double.MAX_VALUE;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            double dist = location.distanceSquared(p.getLocation());
+            if (dist < currentDistance) {
+                current = p;
+                currentDistance = dist;
+            }
+        }
+        return current;
+    }
 
     /**
      * Gets an array of strings containing the names of currently online players.
