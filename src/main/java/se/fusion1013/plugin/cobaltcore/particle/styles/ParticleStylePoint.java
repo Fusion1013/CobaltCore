@@ -1,7 +1,10 @@
 package se.fusion1013.plugin.cobaltcore.particle.styles;
 
+import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ParticleStylePoint extends ParticleStyle implements IParticleStyle, Cloneable {
@@ -19,6 +22,20 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
      */
     public ParticleStylePoint(ParticleStylePoint target) {
         super(target);
+    }
+
+    // ----- PARTICLE GETTING -----
+
+    @Override
+    public ParticleContainer[] getParticleContainers(Location location) {
+        List<ParticleContainer> particles = new ArrayList<>();
+        particles.add(new ParticleContainer(location.clone(), offset.getX(), offset.getY(), offset.getZ(), speed, count));
+        return particles.toArray(new ParticleContainer[0]);
+    }
+
+    @Override
+    public ParticleContainer[] getParticleContainers(Location location1, Location location2) {
+        return new ParticleContainer[0];
     }
 
     // ----- INFO -----
