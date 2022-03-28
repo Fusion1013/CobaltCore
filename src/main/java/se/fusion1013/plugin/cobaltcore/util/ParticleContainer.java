@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 /**
  * Contains the information to display one particle
@@ -78,4 +79,11 @@ public class ParticleContainer {
         return this.overrideData;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setLocationPosition(Vector position) {
+        this.location.set(position.getX(), position.getY(), position.getZ());
+    }
 }
