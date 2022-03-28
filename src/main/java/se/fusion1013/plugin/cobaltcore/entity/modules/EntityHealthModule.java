@@ -12,6 +12,8 @@ public class EntityHealthModule extends EntityModule implements ISpawnExecutable
 
     int maxHealth;
 
+    // TODO: Scale Health Option
+
     // ----- CONSTRUCTORS -----
 
     /**
