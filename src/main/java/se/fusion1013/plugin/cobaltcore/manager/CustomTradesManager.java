@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.SQLite;
+import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class CustomTradesManager extends Manager {
 
     // ----- WANDERING TRADER -----
 
-    private static PreCalculateWeightsRandom<MerchantRecipe> wanderingTrades = new PreCalculateWeightsRandom<>();
+    private static PreCalculateWeightsRandom<MerchantRecipePlaceholder> wanderingTrades = new PreCalculateWeightsRandom<>();
 
     /**
      * Gets an array of all trade weights.
@@ -29,8 +30,8 @@ public class CustomTradesManager extends Manager {
      *
      * @return an array of merchant recipes.
      */
-    public static MerchantRecipe[] getRecipes() {
-        return wanderingTrades.getItems().toArray(new MerchantRecipe[0]);
+    public static MerchantRecipePlaceholder[] getRecipes() {
+        return wanderingTrades.getItems().toArray(new MerchantRecipePlaceholder[0]);
     }
 
     /**
@@ -40,8 +41,8 @@ public class CustomTradesManager extends Manager {
      */
     public static String[] getRecipeNames() {
         List<String> recipes = new ArrayList<>();
-        for (MerchantRecipe mr : wanderingTrades.getItems()) {
-            recipes.add("\"" + CustomItemManager.getItemName(mr.getIngredients().get(0)) + "->" + CustomItemManager.getItemName(mr.getResult()) + "\"");
+        for (MerchantRecipePlaceholder mr : wanderingTrades.getItems()) {
+            recipes.add("\"" + mr.costItemName + "->" + mr.resultItemName + "\"");
         }
         return recipes.toArray(new String[0]);
     }
@@ -69,24 +70,12 @@ public class CustomTradesManager extends Manager {
     }
 
     /**
-     * Adds a new <code>MerchantRecipe</code> to the random distribution, with the given ingredients.
-     *
-     * @param recipe the recipe to add.
-     * @param weight the weight of the recipe.
-     * @param ingredients the ingredients of the recipe.
-     */
-    public static void addMerchantRecipe(MerchantRecipe recipe, int weight, ItemStack... ingredients) {
-        recipe.setIngredients(List.of(ingredients));
-        wanderingTrades.addItem(recipe, weight);
-    }
-
-    /**
-     * Adds a new <code>MerchantRecipe</code> to the random distribution.
+     * Adds a new <code>MerchantRecipePlaceholder</code> to the random distribution.
      *
      * @param recipe the recipe to add.
      * @param weight the weight of the recipe.
      */
-    public static void addMerchantRecipe(MerchantRecipe recipe, int weight) {
+    public static void addMerchantRecipe(MerchantRecipePlaceholder recipe, int weight) {
         wanderingTrades.addItem(recipe, weight);
     }
 
@@ -95,7 +84,18 @@ public class CustomTradesManager extends Manager {
      * @return a weighted random <code>MerchantRecipe</code>.
      */
     public static MerchantRecipe getRecipe() {
-        return wanderingTrades.chooseOne();
+        MerchantRecipePlaceholder mrp = wanderingTrades.chooseOne();
+
+        ItemStack result = CustomItemManager.getItemStack(mrp.resultItemName);
+        result.setAmount(mrp.resultAmount);
+
+        ItemStack cost = CustomItemManager.getItemStack(mrp.costItemName);
+        cost.setAmount(mrp.costAmount);
+
+        MerchantRecipe mr = new MerchantRecipe(result, mrp.maxUses);
+        mr.addIngredient(cost);
+
+        return mr;
     }
 
     // ----- CONSTRUCTORS -----
@@ -131,4 +131,44 @@ public class CustomTradesManager extends Manager {
         }
         return INSTANCE;
     }
+
+    public static class MerchantRecipePlaceholder {
+
+        String costItemName;
+        int costAmount;
+
+        String resultItemName;
+        int resultAmount;
+
+        int maxUses;
+
+        public MerchantRecipePlaceholder(String costItem, int costAmount, String resultItem, int resultAmount, int maxUses) {
+            this.costItemName = costItem;
+            this.costAmount = costAmount;
+            this.resultItemName = resultItem;
+            this.resultAmount = resultAmount;
+            this.maxUses = maxUses;
+        }
+
+        public String getCostItemName() {
+            return costItemName;
+        }
+
+        public String getResultItemName() {
+            return resultItemName;
+        }
+
+        public int getMaxUses() {
+            return maxUses;
+        }
+
+        public int getCostAmount() {
+            return costAmount;
+        }
+
+        public int getResultAmount() {
+            return resultAmount;
+        }
+    }
+
 }
