@@ -1,5 +1,7 @@
 package se.fusion1013.plugin.cobaltcore;
 
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltCommand;
@@ -12,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.database.SQLite;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
+import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.manager.*;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 
@@ -42,7 +45,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        this.managers.values().forEach(Manager::disable);
+        this.managers.get(this).values().forEach(Manager::disable);
+        // this.managers.values().forEach(Manager::disable);
     }
 
     // ----- MANAGERS -----
@@ -108,6 +112,10 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     // ----- PLUGIN REGISTRATION -----
 
     private final static Set<CobaltPlugin> cobaltPlugins = new HashSet<>();
+
+    public void disableCobaltPlugin(CobaltPlugin plugin) {
+        if (this.managers.get(plugin) != null) this.managers.get(plugin).values().forEach(Manager::disable);
+    }
 
     public boolean registerCobaltPlugin(CobaltPlugin plugin) {
 
