@@ -9,8 +9,9 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 ![Code Size][code-size-shield]
-![Code Size][contributors-shield]
-![Code Size][issues-shield]
+![Contributors][contributors-shield]
+![Issues][issues-shield]
+![Release][release-shield]
 
 
 <!-- PROJECT LOGO -->
@@ -70,4 +71,5 @@ CobaltCore contains a variety of helper methods and classes to aid during plugin
 [code-size-shield]: https://img.shields.io/github/languages/code-size/Fusion1013/CobaltCore.svg?style=for-the-badge
 [contributors-shield]: https://img.shields.io/github/contributors/Fusion1013/CobaltCore.svg?style=for-the-badge
 [issues-shield]: https://img.shields.io/github/issues/Fusion1013/CobaltCore.svg?style=for-the-badge
+[release-shield]: https://img.shields.io/github/v/release/Fusion1013/CobaltCore.svg?style=for-the-badge
 
