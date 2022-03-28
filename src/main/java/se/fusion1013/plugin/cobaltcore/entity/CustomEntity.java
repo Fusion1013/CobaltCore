@@ -1,18 +1,16 @@
 package se.fusion1013.plugin.cobaltcore.entity;
 
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.entity.modules.EntityModule;
 import se.fusion1013.plugin.cobaltcore.entity.modules.IDeathExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ISpawnExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ITickExecutable;
@@ -26,13 +24,15 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
     // ----- VARIABLES -----
 
-    // Internal // TODO: Default values.
+    // Internal
     String internalName;
     UUID entityUuid; // Assigned after spawning the entity.
     BukkitTask task;
+    NamespacedKey key;
 
     // Abilities
     double generalAbilityCooldown; // The cooldown between different abilities.
+    double currentAbilityCooldown = 0;
     List<AbilityModule> abilityModules = new ArrayList<>();
 
     // Generic Modules // TODO: Add shorthand methods for certain modules so that the user does not have to figure out which execute to add it to
@@ -47,16 +47,26 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     EntityType baseEntityType;
     Entity summonedEntity;
 
+    // Name
+    String customName = null;
+
     // ----- CONSTRUCTORS -----
 
+    /**
+     * Creates a new <code>CustomEntity</code>.
+     *
+     * @param internalName the internal name of the entity.
+     * @param baseEntityType the <code>EntityType</code> of the <code>CustomEntity</code>.
+     */
     public CustomEntity(String internalName, EntityType baseEntityType) {
         this.internalName = internalName;
         this.baseEntityType = baseEntityType;
         this.entityUuid = UUID.randomUUID();
+
+        this.key = new NamespacedKey(CobaltCore.getInstance(), internalName);
     }
 
     // ----- ENTITY SPAWNING -----
-
 
     @Override
     public CustomEntity attemptNaturalSpawn(Location location) {
@@ -82,13 +92,22 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         if (spawnWorld == null) return null;
         summonedEntity = spawnWorld.spawnEntity(location, baseEntityType);
 
+        // Set entity tag
+        summonedEntity.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte)1);
+
+        // Set entity name
+        if (customName != null) {
+            summonedEntity.customName(Component.text(customName));
+            summonedEntity.setCustomNameVisible(true);
+        }
+
         // Execute all OnSpawn Modules
         for (ISpawnExecutable module : executeModuleOnSpawn) {
             module.execute(this);
         }
 
         // Start the runnable
-        task = Bukkit.getScheduler().runTaskTimerAsynchronously(CobaltCore.getInstance(), this, 1, 1);
+        task = Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), this, 1, 1);
 
         return this;
     }
@@ -98,7 +117,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     @Override
     public void run() {
 
-        // If entity is not dead, execute all tick modules
+        // Execute all tick modules
         for (ITickExecutable module : executeModuleOnTick) {
             module.execute(this);
         }
@@ -107,6 +126,18 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         if (!isAlive()) {
             onDeath();
             task.cancel();
+        }
+
+        // Attempt to execute abilities
+        if (currentAbilityCooldown <= 0) {
+            for (AbilityModule ability : abilityModules) {
+                if (ability.attemptAbility(this)) {
+                    currentAbilityCooldown = generalAbilityCooldown;
+                    break;
+                }
+            }
+        } else {
+            currentAbilityCooldown -= 1.0/20.0;
         }
     }
 
@@ -134,9 +165,13 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         this.internalName = target.internalName;
         this.entityUuid = target.entityUuid;
         this.task = target.task;
+        this.key = target.key;
 
         this.generalAbilityCooldown = target.generalAbilityCooldown;
-        this.abilityModules = target.abilityModules; // TODO: Clone the Modules
+        this.currentAbilityCooldown = target.currentAbilityCooldown;
+
+        // Clone ability modules
+        for (AbilityModule module : target.abilityModules) abilityModules.add(module.clone());
 
         // Clone all execute modules
         for (ISpawnExecutable ex : target.executeModuleOnSpawn) executeModuleOnSpawn.add(ex.clone());
@@ -146,6 +181,8 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         this.spawnLocation = target.spawnLocation;
         this.baseEntityType = target.baseEntityType;
         this.summonedEntity = target.summonedEntity;
+
+        this.customName = target.customName;
     }
 
     @Override
@@ -156,7 +193,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
     // ----- BUILDER -----
 
-    protected static class CustomEntityBuilder {
+    public static class CustomEntityBuilder {
 
         CustomEntity obj;
 
@@ -170,6 +207,9 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         List<ISpawnExecutable> executeModuleOnSpawn = new ArrayList<>();
         List<ITickExecutable> executeModuleOnTick = new ArrayList<>();
         List<IDeathExecutable> executeModuleOnDeath = new ArrayList<>();
+
+        // Name
+        String customName = null;
 
         // ----- CONSTRUCTORS -----
 
@@ -191,6 +231,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
          * @return the created <code>CustomEntity</code>.
          */
         public CustomEntity build() {
+            obj.setCustomName(customName);
             obj.setGeneralAbilityCooldown(generalAbilityCooldown);
             obj.setAbilityModules(abilityModules);
 
@@ -202,6 +243,17 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         }
 
         // ----- SETTERS / ADDERS -----
+
+        /**
+         * Sets the custom name to display over the entity.
+         *
+         * @param customName the custom name.
+         * @return the builder.
+         */
+        public CustomEntityBuilder setCustomName(String customName) {
+            this.customName = customName;
+            return this;
+        }
 
         /**
          * Sets the cooldown between abilities.
@@ -262,6 +314,20 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
     // ----- GETTERS / SETTERS -----
 
+    public <T extends AbilityModule> T getAbilityModule(Class<T> abilityModuleClass) {
+        for (AbilityModule module : abilityModules) {
+            if (module.getClass() == abilityModuleClass) return (T)module;
+        }
+        return null;
+    }
+
+    public Location getSpawnLocation() {
+        return spawnLocation;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
+    }
 
     public void setGeneralAbilityCooldown(double generalAbilityCooldown) {
         this.generalAbilityCooldown = generalAbilityCooldown;
