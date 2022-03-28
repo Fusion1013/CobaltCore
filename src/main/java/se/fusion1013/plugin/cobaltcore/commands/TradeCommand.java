@@ -2,13 +2,9 @@ package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.arguments.TextArgument;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.item.CustomItem;
-import se.fusion1013.plugin.cobaltcore.manager.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.manager.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -39,7 +35,7 @@ public class TradeCommand {
                             .addPlaceholder("recipe_type", "merchant")
                             .addPlaceholder("header", "Merchant Trades").build();
 
-                    MerchantRecipe[] recipes = CustomTradesManager.getRecipes();
+                    CustomTradesManager.MerchantRecipePlaceholder[] recipes = CustomTradesManager.getRecipes();
                     Integer[] weights = CustomTradesManager.getWeights();
 
                     // If no trades were found, do not print the list header and instead give a failure message
@@ -52,13 +48,13 @@ public class TradeCommand {
 
                     // List all trades
                     for (int i = 0; i < recipes.length; i++) {
-                        MerchantRecipe recipe = recipes[i];
+                        CustomTradesManager.MerchantRecipePlaceholder recipe = recipes[i];
                         int weight = weights[i];
                         StringPlaceholders placeholders1 = StringPlaceholders.builder()
-                                .addPlaceholder("cost_count", recipe.getIngredients().get(0).getAmount())
-                                .addPlaceholder("cost_item", CustomItemManager.getItemName(recipe.getIngredients().get(0)))
-                                .addPlaceholder("result_count", recipe.getResult().getAmount())
-                                .addPlaceholder("result_item", CustomItemManager.getItemName(recipe.getResult()))
+                                .addPlaceholder("cost_count", recipe.getCostAmount())
+                                .addPlaceholder("cost_item", recipe.getCostItemName())
+                                .addPlaceholder("result_count", recipe.getResultAmount())
+                                .addPlaceholder("result_item", recipe.getResultItemName())
                                 .addPlaceholder("weight", weight)
                                 .build();
                         LocaleManager.getInstance().sendMessage("", sender, "commands.trades.trade_info", placeholders1);
@@ -97,22 +93,17 @@ public class TradeCommand {
                 .executesPlayer(((sender, args) -> {
                     // Get cost
                     String costItemName = (String) args[0];
-                    ItemStack cost = CustomItemManager.getItemStack(costItemName);
                     int costCount = (Integer) args[1];
-                    cost.setAmount(costCount);
 
                     // Get result
                     String resultItemName = (String) args[2];
-                    ItemStack result = CustomItemManager.getItemStack(resultItemName);
                     int resultCount = (Integer) args[3];
-                    result.setAmount(resultCount);
 
                     // Get number of times trade can be used
                     int maxUses = (Integer) args[4];
 
                     // Create recipe
-                    MerchantRecipe recipe = new MerchantRecipe(result, maxUses);
-                    recipe.addIngredient(cost);
+                    CustomTradesManager.MerchantRecipePlaceholder recipe = new CustomTradesManager.MerchantRecipePlaceholder(costItemName, costCount, resultItemName, resultCount, maxUses);
 
                     // Add recipe to manager
                     CustomTradesManager.addMerchantRecipe(recipe, (Integer) args[5]);
