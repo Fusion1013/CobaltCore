@@ -47,23 +47,26 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     // ----- MANAGERS -----
 
-    private final Map<Class<?>, Manager> managers;
+    private final Map<CobaltPlugin, Map<Class<?>, Manager>> managers;
 
     /**
      * Gets a manager instance
      *
+     * @param plugin the plugin that owns the manager.
      * @param managerClass The class of the manager instance to get
      * @param <T> The manager type
      * @return The manager instance or null if one does not exist
      */
     @SuppressWarnings("unchecked")
-    public <T extends Manager> T getManager(Class<T> managerClass) {
-        if (this.managers.containsKey(managerClass))
-            return (T) this.managers.get(managerClass);
+    public <T extends Manager> T getManager(CobaltPlugin plugin, Class<T> managerClass) {
+        this.managers.computeIfAbsent(plugin, k -> new LinkedHashMap<>());
+
+        if (this.managers.get(plugin).containsKey(managerClass))
+            return (T) this.managers.get(plugin).get(managerClass);
 
         try {
             T manager = managerClass.getConstructor(this.getClass()).newInstance(this);
-            this.managers.put(managerClass, manager);
+            this.managers.get(plugin).put(managerClass, manager);
             manager.reload();
             return manager;
         } catch (ReflectiveOperationException ex) {
@@ -73,15 +76,15 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     }
 
     public void reloadManagers() {
-        this.managers.values().forEach(Manager::disable);
+        if (this.managers.get(this) != null) this.managers.get(this).values().forEach(Manager::disable);
 
-        this.getManager(ConfigManager.class);
-        this.getManager(LocaleManager.class);
-        this.getManager(CustomItemManager.class);
-        this.getManager(SettingsManager.class);
-        this.getManager(StructureManager.class);
-        this.getManager(CustomTradesManager.class);
-        this.getManager(CustomEntityManager.class);
+        this.getManager(this, ConfigManager.class);
+        this.getManager(this, LocaleManager.class);
+        this.getManager(this, CustomItemManager.class);
+        this.getManager(this, SettingsManager.class);
+        this.getManager(this, StructureManager.class);
+        this.getManager(this, CustomTradesManager.class);
+        this.getManager(this, CustomEntityManager.class);
     }
 
     // ----- LISTENERS -----
