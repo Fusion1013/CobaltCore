@@ -4,7 +4,7 @@ import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 
 import java.util.List;
 
-public abstract class EntityModule implements Cloneable {
+public abstract class EntityModule implements IEntityModule, Cloneable {
 
     // TODO: Requirements
 
