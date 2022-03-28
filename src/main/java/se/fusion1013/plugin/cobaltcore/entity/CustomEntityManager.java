@@ -4,13 +4,16 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.entity.modules.EntityBossBarModule;
-import se.fusion1013.plugin.cobaltcore.entity.modules.EntityEquipmentModule;
-import se.fusion1013.plugin.cobaltcore.entity.modules.EntityHealthModule;
+import se.fusion1013.plugin.cobaltcore.entity.modules.*;
+import se.fusion1013.plugin.cobaltcore.entity.modules.ability.ChargeAbility;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 import java.util.*;
@@ -19,8 +22,8 @@ public class CustomEntityManager extends Manager {
 
     // ----- VARIABLES -----
 
-    private static List<ICustomEntity> inbuiltCustomEntities = new ArrayList<>();
-    private static Map<UUID, ICustomEntity> summonedCustomEntities = new HashMap<>(); // TODO: When it is queried, check if any of the entities need to be removed if they have died.
+    private static final List<ICustomEntity> inbuiltCustomEntities = new ArrayList<>();
+    private static final Map<UUID, ICustomEntity> summonedCustomEntities = new HashMap<>(); // TODO: When it is queried, check if any of the entities need to be removed if they have died.
 
     // ----- REGISTERED ENTITIES -----
 
@@ -28,7 +31,14 @@ public class CustomEntityManager extends Manager {
             .addExecuteOnSpawnModule(new EntityHealthModule(10))
             .addExecuteOnSpawnModule(new EntityEquipmentModule(EquipmentSlot.CHEST, new ItemStack(Material.IRON_CHESTPLATE)))
             .addExecuteOnSpawnModule(new EntityEquipmentModule(EquipmentSlot.HAND, new ItemStack(Material.IRON_SWORD)))
+            .addExecuteOnSpawnModule(new EntityPotionEffectModule(new PotionEffect(PotionEffectType.GLOWING, 1000000, 1, false, false)))
+            .addExecuteOnSpawnModule(new EntitySpawnMethodModule((customEntity -> {
+                Entity entity = customEntity.getSummonedEntity();
+                if (entity instanceof Zombie zombie) zombie.setAdult();
+            })))
             .addExecuteOnTickModule(new EntityBossBarModule("Test Entity", 10, BarColor.BLUE, BarStyle.SEGMENTED_6))
+            .addAbilityModule(new ChargeAbility(8, 1, 5))
+            .setCustomName("Test Entity")
             .build());
 
     // ----- REGISTER -----
