@@ -1,7 +1,7 @@
 {
   "": "",
   "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
-  "cobalt.player.join": "&7This server is running &3Cobalt v&3%version%",
+  "cobalt.player.join": "&7This server is running &3%plugin% v&3%version%",
 
   "connection.join": "&3%player% &7joined the game",
   "connection.quit": "&3%player% &7left the game",
@@ -37,7 +37,7 @@
   "commands.trades.trade_info": "&7- &3%cost_count%&7x&3%cost_item% &7-> &3%result_count%&7x&3%result_item%&7. Weight: &3%weight%",
   "commands.trades.no_trades_found": "&7No %recipe_type% &7trades found",
 
-  "commands.csummon.summoned_entity": "&7Summoned entity &3%name% &7at %location%",
+  "commands.csummon.summoned_entity": "&7Summoned &3%count% &3%name%&7's at %location%",
   "commands.csummon.could_not_summon": "&7Failed to summon entity &3%name% &7at %location%",
 
 
@@ -47,12 +47,30 @@
   "commands.cparticle.style.list.error.no_styles_found": "&7No particle styles found",
   "commands.cparticle.style.list.item": "&7- [&3%name%&7] Type: &3%internal_style%&7, Particle: &3%particle%",
 
-  "commands.cparticle.style.extra.set": "&7Updated extra settings for particle style &3%name%:",
+  "commands.cparticle.style.extra.set": "&7Updated settings for particle style &3%style_name%:",
+
+  "commands.cparticle.style.particle.set": "&7Set particle of &3%style_name% &7to &3%particle% &7with offset &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7, count &3%count% &7and speed &3%speed%",
+
+  "commands.cparticle.style.info": "&7Displaying info about particle style &3%style_name%&7:",
+
+  "commands.cparticle.group.create.success": "&7Created new particle group with name &3%name%",
+  "commands.cparticle.group.create.error.already_exists": "&7A particle group with the name &3%name% &7already exists",
+
+  "commands.cparticle.group.list.error.no_groups_found": "&7No particle groups found",
+  "commands.cparticle.group.list.item": "&7- [&3%name%&7] Style Count: &3%style_count%",
+
+  "commands.cparticle.group_does_not_exist": "&7Group &3%group_name% &7does not exist",
+  "commands.cparticle.style_does_not_exist": "&7Style &3%style_name% &7does not exist",
+  "commands.cparticle.group.add_style": "&7Added style &3%style_name% &7to particle group &3%group_name%",
+
+  "commands.cparticle.group.display": "&7Displayed particle group &3%group_name% &7at the location &3%location%",
 
 
-  "particle.style.abstract.info": "&7Name: &3%name%&7. Particle: &3%particle%&7. Offset: &3%offset%&7. Particle Count: &3%count%&7. Particle Speed: &3%speed%",
-  "particle.style.point.info": "&7No extra info",
-  "particle.style.sphere.info": "&7Density: &3%radius%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
+  "particle.style.abstract.info": "&b - Particle&7: &3%particle%&7. Offset: &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7. Count: &3%count%&7. Speed: &3%speed%",
+  "particle.style.rotation.info": "&b - Rotation&7: &3%rotation_x%&7, &3%rotation_y%&7, &3%rotation_z%&7. Angular Velocity: &3%angular_velocity_x%&7, &3%angular_velocity_y%&7, &3%angular_velocity_z%",
+  "particle.style.point.info": "",
+  "particle.style.sphere.info": "&b - Sphere Extra&7: Density: &3%radius%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
+  "particle.style.cube.info": "&b - Cube Extra&7: Edge Length: &3%edge_length%&7. Particles Per Edge: &3%particles_per_edge%",
 
 
   "debug.event.subscribed": "&7Subscribed player &3%player% &7to debug event &3%event%",
