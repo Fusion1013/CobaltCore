@@ -1,6 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.entity.modules.ability;
 
-import org.bukkit.entity.Entity;
+import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 
 public interface IAbilityModule {
 
@@ -10,6 +10,6 @@ public interface IAbilityModule {
      * @param entity the entity that is executing the ability.
      * @return true if the ability was executed.
      */
-    boolean attemptAbility(Entity entity);
+    boolean attemptAbility(CustomEntity entity);
 
 }
