@@ -7,6 +7,7 @@ import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
+import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,12 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     int count = 1;
     double speed = 0;
     Object extra = null;
+
+    // Rotation
+    Vector rotation = new Vector(0, 0, 0);
+    double angularVelocityX = 0; // Angular velocity is measured in degrees/tick
+    double angularVelocityY = 0;
+    double angularVelocityZ = 0;
 
     // ----- CONSTRUCTORS -----
 
@@ -79,6 +86,25 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.count = target.count;
         this.speed = target.speed;
         this.extra = target.extra;
+
+        this.rotation = target.rotation;
+        this.angularVelocityX = target.angularVelocityX;
+        this.angularVelocityY = target.angularVelocityY;
+        this.angularVelocityZ = target.angularVelocityZ;
+    }
+
+    // ----- ROTATING -----
+
+    // TODO: Test with glyphs
+    public static ParticleContainer[] rotateParticles(ParticleContainer[] particles, Location center, Vector rotation) {
+        for (ParticleContainer particleContainer : particles) {
+            Vector current = particleContainer.getLocation().toVector();
+            Vector delta = new Vector(current.getX() - center.getX(), current.getY() - center.getY(), current.getZ() - center.getZ());
+            VectorUtil.rotateVector(delta, rotation.getX(), rotation.getY(), rotation.getZ());
+            Vector newPos = new Vector(delta.getX() + center.getX(), delta.getY() + center.getY(), delta.getZ() + center.getZ());
+            particleContainer.setLocationPosition(newPos);
+        }
+        return particles;
     }
 
     // ----- INFO -----
@@ -89,12 +115,21 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("name", name)
                 .addPlaceholder("particle", particle.name().toLowerCase())
-                .addPlaceholder("offset", offset)
+                .addPlaceholder("offset_x", offset.getX())
+                .addPlaceholder("offset_y", offset.getY())
+                .addPlaceholder("offset_z", offset.getZ())
                 .addPlaceholder("count", count)
                 .addPlaceholder("speed", speed)
+                .addPlaceholder("rotation_x", Math.round(Math.toDegrees(rotation.getX())))
+                .addPlaceholder("rotation_y", Math.round(Math.toDegrees(rotation.getY())))
+                .addPlaceholder("rotation_z", Math.round(Math.toDegrees(rotation.getZ())))
+                .addPlaceholder("angular_velocity_x", Math.toDegrees(angularVelocityX))
+                .addPlaceholder("angular_velocity_y", Math.toDegrees(angularVelocityY))
+                .addPlaceholder("angular_velocity_z", Math.toDegrees(angularVelocityZ))
                 .build();
 
         info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.abstract.info", placeholders));
+        info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.rotation.info", placeholders));
         return info;
     }
 
@@ -113,13 +148,26 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     @Override
     public ParticleContainer[] getParticles(Location location) {
-        return new ParticleContainer[0];
+        // Update rotation of particles
+        rotation.setX((rotation.getX() + angularVelocityX) % (Math.PI * 2));
+        rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
+        rotation.setZ((rotation.getZ() + angularVelocityZ) % (Math.PI * 2));
+
+        return rotateParticles(getParticleContainers(location), location, rotation);
     }
 
     @Override
     public ParticleContainer[] getParticles(Location location1, Location location2) {
-        return new ParticleContainer[0];
+        // Update rotation of particles
+        rotation.setX((rotation.getX() + angularVelocityX) % (Math.PI * 2));
+        rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
+        rotation.setZ((rotation.getZ() + angularVelocityZ) % (Math.PI * 2));
+
+        return rotateParticles(getParticleContainers(location1, location2), location1, rotation);
     }
+
+    public abstract ParticleContainer[] getParticleContainers(Location location);
+    public abstract ParticleContainer[] getParticleContainers(Location location1, Location location2);
 
     // ----- GETTERS / SETTERS -----
 
@@ -176,6 +224,18 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     @Override
     public void setExtra(Object extra) {
         this.extra = extra;
+    }
+
+    @Override
+    public void setRotation(Vector rotation) {
+        this.rotation = new Vector(Math.toRadians(rotation.getX()), Math.toRadians(rotation.getY()), Math.toRadians(rotation.getZ()));
+    }
+
+    @Override
+    public void setAngularVelocity(double x, double y, double z) {
+        this.angularVelocityX = Math.toRadians(x);
+        this.angularVelocityY = Math.toRadians(y);
+        this.angularVelocityZ = Math.toRadians(z);
     }
 
     // ----- CLONING -----
