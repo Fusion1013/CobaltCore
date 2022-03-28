@@ -63,6 +63,16 @@ public interface IParticleStyle {
 
     void setExtra(Object extra);
 
+    void setRotation(Vector rotation);
+
+    /**
+     * Sets the angular velocity of the <code>IParticleStyle</code>. Angles given in degrees.
+     * @param x the x velocity.
+     * @param y the y velocity.
+     * @param z the z velocity.
+     */
+    void setAngularVelocity(double x, double y, double z);
+
     // ----- EXTRA STYLE SETTINGS -----
 
     Argument[] getExtraSettingsArguments();
