@@ -17,9 +17,11 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
+  <!--
   <a href="https://cdn.discordapp.com/attachments/930205704525070357/958314726004240434">
     <img src="https://cdn.discordapp.com/attachments/930205704525070357/958314726004240434/CobaltLogo1.png" alt="Logo" width="240" height="240">
   </a>
+  -->
 
   <h3 align="center">CobaltCore</h3>
 
@@ -50,7 +52,13 @@
       </ul>
     </li>
     <li>
+      <a href="#installation">Intallation</a>
+    </li>
+    <li>
       <a href="#systems">Systems</a>
+    </li>
+    <li>
+      <a href="#roadmap">Roadmap</a>
     </li>
   </ol>
 </details>
@@ -65,6 +73,11 @@ CobaltCore contains a variety of helper methods and classes to aid during plugin
 
 ### Dependencies
 * [CommandAPI](https://github.com/JorelAli/CommandAPI)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Installation
+To start using Cobalt, download the jar and import it into your project. Make sure your main plugin class is implementing the `CobaltPlugin` interface.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -110,6 +123,27 @@ The Custom Trades System contains methods for creating custom Wandering Trader t
 ### Managers
 
 ### Settings
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Roadmap
+
+### 2.0.0 - Particle System
+The particle system will allow the user to create complex particles.
+Planned Features:
+* Particle Styles - Simple particle styles used for generating particle vectors.
+* Particle Groups - Used to group Particle Styles.
+
+### 3.0.0 - Scene System
+The scene system will allow for complex, scripted interactions between different Cobalt systems.
+
+### ?.0.0 - Extended Item System
+* Item Event Interactions
+* Item Enchantments
+
+### ?.0.0 - Structure System
+
+### ?.0.0 - GUI System
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
