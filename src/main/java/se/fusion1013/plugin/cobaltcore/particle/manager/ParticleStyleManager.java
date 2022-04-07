@@ -132,6 +132,10 @@ public class ParticleStyleManager extends Manager {
     public static final ParticleStyle PARTICLE_STYLE_POINT = register(new ParticleStylePoint("default_point"));
     public static final ParticleStyle PARTICLE_STYLE_SPHERE = register(new ParticleStyleSphere("default_sphere"));
     public static final ParticleStyle PARTICLE_STYLE_CUBE = register(new ParticleStyleCube("default_cube"));
+    public static final ParticleStyle PARTICLE_STYLE_ICOSPHERE = register(new ParticleStyleIcosphere("default_icosphere"));
+    public static final ParticleStyle PARTICLE_STYLE_LINE = register(new ParticleStyleLine("default_line"));
+    public static final ParticleStyle PARTICLE_STYLE_CIRCLE = register(new ParticleStyleCircle("default_circle"));
+    public static final ParticleStyle PARTICLE_STYLE_GALACTIC = register(new ParticleStyleGalactic("default_galactic"));
 
     /**
      * Registers a new <code>ParticleStyle</code>.
