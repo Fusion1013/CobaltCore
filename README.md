@@ -56,6 +56,9 @@
     </li>
     <li>
       <a href="#systems">Systems</a>
+      <ul>
+        <li><a href="#custom-entities">Custom Entities</a></li>
+      </ul>
     </li>
     <li>
       <a href="#roadmap">Roadmap</a>
@@ -121,6 +124,24 @@ The Custom Trades System contains methods for creating custom Wandering Trader t
 ### Localization System
 
 ### Managers
+
+### Particle System
+The particle system allows for creation of complex particle systems, by the use of Particle Styles and Particle Groups. Use the /cparticle command to create and interact with styles and groups, or use the `ParticleStyleManager` and the `ParticleGroupManager`. Particle styles and groups should not be created from their base classes.
+
+#### Particle Styles
+Particle Styles are used to generate the particles. Use one of the inbuilt ones, or create your own by extending the `ParticleStyle` class.
+* **ParticleStyleCircle**: Generates a circle of particles, with a radius and a number of iterations. The iterations specify the number of particles that will make up the circle.
+* **ParticleStyleCube**: Generates a cube of particles, with an edge length and a set number of particles per edge.
+* **ParticleStyleGalactic**: Generates a glyph from the Galactic Alphabet (Enchanting Table), with a set letter and a compress. The compress value defines how big the glyph will be. (Smaller compress -> larger glyph)
+* **ParticleStyleIcosphere**: Generates an icosphere, with a radius, particles per line and a set number of divisions and ticks per spawn. The divisions number specifies how many times the icosphere will be subdivided. Larger numbers can get laggy. The ticks per spawn can be used to lessen the amount of lag, by not spawning the particles every tick. 
+* **ParticleStyleLine**: Generates a line from the center location, to a set location, with a particle density.
+* **ParticleStylePoint**: Generates a single point.
+* **ParticleStyleSphere**: Generates a sphere of particles, with a radius, density, and an in_sphere option. If in_sphere is set to false, only particles on the surface of the sphere will be generated.
+
+All Particle Styles can be rotated relative to their center.
+
+#### Particle Groups
+Particle groups are used to group particle styles and display all of them. Styles contained within a group can be offset and rotated relative to the center of the group.
 
 ### Settings
 
