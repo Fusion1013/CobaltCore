@@ -53,6 +53,8 @@
 
   "commands.cparticle.style.info": "&7Displaying info about particle style &3%style_name%&7:",
 
+  "commands.cparticle.style.remove.success": "&7Removed particle style &3%style_name%",
+
   "commands.cparticle.group.create.success": "&7Created new particle group with name &3%name%",
   "commands.cparticle.group.create.error.already_exists": "&7A particle group with the name &3%name% &7already exists",
 
@@ -61,16 +63,22 @@
 
   "commands.cparticle.group_does_not_exist": "&7Group &3%group_name% &7does not exist",
   "commands.cparticle.style_does_not_exist": "&7Style &3%style_name% &7does not exist",
-  "commands.cparticle.group.add_style": "&7Added style &3%style_name% &7to particle group &3%group_name%",
+  "commands.cparticle.group.add_style.success": "&7Added style &3%style_name% &7to particle group &3%group_name%",
+  "commands.cparticle.group.add_style.already_has_style": "&7Group &3%group_name% &7already contains style &3%style_name%",
 
   "commands.cparticle.group.display": "&7Displayed particle group &3%group_name% &7at the location &3%location%",
+
+  "commands.cparticle.group.remove": "&7Removed particle group &3%group_name%",
 
 
   "particle.style.abstract.info": "&b - Particle&7: &3%particle%&7. Offset: &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7. Count: &3%count%&7. Speed: &3%speed%",
   "particle.style.rotation.info": "&b - Rotation&7: &3%rotation_x%&7, &3%rotation_y%&7, &3%rotation_z%&7. Angular Velocity: &3%angular_velocity_x%&7, &3%angular_velocity_y%&7, &3%angular_velocity_z%",
   "particle.style.point.info": "",
-  "particle.style.sphere.info": "&b - Sphere Extra&7: Density: &3%radius%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
+  "particle.style.sphere.info": "&b - Sphere Extra&7: Density: &3%density%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
   "particle.style.cube.info": "&b - Cube Extra&7: Edge Length: &3%edge_length%&7. Particles Per Edge: &3%particles_per_edge%",
+  "particle.style.line.info": "&b - Line Extra&7: Density: &3%density%&7. Location 2: &3%location2%",
+  "particle.style.circle.info": "&b - Circle Extra&7: Radius: &3%radius%&7. Iterations: &3%iterations%",
+  "particle.style.galactic.info": "&b - Galactic Extra&7: Letter: &3%letter%&7. Compress: &3%compress%",
 
 
   "debug.event.subscribed": "&7Subscribed player &3%player% &7to debug event &3%event%",
