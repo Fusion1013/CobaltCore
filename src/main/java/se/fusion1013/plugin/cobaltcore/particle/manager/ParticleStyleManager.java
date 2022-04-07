@@ -82,6 +82,8 @@ public class ParticleStyleManager extends Manager {
      * @return true if the <code>ParticleStyle</code> was deleted.
      */
     public static boolean deleteStyle(String styleName) {
+        SQLite.removeParticleStyle(styleName);
+        ParticleGroupManager.removeStyle(styleName);
         if (particleStyleList.remove(styleName) == null) return false;
         else return true;
     }
@@ -159,12 +161,14 @@ public class ParticleStyleManager extends Manager {
 
     @Override
     public void reload() {
-
+        particleStyleList.clear();
+        particleStyleList = SQLite.getParticleStyles();
     }
 
     @Override
     public void disable() {
-
+        // Store particle styles in database
+        SQLite.insertParticleStyles(new ArrayList<>(particleStyleList.values()));
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----
