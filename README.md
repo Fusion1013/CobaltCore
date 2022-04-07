@@ -189,12 +189,6 @@ Particle groups are used to group particle styles and display all of them. Style
 
 ## Roadmap
 
-### 2.0.0 - Particle System
-The particle system will allow the user to create complex particles.
-Planned Features:
-* Particle Styles - Simple particle styles used for generating particle vectors.
-* Particle Groups - Used to group Particle Styles.
-
 ### 3.0.0 - Scene System
 The scene system will allow for complex, scripted interactions between different Cobalt systems.
 
