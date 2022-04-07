@@ -1,9 +1,16 @@
 package se.fusion1013.plugin.cobaltcore.database;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.manager.CustomTradesManager;
+import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
+import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
+import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleLine;
 import se.fusion1013.plugin.cobaltcore.settings.PlayerSettingHolder;
 import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
 
@@ -56,6 +63,55 @@ public class SQLite extends Database {
             "PRIMARY KEY (`cost_item`, `result_item`)" +
             ");";
 
+    // Particle Tables
+
+    public static String SQLiteCreateParticleGroupStyleView = "CREATE VIEW IF NOT EXISTS particle_group_view AS" +
+            " SELECT particle_groups.uuid, particle_groups.name, particle_style_holders.style_name, particle_style_holders.offset_x, particle_style_holders.offset_y, particle_style_holders.offset_z, particle_style_holders.rotation_x, particle_style_holders.rotation_y, particle_style_holders.rotation_z, particle_style_holders.rotation_speed_x, particle_style_holders.rotation_speed_y, particle_style_holders.rotation_speed_z" +
+            " FROM particle_groups" +
+            " INNER JOIN particle_style_holders ON particle_style_holders.group_uuid = particle_groups.uuid;";
+
+    public static String SQLiteCreateParticleGroupTable = "CREATE TABLE IF NOT EXISTS particle_groups (" +
+            "`uuid` varchar(36)," +
+            "`name` varchar(32) NOT NULL," +
+            "PRIMARY KEY (`uuid`)" +
+            ");";
+
+    public static String SQLiteCreateParticleStyleHolderTable = "CREATE TABLE IF NOT EXISTS particle_style_holders (" +
+            "`group_uuid` varchar(32)," +
+            "`style_name` varchar(32)," +
+            "`offset_x` REAL NOT NULL," +
+            "`offset_y` REAL NOT NULL," +
+            "`offset_z` REAL NOT NULL," +
+            "`rotation_x` REAL NOT NULL," +
+            "`rotation_y` REAL NOT NULL," +
+            "`rotation_z` REAL NOT NULL," +
+            "`rotation_speed_x` REAL NOT NULL," +
+            "`rotation_speed_y` REAL NOT NULL," +
+            "`rotation_speed_z` REAL NOT NULL," +
+            "PRIMARY KEY (`group_uuid`, `style_name`)," +
+            "FOREIGN KEY (`style_name`) REFERENCES particle_styles(`name`) ON DELETE CASCADE," +
+            "FOREIGN KEY (`group_uuid`) REFERENCES particle_groups(`uuid`) ON DELETE CASCADE" +
+            ");";
+
+    public static String SQLiteCreateParticleStyleTable = "CREATE TABLE IF NOT EXISTS particle_styles (" +
+            "`name` varchar(32)," +
+            "`particle` varchar(32) NOT NULL," +
+            "`offset_x` REAL NOT NULL," +
+            "`offset_y` REAL NOT NULL," +
+            "`offset_z` REAL NOT NULL," +
+            "`count` REAL NOT NULL," +
+            "`speed` REAL NOT NULL," +
+            "`rotation_x` REAL NOT NULL," +
+            "`rotation_y` REAL NOT NULL," +
+            "`rotation_z` REAL NOT NULL," +
+            "`angular_velocity_x` REAL NOT NULL," +
+            "`angular_velocity_y` REAL NOT NULL," +
+            "`angular_velocity_z` REAL NOT NULL," +
+            "`style_type` varchar(32) NOT NULL," +
+            "`style_extra` TEXT NOT NULL," +
+            "PRIMARY KEY (`name`)" +
+            ");";
+
     // ----- CONSTRUCTORS -----
 
     public SQLite(CobaltCore plugin){
@@ -92,7 +148,206 @@ public class SQLite extends Database {
         }
     }
 
-    // ----- GETTERS / SETTERS -----
+    // ----- PARTICLE GROUPS -----
+
+    public static void removeParticleGroup(UUID groupUUID) {
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            conn.setAutoCommit(false);
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
+            PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE group_uuid = ?");
+            ps.setString(1, groupUUID.toString());
+            ps2.setString(1, groupUUID.toString());
+            ps.executeUpdate();
+            ps2.executeUpdate();
+            conn.commit();
+            conn.close();
+            ps.close();
+            ps2.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertParticleGroups(List<ParticleGroup> groups) {
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            conn.setAutoCommit(false);
+            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name) VALUES(?,?)");
+            PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)");
+
+            for (ParticleGroup group : groups) {
+                ps.setString(1, group.getUuid().toString());
+                ps.setString(2, group.getName());
+
+                // Insert style holders
+                for (ParticleGroup.ParticleStyleHolder holder : group.getParticleStyleList()) {
+                    ps2.setString(1, group.getUuid().toString());
+                    ps2.setString(2, holder.style.getName());
+                    ps2.setDouble(3, holder.offset.getX());
+                    ps2.setDouble(4, holder.offset.getY());
+                    ps2.setDouble(5, holder.offset.getZ());
+                    ps2.setDouble(6, holder.rotation.getX());
+                    ps2.setDouble(7, holder.rotation.getY());
+                    ps2.setDouble(8, holder.rotation.getZ());
+                    ps2.setDouble(9, holder.rotationSpeed.getX());
+                    ps2.setDouble(10, holder.rotationSpeed.getY());
+                    ps2.setDouble(11, holder.rotationSpeed.getZ());
+
+                    ps2.executeUpdate();
+                }
+
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            conn.close();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static Map<String, ParticleGroup> getParticleGroups() {
+
+        Map<String, ParticleGroup> groupMap = new HashMap<>();
+
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_group_view");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                UUID groupUuid = UUID.fromString(rs.getString("uuid"));
+                String groupName = rs.getString("name");
+                String styleName = rs.getString("style_name");
+                double offsetX = rs.getDouble("offset_x");
+                double offsetY = rs.getDouble("offset_y");
+                double offsetZ = rs.getDouble("offset_z");
+                double rotationX = rs.getDouble("rotation_x");
+                double rotationY = rs.getDouble("rotation_y");
+                double rotationZ = rs.getDouble("rotation_z");
+                double rotationSpeedX = rs.getDouble("rotation_speed_x");
+                double rotationSpeedY = rs.getDouble("rotation_speed_y");
+                double rotationSpeedZ = rs.getDouble("rotation_speed_z");
+
+                ParticleGroup group = groupMap.get(groupName);
+                if (group == null) {
+                    group = new ParticleGroup(groupUuid, groupName);
+                    groupMap.put(groupName, group);
+                }
+                ParticleStyle style = ParticleStyleManager.getParticleStyle(styleName);
+                if (style != null) {
+                    group.addParticleStyle(style);
+                    group.setStyleOffset(styleName, new Vector(offsetX, offsetY, offsetZ));
+                    group.setStyleRotation(styleName, new Vector(rotationX, rotationY, rotationZ), new Vector(rotationSpeedX, rotationSpeedY, rotationSpeedZ));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return groupMap;
+    }
+
+    // ----- PARTICLES STYLES -----
+
+    public static void removeParticleStyle(String styleName) {
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            conn.setAutoCommit(false);
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_styles WHERE name = ?");
+            PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE style_name = ?");
+            ps.setString(1, styleName);
+            ps2.setString(1, styleName);
+            ps.executeUpdate();
+            ps2.executeUpdate();
+            conn.commit();
+            conn.close();
+            ps2.close();
+            ps.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void insertParticleStyles(List<ParticleStyle> styles) {
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            conn.setAutoCommit(false);
+            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            for (ParticleStyle style : styles) {
+                ps.setString(1, style.getName());
+                ps.setString(2, style.getParticle().name());
+                ps.setDouble(3, style.getOffset().getX());
+                ps.setDouble(4, style.getOffset().getY());
+                ps.setDouble(5, style.getOffset().getZ());
+                ps.setDouble(6, style.getCount());
+                ps.setDouble(7, style.getSpeed());
+                ps.setDouble(8, style.getRotation().getX());
+                ps.setDouble(9, style.getRotation().getY());
+                ps.setDouble(10, style.getRotation().getZ());
+                ps.setDouble(11, style.getAngularVelocityX());
+                ps.setDouble(12, style.getAngularVelocityY());
+                ps.setDouble(13, style.getAngularVelocityZ());
+                ps.setString(14, style.getInternalName());
+                ps.setString(15, style.getExtraSettings());
+                ps.executeUpdate();
+            }
+            conn.commit();
+            conn.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static Map<String, ParticleStyle> getParticleStyles() {
+
+        Map<String, ParticleStyle> styles = new HashMap<>();
+
+        try {
+            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_styles");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String name = rs.getString("name");
+                Particle particle = Particle.valueOf(rs.getString("particle"));
+                double offsetX = rs.getDouble("offset_x");
+                double offsetY = rs.getDouble("offset_y");
+                double offsetZ = rs.getDouble("offset_z");
+                int count = rs.getInt("count");
+                double speed = rs.getDouble("speed");
+                double rotationX = rs.getDouble("rotation_x");
+                double rotationY = rs.getDouble("rotation_y");
+                double rotationZ = rs.getDouble("rotation_z");
+                double angularVelocityX = rs.getDouble("angular_velocity_x");
+                double angularVelocityY = rs.getDouble("angular_velocity_y");
+                double angularVelocityZ = rs.getDouble("angular_velocity_z");
+                String styleType = rs.getString("style_type");
+                String styleExtra = rs.getString("style_extra");
+
+                ParticleStyle style = ParticleStyleManager.getDefaultParticleStyle(styleType).clone();
+                if (style != null) {
+                    style.setName(name);
+                    style.setParticle(particle);
+                    style.setOffset(new Vector(offsetX, offsetY, offsetZ));
+                    style.setCount(count);
+                    style.setSpeed(speed);
+                    style.setRotation(new Vector(rotationX, rotationY, rotationZ));
+                    style.setAngularVelocity(angularVelocityX, angularVelocityY, angularVelocityZ);
+                    style.setExtraSettings(styleExtra);
+
+                    styles.put(name, style);
+                }
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return styles;
+    }
 
     // ----- MERCHANT TRADES -----
 
@@ -422,9 +677,15 @@ public class SQLite extends Database {
     // ----- LOADING -----
 
     public void load(){
+        executeString("PRAGMA foreign_keys = ON;");
+
         executeString(SQLiteCreatePlayersTable);
         executeString(SQLiteCreatePlayerLocationsTable);
         executeString(SQLiteCreatePlayerSettingsTable);
         executeString(SQLiteCreateMerchantTradesTable);
+        executeString(SQLiteCreateParticleStyleTable);
+        executeString(SQLiteCreateParticleStyleHolderTable);
+        executeString(SQLiteCreateParticleGroupTable);
+        executeString(SQLiteCreateParticleGroupStyleView);
     }
 }
