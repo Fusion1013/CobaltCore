@@ -1,11 +1,15 @@
 package se.fusion1013.plugin.cobaltcore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.SuggestionInfo;
+import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Location;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
@@ -29,7 +33,9 @@ public class ParticleGroupCommand {
                 .withSubcommand(createCreateCommand())
                 .withSubcommand(createListCommand())
                 .withSubcommand(createAddStyleCommand())
-                .withSubcommand(createDisplayCommand());
+                .withSubcommand(createDisplayCommand())
+                .withSubcommand(createEditStyleCommand())
+                .withSubcommand(createRemoveCommand());
     }
 
     // ----- CREATE CREATE COMMAND -----
@@ -43,12 +49,7 @@ public class ParticleGroupCommand {
 
     private static void createParticleGroup(CommandSender sender, Object[] args) {
         String name = (String)args[0];
-        boolean created = false;
-
-        if (!ParticleGroupManager.groupExists(name)) {
-            ParticleGroupManager.createParticleGroup(name);
-            created = true;
-        }
+        boolean created = ParticleGroupManager.createParticleGroup(name);
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("name", name)
@@ -88,13 +89,12 @@ public class ParticleGroupCommand {
             return;
         }
 
-        ParticleGroup group = ParticleGroupManager.getParticleGroup(groupName);
         ParticleStyle style = ParticleStyleManager.getParticleStyle(styleName);
-
-        group.addParticleStyle(style);
+        boolean added = ParticleGroupManager.addParticleStyle(groupName, style);
 
         if (sender instanceof Player player) {
-            LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.group.add_style", placeholders);
+            if (added) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.group.add_style.success", placeholders);
+            else LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.group.add_style.already_has_style", placeholders);
         }
     }
 
@@ -162,5 +162,77 @@ public class ParticleGroupCommand {
     }
 
     // ----- CREATE REMOVE COMMAND -----
+
+    private static CommandAPICommand createRemoveCommand() {
+        return new CommandAPICommand("remove")
+                .withPermission("cobalt.core.commands.cparticle.group")
+                .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
+                .executes(ParticleGroupCommand::removeGroup);
+    }
+
+    private static void removeGroup(CommandSender sender, Object[] args) {
+        String groupName = (String) args[0];
+        StringPlaceholders placeholders = StringPlaceholders.builder()
+                .addPlaceholder("group_name", groupName)
+                .build();
+
+        boolean removed = ParticleGroupManager.removeGroup(groupName);
+
+        if (sender instanceof Player player) {
+            if (removed) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.group.remove", placeholders);
+            else LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.group_does_not_exist", placeholders);
+        }
+    }
+
+    // ----- CREATE EDIT STYLE COMMAND -----
+
+    private static CommandAPICommand createEditStyleCommand() {
+        return new CommandAPICommand("edit_style")
+                .withPermission("cobalt.core.commands.cparticle.group")
+                .withSubcommand(new CommandAPICommand("offset")
+                        .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
+                        .withArguments(new StringArgument("styleName").replaceSuggestions(ParticleGroupCommand::getStyleNames))
+                        .withArguments(new DoubleArgument("x_offset"))
+                        .withArguments(new DoubleArgument("y_offset"))
+                        .withArguments(new DoubleArgument("z_offset"))
+                        .executes(ParticleGroupCommand::editOffset))
+                .withSubcommand(new CommandAPICommand("rotation")
+                        .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
+                        .withArguments(new StringArgument("styleName").replaceSuggestions(ParticleGroupCommand::getStyleNames))
+                        .withArguments(new DoubleArgument("x_rotation"))
+                        .withArguments(new DoubleArgument("y_rotation"))
+                        .withArguments(new DoubleArgument("z_rotation"))
+                        .withArguments(new DoubleArgument("x_rotation_speed"))
+                        .withArguments(new DoubleArgument("y_rotation_speed"))
+                        .withArguments(new DoubleArgument("z_rotation_speed"))
+                        .executes(ParticleGroupCommand::editRotation));
+    }
+
+    private static String[] getStyleNames(SuggestionInfo info) {
+        ParticleGroup currentGroup = ParticleGroupManager.getParticleGroup((String)info.previousArgs()[info.previousArgs().length-1]);
+        if (currentGroup == null) return new String[0];
+        return currentGroup.getParticleStyleNames();
+    }
+
+    private static void editOffset(CommandSender sender, Object[] args) {
+        String groupName = (String)args[0];
+        String styleName = (String)args[1];
+
+        ParticleGroup group = ParticleGroupManager.getParticleGroup(groupName);
+        if (group == null) return;
+        group.setStyleOffset(styleName, new Vector((double)args[2], (double)args[3], (double)args[4]));
+    }
+
+    private static void editRotation(CommandSender sender, Object[] args) {
+        String groupName = (String)args[0];
+        String styleName = (String)args[1];
+
+        ParticleGroup group = ParticleGroupManager.getParticleGroup(groupName);
+        if (group == null) return;
+        Vector rotation = new Vector(Math.toRadians((double)args[2]), Math.toRadians((double)args[3]), Math.toRadians((double)args[4]));
+        Vector velocity = new Vector(Math.toRadians((double)args[5]), Math.toRadians((double)args[6]), Math.toRadians((double)args[7]));
+
+        group.setStyleRotation(styleName, rotation, velocity);
+    }
 
 }
