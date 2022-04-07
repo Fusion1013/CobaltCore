@@ -32,7 +32,7 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     // Rotation
     Vector rotation = new Vector(0, 0, 0);
-    double angularVelocityX = 0; // Angular velocity is measured in degrees/tick
+    double angularVelocityX = 0; // Angular velocity is measured in radians/tick
     double angularVelocityY = 0;
     double angularVelocityZ = 0;
 
@@ -236,6 +236,114 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.angularVelocityX = Math.toRadians(x);
         this.angularVelocityY = Math.toRadians(y);
         this.angularVelocityZ = Math.toRadians(z);
+    }
+
+    @Override
+    public Vector getOffset() {
+        return offset;
+    }
+
+    @Override
+    public double getCount() {
+        return count;
+    }
+
+    @Override
+    public double getSpeed() {
+        return speed;
+    }
+
+    @Override
+    public Vector getRotation() {
+        return rotation;
+    }
+
+    @Override
+    public double getAngularVelocityX() {
+        return angularVelocityX;
+    }
+
+    @Override
+    public double getAngularVelocityY() {
+        return angularVelocityY;
+    }
+
+    @Override
+    public double getAngularVelocityZ() {
+        return angularVelocityZ;
+    }
+
+    // ----- BUILDER -----
+
+    protected static abstract class ParticleStyleBuilder<T extends ParticleStyle, B extends ParticleStyleBuilder> {
+
+        T obj;
+
+        Particle particle = Particle.FLAME;
+        Vector offset = new Vector(0, 0, 0);
+        int count = 1;
+        double speed = 0;
+        Object extra;
+
+        Vector rotation = new Vector(0, 0, 0);
+        double angularVelocityX = 0; // Angular velocity is measured in radians/tick
+        double angularVelocityY = 0;
+        double angularVelocityZ = 0;
+
+        public ParticleStyleBuilder(){
+            obj = createObj();
+        }
+
+        public T build(){
+            obj.setParticle(particle);
+            obj.setOffset(offset);
+            obj.setCount(count);
+            obj.setSpeed(speed);
+            obj.setExtra(extra);
+
+            return obj;
+        }
+
+        protected abstract T createObj();
+        protected abstract B getThis();
+
+        public B setAngularVelocity(double x, double y, double z) {
+            this.angularVelocityX = x;
+            this.angularVelocityY = y;
+            this.angularVelocityZ = z;
+            return getThis();
+        }
+
+        public B setRotation(Vector rotation) {
+            this.rotation = rotation;
+            return getThis();
+        }
+
+        public B setExtra(Object extra) {
+            this.extra = extra;
+            return getThis();
+        }
+
+        public B setParticle(Particle particle){
+            this.particle = particle;
+            return getThis();
+        }
+
+        public B setOffset(Vector offset){
+            this.offset = offset;
+            return getThis();
+        }
+
+        public B setCount(int count){
+            this.count = count;
+            return getThis();
+        }
+
+        public B setSpeed(double speed){
+            this.speed = speed;
+            return getThis();
+        }
+
     }
 
     // ----- CLONING -----
