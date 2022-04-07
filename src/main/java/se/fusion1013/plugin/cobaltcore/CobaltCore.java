@@ -16,6 +16,8 @@ import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.manager.*;
+import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
+import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 
 import java.util.*;
@@ -89,6 +91,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, StructureManager.class);
         this.getManager(this, CustomTradesManager.class);
         this.getManager(this, CustomEntityManager.class);
+        this.getManager(this, ParticleStyleManager.class);
+        this.getManager(this, ParticleGroupManager.class);
     }
 
     // ----- LISTENERS -----
