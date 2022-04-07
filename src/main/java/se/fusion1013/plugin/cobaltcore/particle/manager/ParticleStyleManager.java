@@ -3,11 +3,9 @@ package se.fusion1013.plugin.cobaltcore.particle.manager;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.database.SQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleCube;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStylePoint;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleSphere;
+import se.fusion1013.plugin.cobaltcore.particle.styles.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +17,7 @@ public class ParticleStyleManager extends Manager {
     // ----- VARIABLES -----
 
     private static Map<String, ParticleStyle> particleStyleList = new HashMap<>(); // Holds particle styles that the player has created through the in-game command. <name, style>.
-    private static Map<String, ParticleStyle> registeredParticleStyles = new HashMap<>(); // Holds all registered, default particle styles. <internalName, style>
+    private static final Map<String, ParticleStyle> defaultParticleStyles = new HashMap<>(); // Holds all registered, default particle styles. <internalName, style>
 
     // ----- STYLE INFO -----
 
@@ -50,7 +48,7 @@ public class ParticleStyleManager extends Manager {
      */
     public static String[] getInternalParticleStyleNames() {
         List<String> styleNames = new ArrayList<>();
-        for (ParticleStyle style : registeredParticleStyles.values()) styleNames.add(style.getInternalName());
+        for (ParticleStyle style : defaultParticleStyles.values()) styleNames.add(style.getInternalName());
         return styleNames.toArray(new String[0]);
     }
 
@@ -103,6 +101,8 @@ public class ParticleStyleManager extends Manager {
      * @return if the style was successfully inserted or not.
      */
     public static boolean createParticleStyle(String internalStyleName, String name, Particle particle, Vector offset, int count, double speed, Object extra) {
+        if (styleExists(name)) return false;
+
         ParticleStyle style = getDefaultParticleStyle(internalStyleName);
         if (style == null) return false;
 
@@ -126,7 +126,7 @@ public class ParticleStyleManager extends Manager {
      * @return the <code>ParticleStyle</code>.
      */
     public static ParticleStyle getDefaultParticleStyle(String internalStyleName) {
-        return registeredParticleStyles.get(internalStyleName);
+        return defaultParticleStyles.get(internalStyleName);
     }
 
     // ----- REGISTER -----
@@ -146,7 +146,7 @@ public class ParticleStyleManager extends Manager {
      * @return the <code>ParticleStyle</code>.
      */
     private static ParticleStyle register(ParticleStyle style) {
-        registeredParticleStyles.put(style.getInternalName(), style);
+        defaultParticleStyles.put(style.getInternalName(), style);
         return style;
     }
 
