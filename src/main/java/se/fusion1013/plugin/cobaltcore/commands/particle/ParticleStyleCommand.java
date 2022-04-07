@@ -118,15 +118,7 @@ public class ParticleStyleCommand {
                 .addPlaceholder("name", name)
                 .build();
 
-        boolean created = false;
-
-        // Check if the name already exists, if so, do not create new style.
-        if (!ParticleStyleManager.styleExists(name)) {
-            // Create ParticleStyle.
-            // Extra will be added through a separate command.
-            ParticleStyleManager.createParticleStyle(internalStyleName, name, particle, new Vector(offsetX, offsetY, offsetZ), count, speed, null);
-            created = true;
-        }
+        boolean created = ParticleStyleManager.createParticleStyle(internalStyleName, name, particle, new Vector(offsetX, offsetY, offsetZ), count, speed, null);
 
         // Send message
         if (sender instanceof Player player) {
@@ -134,8 +126,6 @@ public class ParticleStyleCommand {
             else LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style.create.error.already_exists", placeholders);
         }
     }
-
-    // ----- CREATE MODIFY COMMAND -----
 
     // ----- CREATE SET EXTRA SETTINGS COMMAND ----
 
@@ -297,7 +287,7 @@ public class ParticleStyleCommand {
     private static CommandAPICommand createRemoveCommand() {
         return new CommandAPICommand("remove")
                 .withPermission("cobalt.core.commands.cparticle.style.remove")
-                .withArguments(new StringArgument("name"))
+                .withArguments(new StringArgument("name").replaceSuggestions(suggestionInfo -> ParticleStyleManager.getParticleStyleNames()))
                 .executes(ParticleStyleCommand::removeStyle);
     }
 
@@ -314,13 +304,13 @@ public class ParticleStyleCommand {
         // Send message depending on if the style was removed or not.
         if (sender instanceof Player player) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
-                    .addPlaceholder("name", name)
+                    .addPlaceholder("style_name", name)
                     .build();
 
             if (removed) {
                 LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style.remove.success", placeholders);
             } else {
-                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style.remove.fail", placeholders);
+                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style_does_not_exist", placeholders);
             }
         }
     }
