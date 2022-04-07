@@ -51,6 +51,20 @@ public interface IParticleStyle {
      */
     Object getExtra();
 
+    Vector getOffset();
+
+    double getCount();
+
+    double getSpeed();
+
+    Vector getRotation();
+
+    double getAngularVelocityX();
+
+    double getAngularVelocityY();
+
+    double getAngularVelocityZ();
+
     // ----- PARTICLE SETTING -----
 
     void setParticle(Particle particle);
@@ -78,6 +92,10 @@ public interface IParticleStyle {
     Argument[] getExtraSettingsArguments();
 
     void setExtraSettings(Object[] args);
+
+    String getExtraSettings();
+
+    void setExtraSettings(String extra);
 
     // ----- INFO -----
 
