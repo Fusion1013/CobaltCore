@@ -119,11 +119,49 @@ The above code creates a new `ICustomEntity` with the zombie as a base, 100 heal
 The Custom Item System contains methods for creating custom items.
 
 ### Custom Trades
-The Custom Trades System contains methods for creating custom Wandering Trader trades.
+The Custom Trades System contains methods for creating custom Wandering Trader trades. Trades can be created with the /trades command, or using the `CustomTradesManager`.
 
 ### Localization System
+The localization system allows for simple creation and interaction with localization files. Custom localization files should be located in the `resources/lang` folder, and should follow minecraft localization naming scheme. For example, the localization file for `English United States` would be named `en_us.json`. Formatting Codes can be used in locale strings to format messages.
+
+Example localization file:
+```
+{
+  "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
+  "cobalt.player.join": "&7This server is running &3%plugin% v&3%version%",
+
+  "connection.join": "&3%player% &7joined the game",
+  "connection.quit": "&3%player% &7left the game",
+
+  "commands.error.incorrect_syntax": "&7Incorrect Syntax",
+  "command-not-implemented": "&7Command not yet implemented",
+  "command-unknown": "&7Unknown command",
+  "commands.player_not_found": "&7Player &3%player% &7not found"
+}
+```
+To get a localized string from a locale file, the `LocaleManager` should be used. To broadcast a message to the entire server, use the `broadcastMessage()` method. To send a message to a specific player, use the 
+
+#### LocaleManager Methods
+* `getLocaleMessage()`: Get the specified localized string. If a `Player` is passed to this method, the locale will choose the language of that player if that file exists. If not, it will use `en_us`.
+* `broadcastMessage()`: Broadcasts a message to the entire server.
+* `sendMessage()`: Sends a localized message to the specified `Player`. The locale will choose the language of that player if that file exists. If not, it will use `en_us`. This message will have the prefix of the given plugin, unless otherwise specified. This prefix can be defined in the locale files, under `prefix.PLUGIN`
+
+All the above methods can be given a `StringPlaceholder` to pass information to the locale strings.
+
+#### String Placeholders
+`StringPlaceholder`'s can be used to give information to locale strings. To use it, create a `StringPlaceholder` using the builder:
+```
+StringPlaceholder placeholder = StringPlaceholder.builder()
+    .addPlaceholder("example_variable", exampleVariable)
+    .build();
+```
+This variable can then be used in locale message. In this example, `example_variable` will be replaced with the value of the variable in the `StringPlaceholder` when the locale string is created:
+```
+"example.locale.message": "This is an example method with a variable: %example_variable%"
+```
 
 ### Managers
+All major Cobalt Systems are interacted with via `Manager`'s. Extend the `Manager` class to create your own manager and register it in the `reloadManagers()` method in your main class, using the `getManager(CobaltPlugin plugin, Class<T> managerClass)` method.
 
 ### Particle System
 The particle system allows for creation of complex particle systems, by the use of Particle Styles and Particle Groups. Use the /cparticle command to create and interact with styles and groups, or use the `ParticleStyleManager` and the `ParticleGroupManager`. Particle styles and groups should not be created from their base classes.
@@ -144,6 +182,8 @@ All Particle Styles can be rotated relative to their center.
 Particle groups are used to group particle styles and display all of them. Styles contained within a group can be offset and rotated relative to the center of the group.
 
 ### Settings
+
+### State Engines
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
