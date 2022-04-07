@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.particle.manager;
 
 import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.database.SQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
@@ -16,6 +17,35 @@ public class ParticleGroupManager extends Manager {
     // ----- VARIABLES -----
 
     private static Map<String, ParticleGroup> particleGroupMap = new HashMap<>();
+
+    // ----- STYLE REMOVING -----
+
+    /**
+     * Removes a style from all <code>ParticleGroup</code>'s.
+     * @param styleName the name of the <code>ParticleStyle</code>.
+     * @return the number of styles that were removed.
+     */
+    public static int removeStyle(String styleName) {
+        int count = 0;
+        for (ParticleGroup group : particleGroupMap.values()) {
+            count += group.removeParticleStyle(styleName);
+        }
+        return count;
+    }
+
+    // ----- GROUP REMOVING -----
+
+    /**
+     * Removes a <code>ParticleGroup</code>.
+     *
+     * @param name the name of the <code>ParticleGroup</code> to remove.
+     * @return whether the group was removed or not.
+     */
+    public static boolean removeGroup(String name) {
+        ParticleGroup group = particleGroupMap.remove(name);
+        if (group != null) SQLite.removeParticleGroup(group.getUuid());
+        return group != null;
+    }
 
     // ----- GROUP INFO -----
 
@@ -80,8 +110,10 @@ public class ParticleGroupManager extends Manager {
         ParticleGroup group = particleGroupMap.get(groupName);
         if (group == null) return false;
 
-        group.addParticleStyle(style);
-        return true;
+        if (!group.hasParticleStyle(style.getName())) {
+            group.addParticleStyle(style);
+            return true;
+        } else return false;
     }
 
     /**
@@ -91,6 +123,7 @@ public class ParticleGroupManager extends Manager {
      * @return if the group was successfully inserted or not.
      */
     public static boolean createParticleGroup(String name) {
+        if (groupExists(name)) return false;
         ParticleGroup group = new ParticleGroup(name);
         particleGroupMap.put(name, group);
         return true;
@@ -106,11 +139,11 @@ public class ParticleGroupManager extends Manager {
 
     @Override
     public void reload() {
-
+        particleGroupMap = SQLite.getParticleGroups();
     }
 
     @Override
     public void disable() {
-
+        SQLite.insertParticleGroups(new ArrayList<>(particleGroupMap.values()));
     }
 }
