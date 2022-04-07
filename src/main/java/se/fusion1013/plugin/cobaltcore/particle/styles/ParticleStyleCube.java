@@ -1,5 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.particle.styles;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -19,12 +21,16 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
 
     // ----- VARIABLES -----
 
-    private double edgeLength;
-    private int particlesPerEdge;
+    private double edgeLength = 1;
+    private int particlesPerEdge = 4;
 
     // TODO: Cube modes (edge, face, full)
 
     // ----- CONSTRUCTORS -----
+
+    public ParticleStyleCube() {
+        super("cube", "cube_internal");
+    }
 
     public ParticleStyleCube(String name, Particle particle, Vector offset, int count, double speed, Object extra) {
         super("cube", name, particle, offset, count, speed, extra);
@@ -68,6 +74,21 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
         particlesPerEdge = (int) args[1];
     }
 
+    @Override
+    public String getExtraSettings() {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("edge_length", edgeLength);
+        jo.addProperty("particles_per_edge", particlesPerEdge);
+        return jo.toString();
+    }
+
+    @Override
+    public void setExtraSettings(String extra) {
+        JsonObject jsonObject = new Gson().fromJson(extra, JsonObject.class);
+        edgeLength = jsonObject.get("edge_length").getAsDouble();
+        particlesPerEdge = jsonObject.get("particles_per_edge").getAsInt();
+    }
+
     // ----- PARTICLE GETTING -----
 
     @Override
@@ -105,6 +126,54 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
     public ParticleContainer[] getParticleContainers(Location location1, Location location2) {
         return new ParticleContainer[0];
     }
+
+    // ----- BUILDER -----
+
+    public static class ParticleStyleCubeBuilder extends ParticleStyleBuilder<ParticleStyleCube, ParticleStyleCubeBuilder>{
+
+        private double edgeLength = 1;
+        private int particlesPerEdge = 4;
+
+        @Override
+        public ParticleStyleCube build() {
+
+            obj.setEdgeLength(edgeLength);
+            obj.setParticlesPerEdge(particlesPerEdge);
+
+            return super.build();
+        }
+
+        public ParticleStyleCubeBuilder setEdgeLength(double edgeLength){
+            this.edgeLength = edgeLength;
+            return getThis();
+        }
+
+        public ParticleStyleCubeBuilder setParticlesPerEdge(int particlesPerEdge) {
+            this.particlesPerEdge = particlesPerEdge;
+            return getThis();
+        }
+
+        @Override
+        protected ParticleStyleCube createObj() {
+            return new ParticleStyleCube();
+        }
+
+        @Override
+        protected ParticleStyleCubeBuilder getThis() {
+            return this;
+        }
+    }
+
+    // ----- GETTERS / SETTERS -----
+
+    public void setEdgeLength(double edgeLength) {
+        this.edgeLength = edgeLength;
+    }
+
+    public void setParticlesPerEdge(int particlesPerEdge) {
+        this.particlesPerEdge = particlesPerEdge;
+    }
+
 
     // ----- CLONE -----
 
