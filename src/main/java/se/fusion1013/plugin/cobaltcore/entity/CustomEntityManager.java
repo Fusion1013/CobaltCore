@@ -37,6 +37,7 @@ public class CustomEntityManager extends Manager {
                 if (entity instanceof Zombie zombie) zombie.setAdult();
             })))
             .addExecuteOnTickModule(new EntityBossBarModule("Test Entity", 10, BarColor.BLUE, BarStyle.SEGMENTED_6))
+            .addExecuteOnDeathModule(new EntityDropModule(100, 2, new ItemStack(Material.DIAMOND), 0.2))
             .addAbilityModule(new ChargeAbility(8, 1, 5))
             .setCustomName("Test Entity")
             .build());
