@@ -11,6 +11,10 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
 
     // ----- CONSTRUCTORS -----
 
+    public ParticleStylePoint() {
+        super("point", "point_internal");
+    }
+
     public ParticleStylePoint(String name) {
         super("point", name);
     }
@@ -38,6 +42,17 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
         return new ParticleContainer[0];
     }
 
+    // ----- EXTRA -----
+
+    @Override
+    public String getExtraSettings() {
+        return "";
+    }
+
+    @Override
+    public void setExtraSettings(String extra) {}
+
+
     // ----- INFO -----
 
     @Override
@@ -45,6 +60,19 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
         List<String> info = super.getInfoStrings();
         info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.point.info"));
         return info;
+    }
+
+    // ----- BUILDER -----
+
+    public static class ParticleStylePointBuilder extends ParticleStyleBuilder<ParticleStylePoint, ParticleStylePointBuilder> {
+
+        protected ParticleStylePoint createObj() { return new ParticleStylePoint(); }
+
+        protected ParticleStylePointBuilder getThis() { return this; }
+
+        public ParticleStylePoint build(){
+            return super.build();
+        }
     }
 
     // ----- CLONE -----
