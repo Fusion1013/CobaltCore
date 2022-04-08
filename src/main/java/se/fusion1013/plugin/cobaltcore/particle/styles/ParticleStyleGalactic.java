@@ -91,6 +91,8 @@ public class ParticleStyleGalactic extends ParticleStyle {
         List<ParticleContainer> particles = new ArrayList<>();
         String letterString = glyphOffsets.get(letter);
 
+        if (letterString == null) return particles.toArray(new ParticleContainer[0]);
+
         for (int i = 0; i < letterString.length(); i++) {
             char c = letterString.charAt(i);
 
