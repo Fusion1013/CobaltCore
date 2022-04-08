@@ -334,8 +334,7 @@ public class SQLite extends Database {
                     style.setOffset(new Vector(offsetX, offsetY, offsetZ));
                     style.setCount(count);
                     style.setSpeed(speed);
-                    style.setRotation(new Vector(rotationX, rotationY, rotationZ));
-                    style.setAngularVelocity(angularVelocityX, angularVelocityY, angularVelocityZ);
+                    style.updateRotation(new Vector(rotationX, rotationY, rotationZ), angularVelocityX, angularVelocityY, angularVelocityZ);
                     style.setExtraSettings(styleExtra);
 
                     styles.put(name, style);
