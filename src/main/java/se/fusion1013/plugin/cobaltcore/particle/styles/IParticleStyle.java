@@ -79,6 +79,8 @@ public interface IParticleStyle {
 
     void setRotation(Vector rotation);
 
+    void updateRotation(Vector rotation, double angularVelocityX, double angularVelocityY, double angularVelocityZ);
+
     /**
      * Sets the angular velocity of the <code>IParticleStyle</code>. Angles given in degrees.
      * @param x the x velocity.
