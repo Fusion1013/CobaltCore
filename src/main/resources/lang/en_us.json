@@ -80,6 +80,7 @@
   "particle.style.line.info": "&b - Line Extra&7: Density: &3%density%&7. Location 2: &3%location2%",
   "particle.style.circle.info": "&b - Circle Extra&7: Radius: &3%radius%&7. Iterations: &3%iterations%",
   "particle.style.galactic.info": "&b - Galactic Extra&7: Letter: &3%letter%&7. Compress: &3%compress%",
+  "particle.style.tesseract.info": "&b - Tesseract Extra&7: Rotation: &3%rx%&7, &3%ry%&7, &3%rz%&7, &3%rw%&7. Rotation Speed: &3%dx%&7, &3%dy%&7, &3%dz%&7, &3%dw%&7. Density: &3%density%&7. Width: &3%width%",
 
 
   "debug.event.subscribed": "&7Subscribed player &3%player% &7to debug event &3%event%",
