@@ -74,6 +74,7 @@
   "particle.style.abstract.info": "&b - Particle&7: &3%particle%&7. Offset: &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7. Count: &3%count%&7. Speed: &3%speed%",
   "particle.style.rotation.info": "&b - Rotation&7: &3%rotation_x%&7, &3%rotation_y%&7, &3%rotation_z%&7. Angular Velocity: &3%angular_velocity_x%&7, &3%angular_velocity_y%&7, &3%angular_velocity_z%",
   "particle.style.point.info": "",
+  "particle.style.icosphere.info": "&b - Icosphere Extra&7: Ticks/Spawn: &3%ticks_per_spawn%&7. Radius: 3%radius%&7. Particles/Line: &3%particles_per_line%&7. Divisions: &3%divisions%",
   "particle.style.sphere.info": "&b - Sphere Extra&7: Density: &3%density%&7. Radius: &3%radius%&7. Particles in Sphere: &3%in_sphere%",
   "particle.style.cube.info": "&b - Cube Extra&7: Edge Length: &3%edge_length%&7. Particles Per Edge: &3%particles_per_edge%",
   "particle.style.line.info": "&b - Line Extra&7: Density: &3%density%&7. Location 2: &3%location2%",
