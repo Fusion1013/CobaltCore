@@ -239,6 +239,14 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     }
 
     @Override
+    public void updateRotation(Vector rotation, double angularVelocityX, double angularVelocityY, double angularVelocityZ) {
+        this.rotation = rotation;
+        this.angularVelocityX = angularVelocityX;
+        this.angularVelocityY = angularVelocityY;
+        this.angularVelocityZ = angularVelocityZ;
+    }
+
+    @Override
     public Vector getOffset() {
         return offset;
     }
