@@ -8,7 +8,9 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
+import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +40,28 @@ public class ParticleStyleTesseract extends ParticleStyle {
     public ParticleStyleTesseract(String name) {
         super("tesseract", name);
     }
+
+    // ----- INFO -----
+
+    @Override
+    public List<String> getInfoStrings() {
+        List<String> info = super.getInfoStrings();
+        StringPlaceholders placeholders = StringPlaceholders.builder()
+                .addPlaceholder("rx", rx)
+                .addPlaceholder("ry", ry)
+                .addPlaceholder("rz", rz)
+                .addPlaceholder("rw", rw)
+                .addPlaceholder("dx", dx)
+                .addPlaceholder("dy", dy)
+                .addPlaceholder("dz", dz)
+                .addPlaceholder("dw", dw)
+                .addPlaceholder("density", density)
+                .addPlaceholder("width", width)
+                .build();
+        info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.tesseract.info"));
+        return info;
+    }
+
 
     // ----- SET EXTRA SETTINGS -----
 
