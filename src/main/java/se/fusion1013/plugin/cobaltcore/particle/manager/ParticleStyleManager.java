@@ -138,6 +138,7 @@ public class ParticleStyleManager extends Manager {
     public static final ParticleStyle PARTICLE_STYLE_LINE = register(new ParticleStyleLine("default_line"));
     public static final ParticleStyle PARTICLE_STYLE_CIRCLE = register(new ParticleStyleCircle("default_circle"));
     public static final ParticleStyle PARTICLE_STYLE_GALACTIC = register(new ParticleStyleGalactic("default_galactic"));
+    public static final ParticleStyle PARTICLE_STYLE_TESSERACT = register(new ParticleStyleTesseract("default_tesseract"));
 
     /**
      * Registers a new <code>ParticleStyle</code>.
