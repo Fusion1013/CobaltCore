@@ -3,6 +3,10 @@
   "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
   "cobalt.player.join": "&7This server is running &3%plugin% v&3%version%",
 
+  "location": "&b%x%&7, &b%y%&7, &b%z%&7",
+  "vector": "&b%x%&7, &b%y%&7, &b%z%&7",
+  "timestamp": "&b%value%&7 %format%",
+
   "connection.join": "&3%player% &7joined the game",
   "connection.quit": "&3%player% &7left the game",
 
