@@ -36,7 +36,26 @@ public class ParticleStyleCommand {
                 .withSubcommand(createExtraSettingsCommand())
                 .withSubcommand(createRotationCommand())
                 .withSubcommand(createEditParticleCommand())
-                .withSubcommand(createInfoCommand());
+                .withSubcommand(createInfoCommand())
+                .withSubcommand(createSkipTicksCommand());
+    }
+
+    // ----- CREATE SKIP TICKS COMMAND -----
+
+    private static CommandAPICommand createSkipTicksCommand() {
+        return new CommandAPICommand("skipTicks")
+                .withPermission("cobalt.core.commands.cparticle.style")
+                .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames())))
+                .withArguments(new IntegerArgument("skipTicks"))
+                .executes(ParticleStyleCommand::editSkipTicks);
+    }
+
+    private static void editSkipTicks(CommandSender sender, Object[] args) {
+        String name = (String) args[0];
+        int skipTicks = (int) args[1];
+
+        ParticleStyle style = ParticleStyleManager.getParticleStyle(name);
+        style.setSkipTicks(skipTicks);
     }
 
     // ----- CREATE EDIT PARTICLE COMMAND -----
