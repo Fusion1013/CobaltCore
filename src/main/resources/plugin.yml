@@ -1,6 +1,7 @@
 name: CobaltCore
 version: '${project.version}'
 main: se.fusion1013.plugin.cobaltcore.CobaltCore
+website: "https://github.com/Fusion1013/CobaltCore"
 api-version: 1.18
 depend:
   - CommandAPI
