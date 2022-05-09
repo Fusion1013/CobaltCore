@@ -2,7 +2,9 @@ package se.fusion1013.plugin.cobaltcore.particle.manager;
 
 import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
+import se.fusion1013.plugin.cobaltcore.database.particle.group.IParticleGroupDao;
+import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
@@ -43,7 +45,7 @@ public class ParticleGroupManager extends Manager {
      */
     public static boolean removeGroup(String name) {
         ParticleGroup group = particleGroupMap.remove(name);
-        if (group != null) SQLite.removeParticleGroup(group.getUuid());
+        if (group != null) DataManager.getInstance().getDao(IParticleGroupDao.class).removeParticleGroup(group.getUuid());
         return group != null;
     }
 
@@ -139,11 +141,11 @@ public class ParticleGroupManager extends Manager {
 
     @Override
     public void reload() {
-        particleGroupMap = SQLite.getParticleGroups();
+        particleGroupMap = DataManager.getInstance().getDao(IParticleGroupDao.class).getParticleGroups();
     }
 
     @Override
     public void disable() {
-        SQLite.insertParticleGroups(new ArrayList<>(particleGroupMap.values()));
+        DataManager.getInstance().getDao(IParticleGroupDao.class).insertParticleGroups(new ArrayList<>(particleGroupMap.values()));
     }
 }
