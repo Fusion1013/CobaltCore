@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
@@ -9,7 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 public class CobaltSummonCommand {
@@ -31,7 +32,7 @@ public class CobaltSummonCommand {
     private static CommandAPICommand createSummonManyAtLocationCommand() {
         return new CommandAPICommand("csummon")
                 .withPermission("cobalt.core.command.csummon")
-                .withArguments(new StringArgument("entity").replaceSuggestions(info -> CustomEntityManager.getInternalEntityNames()))
+                .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .withArguments(new LocationArgument("location"))
                 .withArguments(new IntegerArgument("count"))
                 .executes(((sender, args) -> {
@@ -49,7 +50,7 @@ public class CobaltSummonCommand {
     private static CommandAPICommand createSummonManyCommand() {
         return new CommandAPICommand("csummon")
                 .withPermission("cobalt.core.command.csummon")
-                .withArguments(new StringArgument("entity").replaceSuggestions(info -> CustomEntityManager.getInternalEntityNames()))
+                .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .withArguments(new IntegerArgument("count"))
                 .executesPlayer(((sender, args) -> {
                     summonManyAtLocation(sender, (String)args[0], sender.getLocation(), (int)args[1]);
@@ -66,7 +67,7 @@ public class CobaltSummonCommand {
     private static CommandAPICommand createSummonOneAtLocationCommand() {
         return new CommandAPICommand("csummon")
                 .withPermission("cobalt.core.command.csummon")
-                .withArguments(new StringArgument("entity").replaceSuggestions(info -> CustomEntityManager.getInternalEntityNames()))
+                .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .withArguments(new LocationArgument("location"))
                 .executes((sender, args) -> {
                     summonManyAtLocation(sender, (String)args[0], (Location)args[1], 1);
@@ -83,7 +84,7 @@ public class CobaltSummonCommand {
     private static CommandAPICommand createSummonOneCommand() {
         return new CommandAPICommand("csummon")
                 .withPermission("cobalt.core.command.csummon")
-                .withArguments(new StringArgument("entity").replaceSuggestions(info -> CustomEntityManager.getInternalEntityNames()))
+                .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .executesPlayer(((sender, args) -> {
                     summonManyAtLocation(sender, (String)args[0], sender.getLocation(), 1);
                 }));
