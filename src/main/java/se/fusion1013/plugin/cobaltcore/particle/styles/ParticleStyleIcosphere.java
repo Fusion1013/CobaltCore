@@ -8,7 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
@@ -58,6 +58,16 @@ public class ParticleStyleIcosphere extends ParticleStyle implements IParticleSt
     }
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "ticksPerSpawn" -> ticksPerSpawn = (double) value;
+            case "radius" -> radius = (double) value;
+            case "particlesPerLine" -> particlesPerLine = (int) value;
+            case "divisions" -> divisions = (int) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -166,6 +176,10 @@ public class ParticleStyleIcosphere extends ParticleStyle implements IParticleSt
         double angularVelocityX;
         double angularVelocityY;
         double angularVelocityZ;
+
+        public ParticleStyleIcosphereBuilder(String name) {
+            super(name);
+        }
 
         @Override
         public ParticleStyleIcosphere build() {
