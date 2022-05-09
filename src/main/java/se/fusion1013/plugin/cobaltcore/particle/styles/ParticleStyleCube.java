@@ -3,13 +3,12 @@ package se.fusion1013.plugin.cobaltcore.particle.styles;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
@@ -55,6 +54,14 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
 
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "edgeLength" -> edgeLength = (double) value;
+            case "particlesPerEdge" -> particlesPerEdge = (int) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -134,6 +141,10 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
         private double edgeLength = 1;
         private int particlesPerEdge = 4;
 
+        public ParticleStyleCubeBuilder(String name) {
+            super(name);
+        }
+
         @Override
         public ParticleStyleCube build() {
 
@@ -165,6 +176,14 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
     }
 
     // ----- GETTERS / SETTERS -----
+
+    public double getEdgeLength() {
+        return edgeLength;
+    }
+
+    public int getParticlesPerEdge() {
+        return particlesPerEdge;
+    }
 
     public void setEdgeLength(double edgeLength) {
         this.edgeLength = edgeLength;
