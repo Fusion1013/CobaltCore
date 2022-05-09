@@ -49,7 +49,7 @@ public interface IParticleStyle {
      *
      * @return object containing extra data.
      */
-    Object getExtra();
+    Object getData();
 
     Vector getOffset();
 
@@ -75,7 +75,7 @@ public interface IParticleStyle {
 
     void setSpeed(double speed);
 
-    void setExtra(Object extra);
+    void setData(Object extra);
 
     void setRotation(Vector rotation);
 
@@ -98,6 +98,8 @@ public interface IParticleStyle {
     String getExtraSettings();
 
     void setExtraSettings(String extra);
+
+    void setExtraSetting(String key, Object value);
 
     // ----- INFO -----
 
