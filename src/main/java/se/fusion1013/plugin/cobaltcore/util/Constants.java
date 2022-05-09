@@ -10,4 +10,6 @@ public class Constants {
 
     public static final NamespacedKey TEMPORARY_BLACKLISTED = new NamespacedKey(CobaltCore.getInstance(), "temporary_blacklisted");
 
+    public static final NamespacedKey INVISIBLE_KEY = new NamespacedKey(CobaltCore.getInstance(), "invisible");
+
 }
