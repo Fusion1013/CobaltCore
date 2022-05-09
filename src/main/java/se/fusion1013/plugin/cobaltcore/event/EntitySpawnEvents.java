@@ -2,17 +2,15 @@ package se.fusion1013.plugin.cobaltcore.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.manager.CustomTradesManager;
+import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.util.Constants;
 
 import java.util.ArrayList;
