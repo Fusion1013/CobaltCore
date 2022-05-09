@@ -2,11 +2,10 @@ package se.fusion1013.plugin.cobaltcore.util;
 
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -61,25 +60,25 @@ public class StringPlaceholders {
         if (diff.get(TimeUnit.DAYS) != 0) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("value", diff.get(TimeUnit.DAYS))
-                    .addPlaceholder("format", "milliseconds").build();
+                    .addPlaceholder("format", "days").build();
             string += LocaleManager.getInstance().getLocaleMessage("timestamp", placeholders) + ", ";
         }
         if (diff.get(TimeUnit.HOURS) != 0) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("value", diff.get(TimeUnit.HOURS))
-                    .addPlaceholder("format", "milliseconds").build();
+                    .addPlaceholder("format", "hours").build();
             string += LocaleManager.getInstance().getLocaleMessage("timestamp", placeholders) + ", ";
         }
         if (diff.get(TimeUnit.MINUTES) != 0) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("value", diff.get(TimeUnit.MINUTES))
-                    .addPlaceholder("format", "milliseconds").build();
+                    .addPlaceholder("format", "minutes").build();
             string += LocaleManager.getInstance().getLocaleMessage("timestamp", placeholders) + ", ";
         }
         if (diff.get(TimeUnit.SECONDS) != 0) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("value", diff.get(TimeUnit.SECONDS))
-                    .addPlaceholder("format", "milliseconds").build();
+                    .addPlaceholder("format", "seconds").build();
             string += LocaleManager.getInstance().getLocaleMessage("timestamp", placeholders) + ", ";
         }
         if (diff.get(TimeUnit.MILLISECONDS) != 0) {
