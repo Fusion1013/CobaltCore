@@ -1,17 +1,18 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
 import dev.jorel.commandapi.SuggestionInfo;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.kitteh.vanish.VanishPlugin;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -248,6 +249,21 @@ public class PlayerUtil {
         }
 
         return playerList.toArray(new Player[0]);
+    }
+
+    // ----- INVENTORY MANAGEMENT -----
+
+    /**
+     * Reduces the amount of items in the <code>Player</code>'s hand by the specified amount.
+     *
+     * @param player the <code>Player</code>.
+     * @param count the amount to reduce the <code>ItemStack</code> by.
+     */
+    public static void reduceHeldItemStack(Player player, int count) {
+        PlayerInventory inventory = player.getInventory();
+        ItemStack item = inventory.getItemInMainHand();
+        item.setAmount(item.getAmount()-count);
+        inventory.setItemInMainHand(item);
     }
 
     // ----- STORAGE -----
