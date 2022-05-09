@@ -208,7 +208,10 @@ Particle groups are used to group particle styles and display all of them. Style
 
 ## Roadmap
 
-### 3.0.0 - Scene System
+### 3.0.0 - Module System
+* Automatic command generation
+
+### ?.0.0 - Scene System
 The scene system will allow for complex, scripted interactions between different Cobalt systems.
 
 ### ?.0.0 - Extended Item System
