@@ -6,7 +6,7 @@ import org.bukkit.util.Vector;
 /**
  * Contains the information to display one particle
  */
-public class ParticleContainer {
+public class ParticleContainer implements Cloneable {
 
     // ----- VARIABLES -----
 
@@ -85,5 +85,21 @@ public class ParticleContainer {
 
     public void setLocationPosition(Vector position) {
         this.location.set(position.getX(), position.getY(), position.getZ());
+    }
+
+    public ParticleContainer(ParticleContainer target) {
+        this.location = target.location.clone();
+        this.speed = target.speed;
+        this.xOff = target.getxOff();
+        this.yOff = target.getyOff();
+        this.zOff = target.getzOff();
+        this.directional = target.directional;
+        this.overrideData = target.overrideData;
+        this.size = target.size;
+        this.count = target.getCount();
+    }
+
+    public ParticleContainer clone() {
+        return new ParticleContainer(this);
     }
 }
