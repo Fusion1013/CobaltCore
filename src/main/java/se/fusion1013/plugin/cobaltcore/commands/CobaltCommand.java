@@ -1,18 +1,18 @@
 package se.fusion1013.plugin.cobaltcore.commands;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.database.Database;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
-import se.fusion1013.plugin.cobaltcore.manager.ConfigManager;
+import se.fusion1013.plugin.cobaltcore.database.system.Database;
+import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
+import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
 
@@ -46,7 +46,7 @@ public class CobaltCommand {
     private static CommandAPICommand createItemCommand() {
         return new CommandAPICommand("item")
                 .withPermission("commands.core.item")
-                .withArguments(new StringArgument("item_name").replaceSuggestions(info -> CustomItemManager.getCustomItemNames()))
+                .withArguments(new StringArgument("item_name").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
                 .executesPlayer(CobaltCommand::giveItem);
     }
 
@@ -92,6 +92,7 @@ public class CobaltCommand {
                 .withArguments(new StringArgument("file name"))
                 .withArguments(new GreedyStringArgument("url"))
                 .executes(((sender, args) -> {
+                    /*
                     try {
                         File file1 = new File("plugins", (String)args[0]); // TODO: Replace path getting
                         FileUtils.copyURLToFile(new URL((String)args[1]), file1);
@@ -103,6 +104,7 @@ public class CobaltCommand {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                     */
                 }));
     }
 
@@ -130,10 +132,10 @@ public class CobaltCommand {
     private static CommandAPICommand createDatabaseResetCommand() {
         return new CommandAPICommand("reset")
                 .withPermission("cobalt.core.commands.cobalt.database.reset")
-                .withArguments(new StringArgument("table").replaceSuggestions(info -> Database.getDatabaseTables()))
+                .withArguments(new StringArgument("table").replaceSuggestions(ArgumentSuggestions.strings(info -> Database.getDatabaseTables())))
                 .executes(((sender, args) -> {
                     SQLite.dropTable((String)args[0]);
-                    CobaltCore.getInstance().getRDatabase().load();
+                    CobaltCore.getInstance().getSQLDatabase().load();
                     StringPlaceholders placeholders = StringPlaceholders.builder().addPlaceholder("table", (String)args[0]).build();
                     if (sender instanceof Player p) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), p, "database.reset_table", placeholders);
                 }));
@@ -226,7 +228,7 @@ public class CobaltCommand {
         // Command to get values from the config file
         CommandAPICommand getCommand = new CommandAPICommand("get")
                 .withPermission("cobalt.core.commands.cobalt.config.get")
-                .withArguments(new StringArgument("key").replaceSuggestions(info -> configKeys))
+                .withArguments(new StringArgument("key").replaceSuggestions(ArgumentSuggestions.strings(info -> configKeys)))
                 .executesPlayer((sender, args) -> {
                     executeGetConfigValueCommand(sender, args, configKey);
                 });
@@ -234,7 +236,7 @@ public class CobaltCommand {
         // Command to edit values in the config file
         CommandAPICommand editBooleanCommand = new CommandAPICommand("edit_boolean")
                 .withPermission("cobalt.core.commands.cobalt.config.edit")
-                .withArguments(new StringArgument("key").replaceSuggestions(info -> configKeys))
+                .withArguments(new StringArgument("key").replaceSuggestions(ArgumentSuggestions.strings(info -> configKeys)))
                 .withArguments(new BooleanArgument("value"))
                 .executesPlayer(((sender, args) -> {
                     executeEditBooleanConfigKeyCommand(sender, args, configKey);
