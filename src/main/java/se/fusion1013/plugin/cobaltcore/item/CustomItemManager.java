@@ -3,13 +3,27 @@ package se.fusion1013.plugin.cobaltcore.item;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
+import se.fusion1013.plugin.cobaltcore.util.Constants;
 
 import java.util.*;
 
-public class CustomItemManager extends Manager {
+public class CustomItemManager extends Manager implements Listener {
 
     // ----- VARIABLES -----
 
@@ -19,9 +33,16 @@ public class CustomItemManager extends Manager {
     // ----- ITEM REGISTERING -----
 
     // Item used for testing the CustomItem system.
-    public static final CustomItem TEST_ITEM = register(new CustomItem.CustomItemBuilder("test_item", Material.NETHER_STAR, 1)
+    public static final CustomItem TEST_ITEM = register(new CustomItem.CustomItemBuilder("test_item", Material.DIRT, 1)
             .setCustomName(ChatColor.RESET + "Test Item")
             .addLoreLine("This item is only used to test the CustomItem system.")
+            .addShapedRecipe("-*-", "*%*", "-*-", new AbstractCustomItem.ShapedIngredient('*', Material.DIAMOND), new AbstractCustomItem.ShapedIngredient('%', Material.NETHER_STAR))
+            .build());
+
+    // Item used for testing the CustomBlock system.
+    public static final CustomItem TEST_BLOCK = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
+            .setCustomName(ChatColor.RESET + "Test Block")
+            .setCustomModel(10001)
             .build());
 
     // ----- CONSTRUCTORS -----
@@ -29,6 +50,73 @@ public class CustomItemManager extends Manager {
     public CustomItemManager(CobaltCore cobaltCore) {
         super(cobaltCore);
         INSTANCE = this;
+    }
+
+    // ----- RECIPES -----
+
+    @EventHandler
+    private void onHangingPlace(HangingPlaceEvent event) { // TODO: Move somewhere else
+        if (event.getItemStack().getItemMeta().getPersistentDataContainer().has(Constants.INVISIBLE_KEY)) {
+            ItemFrame itemFrame = (ItemFrame) event.getEntity();
+            itemFrame.setVisible(false);
+            event.getEntity().getPersistentDataContainer().set(Constants.INVISIBLE_KEY, PersistentDataType.BYTE, (byte) 1);
+        }
+    }
+
+    ShapedRecipe INVISIBLE_ITEM_FRAME = addShapedRecipe(
+            getInvisibleItemFrame(),
+            "---", "-*-", "---",
+            new AbstractCustomItem.ShapedIngredient('-', Material.GLOWSTONE_DUST),
+            new AbstractCustomItem.ShapedIngredient('*', Material.ITEM_FRAME)
+    );
+
+    private static ItemStack getInvisibleItemFrame() {
+        ItemStack stack = new ItemStack(Material.ITEM_FRAME);
+        ItemMeta meta = stack.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        meta.setDisplayName(ChatColor.WHITE + "Invisible Item Frame");
+        meta.getPersistentDataContainer().set(Constants.INVISIBLE_KEY, PersistentDataType.BYTE, (byte) 1);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    /**
+     * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
+     * @param result the <code>ItemStack</code> to add a recipe for.
+     * @param row1 recipe pattern.
+     * @param row2 recipe pattern.
+     * @param row3 recipe pattern.
+     * @param ingredients recipe ingredients.
+     * @return the recipe.
+     */
+    public static ShapedRecipe addShapedRecipe(ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
+        StringBuilder keyString = new StringBuilder("custom.shapeless.");
+        for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
+
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
+        recipe.shape(row1, row2, row3);
+        for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) recipe.setIngredient(ingredient.key, ingredient.item);
+        CobaltCore.getInstance().getServer().addRecipe(recipe);
+
+        return recipe;
+    }
+
+    /**
+     * Registers a new <code>ShapelessRecipe</code> for the given <code>ItemStack</code>.
+     * @param result the <code>ItemStack</code> to add a recipe for.
+     * @param ingredients recipe ingredients.
+     * @return the recipe.
+     */
+    public static ShapelessRecipe addShapelessRecipe(ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
+        StringBuilder keyString = new StringBuilder("custom.shapeless.");
+        for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
+
+        ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
+        for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) recipe.addIngredient(ingredient.count, ingredient.item);
+        CobaltCore.getInstance().getServer().addRecipe(recipe);
+
+        return recipe;
     }
 
     // ----- REGISTER -----
@@ -96,7 +184,7 @@ public class CustomItemManager extends Manager {
         return stack;
     }
 
-    private static boolean isMaterial(String name) {
+    public static boolean isMaterial(String name) {
         for (Material m : Material.values()) {
             if (m.name().equalsIgnoreCase(name)) return true;
         }
@@ -150,7 +238,7 @@ public class CustomItemManager extends Manager {
 
     @Override
     public void reload() {
-
+        Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
     }
 
     @Override
