@@ -2,16 +2,15 @@ package se.fusion1013.plugin.cobaltcore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import dev.jorel.commandapi.wrappers.ParticleData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStylePoint;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleParametric;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class ParticleStyleCommand {
     private static CommandAPICommand createEditParticleCommand() {
         return new CommandAPICommand("particle")
                 .withPermission("cobalt.core.commands.cparticle.style")
-                .withArguments(new StringArgument("styleName").replaceSuggestions(info -> ParticleStyleManager.getParticleStyleNames()))
+                .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames())))
                 .withArguments(new ParticleArgument("particle"))
                 .withArguments(new DoubleArgument("offsetX"))
                 .withArguments(new DoubleArgument("offsetY"))
@@ -75,7 +74,7 @@ public class ParticleStyleCommand {
 
     private static void editParticle(CommandSender sender, Object[] args) {
         String styleName = (String) args[0];
-        Particle particle = (Particle) args[1];
+        ParticleData<?> particle = (ParticleData<?>) args[1];
         double offsetX = (double) args[2];
         double offsetY = (double) args[3];
         double offsetZ = (double) args[4];
@@ -85,7 +84,7 @@ public class ParticleStyleCommand {
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("style_name", styleName)
-                .addPlaceholder("particle", particle.name())
+                .addPlaceholder("particle", particle.particle().name())
                 .addPlaceholder("offset_x", offsetX)
                 .addPlaceholder("offset_y", offsetY)
                 .addPlaceholder("offset_z", offsetZ)
@@ -99,10 +98,11 @@ public class ParticleStyleCommand {
             return;
         }
 
-        style.setParticle(particle);
+        style.setParticle(particle.particle());
         style.setOffset(new Vector(offsetX, offsetY, offsetZ));
         style.setCount(count);
         style.setSpeed(speed);
+        style.setData(particle.data());
         if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style.particle.set", placeholders);
     }
 
@@ -112,7 +112,7 @@ public class ParticleStyleCommand {
         return new CommandAPICommand("create")
                 .withPermission("cobalt.core.commands.cparticle.style")
                 .withArguments(new StringArgument("name"))
-                .withArguments(new StringArgument("styleName").replaceSuggestions(info -> ParticleStyleManager.getInternalParticleStyleNames()))
+                .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getInternalParticleStyleNames())))
                 .withArguments(new ParticleArgument("particle"))
                 .withArguments(new DoubleArgument("offset_x"))
                 .withArguments(new DoubleArgument("offset_y"))
@@ -126,7 +126,7 @@ public class ParticleStyleCommand {
         // Get variables.
         String name = (String) args[0];
         String internalStyleName = (String) args[1];
-        Particle particle = (Particle) args[2];
+        ParticleData<?> particle = (ParticleData<?>) args[2];
         double offsetX = (double) args[3];
         double offsetY = (double) args[4];
         double offsetZ = (double) args[5];
@@ -137,7 +137,12 @@ public class ParticleStyleCommand {
                 .addPlaceholder("name", name)
                 .build();
 
-        boolean created = ParticleStyleManager.createParticleStyle(internalStyleName, name, particle, new Vector(offsetX, offsetY, offsetZ), count, speed, null);
+        boolean created = ParticleStyleManager.createParticleStyle(internalStyleName, name, particle.particle(), new Vector(offsetX, offsetY, offsetZ), count, speed, null);
+
+        if (created) {
+            ParticleStyle style = ParticleStyleManager.getParticleStyle(name);
+            style.setData(particle.data());
+        }
 
         // Send message
         if (sender instanceof Player player) {
@@ -154,7 +159,47 @@ public class ParticleStyleCommand {
 
         String[] styles = ParticleStyleManager.getInternalParticleStyleNames();
         for (String s : styles) {
-            command.withSubcommand(setExtraSettingsSubcommand(ParticleStyleManager.getDefaultParticleStyle(s)));
+            command.withSubcommand(generateExtraSettingsSubcommand(ParticleStyleManager.getDefaultParticleStyle(s)));
+            command.withSubcommand(new CommandAPICommand("all").withSubcommand(setExtraSettingsSubcommand(ParticleStyleManager.getDefaultParticleStyle(s))));
+        }
+
+        return command;
+    }
+
+    private static CommandAPICommand generateExtraSettingsSubcommand(ParticleStyle style) {
+        Argument[] arguments = style.getExtraSettingsArguments();
+        CommandAPICommand command = new CommandAPICommand(style.getInternalName());
+
+        // Loop through all extra arguments and create a subcommand for each one
+        for (Argument argument : arguments) {
+            CommandAPICommand node = new CommandAPICommand(argument.getNodeName());
+            node.withArguments(new StringArgument("name").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames(style.getInternalName()))));
+            node.withArguments(argument);
+            node.executes((sender, args) -> {
+
+                // Get arguments
+                String styleName = (String) args[0];
+                Object setting = args[1];
+                String commandPath = argument.getNodeName();
+                ParticleStyle particleStyle = ParticleStyleManager.getParticleStyle(styleName);
+
+                // Set the value
+                particleStyle.setExtraSetting(commandPath, setting);
+
+                // Send feedback if sender is a player
+                if (sender instanceof Player player) {
+                    List<String> info = particleStyle.getInfoStrings();
+
+                    StringPlaceholders placeholders = StringPlaceholders.builder()
+                            .addPlaceholder("style_name", particleStyle.getName())
+                            .build();
+                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cparticle.style.extra.set", placeholders);
+                    for (String s : info) player.sendMessage(s);
+                }
+            });
+
+            // Add the subcommand to the main subcommand
+            command.withSubcommand(node);
         }
 
         return command;
@@ -162,7 +207,7 @@ public class ParticleStyleCommand {
 
     private static CommandAPICommand setExtraSettingsSubcommand(ParticleStyle style) {
         return new CommandAPICommand(style.getInternalName())
-                .withArguments(new StringArgument("name").replaceSuggestions(info -> ParticleStyleManager.getParticleStyleNames(style.getInternalName())))
+                .withArguments(new StringArgument("name").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames(style.getInternalName()))))
                 .withArguments(style.getExtraSettingsArguments())
                 .executes(((sender, args) -> {
                     String styleName = (String) args[0];
@@ -229,7 +274,7 @@ public class ParticleStyleCommand {
     private static CommandAPICommand createRotationCommand() {
         return new CommandAPICommand("rotation")
                 .withPermission("cobalt.core.commands.cparticle.style.rotation")
-                .withArguments(new StringArgument("name").replaceSuggestions(suggestionInfo -> ParticleStyleManager.getParticleStyleNames()))
+                .withArguments(new StringArgument("name").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleStyleManager.getParticleStyleNames())))
                 .withArguments(new DoubleArgument("x_rotation"))
                 .withArguments(new DoubleArgument("y_rotation"))
                 .withArguments(new DoubleArgument("z_rotation"))
@@ -276,7 +321,7 @@ public class ParticleStyleCommand {
     private static CommandAPICommand createInfoCommand() {
         return new CommandAPICommand("info")
                 .withPermission("cobalt.core.command.cparticle.style.info")
-                .withArguments(new StringArgument("style_name").replaceSuggestions(suggestionInfo -> ParticleStyleManager.getParticleStyleNames()))
+                .withArguments(new StringArgument("style_name").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleStyleManager.getParticleStyleNames())))
                 .executesPlayer(ParticleStyleCommand::printInfo);
     }
 
@@ -306,7 +351,7 @@ public class ParticleStyleCommand {
     private static CommandAPICommand createRemoveCommand() {
         return new CommandAPICommand("remove")
                 .withPermission("cobalt.core.commands.cparticle.style.remove")
-                .withArguments(new StringArgument("name").replaceSuggestions(suggestionInfo -> ParticleStyleManager.getParticleStyleNames()))
+                .withArguments(new StringArgument("name").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleStyleManager.getParticleStyleNames())))
                 .executes(ParticleStyleCommand::removeStyle);
     }
 
