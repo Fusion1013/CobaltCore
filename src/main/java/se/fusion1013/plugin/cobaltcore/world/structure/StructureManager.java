@@ -1,6 +1,7 @@
-package se.fusion1013.plugin.cobaltcore.manager;
+package se.fusion1013.plugin.cobaltcore.world.structure;
 
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 /**
  * The structure manager handles creation and storage of structures.

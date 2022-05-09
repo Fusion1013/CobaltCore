@@ -1,0 +1,20 @@
+#
+# ----- DATABASE -----
+#
+# More implementations coming soon!
+#
+# Determines which database implementation to use. Valid inputs: [sqlite]
+database-implementation: sqlite
+#
+# Determines which database implementation to use if the main one fails. Valid inputs: [sqlite]
+database-fallback-implementation: sqlite
+#
+# If you are using the mongodb database implementation, this url and database name must be specified
+mongo-db-url: ""
+mongo-db-name: ""
+#
+# ----- BOSSBAR SYSTEM -----
+#
+# Determines how often bossbars are updated
+bossbar-update-period: 10
+#

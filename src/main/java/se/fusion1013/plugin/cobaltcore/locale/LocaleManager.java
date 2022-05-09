@@ -1,4 +1,4 @@
-package se.fusion1013.plugin.cobaltcore.manager;
+package se.fusion1013.plugin.cobaltcore.locale;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -6,10 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
+import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.FileUtil;
 import se.fusion1013.plugin.cobaltcore.util.HexUtils;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;

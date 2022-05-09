@@ -1,10 +1,11 @@
-package se.fusion1013.plugin.cobaltcore.manager;
+package se.fusion1013.plugin.cobaltcore.config;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.FileUtil;
 
 import java.io.File;
@@ -262,11 +263,17 @@ public class ConfigManager extends Manager {
         return plugin.getName() + ":" + configName;
     }
 
+    // ----- CREATE CONFIG -----
+
+    private void createConfig() {
+        updateCustomConfig(CobaltCore.getInstance(), "cobalt.yml");
+    }
+
     // ----- RELOADING / DISABLING -----
 
     @Override
     public void reload() {
-
+        createConfig();
     }
 
     @Override

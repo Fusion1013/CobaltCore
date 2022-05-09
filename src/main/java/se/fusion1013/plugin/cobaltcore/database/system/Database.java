@@ -1,4 +1,4 @@
-package se.fusion1013.plugin.cobaltcore.database;
+package se.fusion1013.plugin.cobaltcore.database.system;
 
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
@@ -31,7 +31,7 @@ public abstract class Database {
         List<String> tables = new ArrayList<>();
 
         try {
-            Connection conn = CobaltCore.getInstance().getRDatabase().getSQLConnection();
+            Connection conn = CobaltCore.getInstance().getSQLDatabase().getSQLConnection();
             PreparedStatement stmt = conn.prepareStatement("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%'");
             ResultSet rs = stmt.executeQuery();
 
