@@ -1,11 +1,10 @@
 package se.fusion1013.plugin.cobaltcore.commands.settings;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
@@ -38,7 +37,7 @@ public class SettingCommand {
     private static CommandAPICommand createSetCommand() { // TODO: Replace with subcommands that generate tab-completion
         return new CommandAPICommand("set")
                 .withPermission("commands.core.setting.set")
-                .withArguments(new StringArgument("setting").replaceSuggestions(info -> SettingsManager.getSettingSuggestions()))
+                .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingSuggestions())))
                 .withArguments(new StringArgument("value"))
                 .executesPlayer(((sender, args) -> {
 
@@ -65,7 +64,7 @@ public class SettingCommand {
     private static CommandAPICommand createGetCommand() {
         return new CommandAPICommand("get")
                 .withPermission("commands.core.setting.get")
-                .withArguments(new StringArgument("setting").replaceSuggestions(info -> SettingsManager.getSettingSuggestions()))
+                .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingSuggestions())))
                 .executesPlayer(((sender, args) -> {
                     String value = SettingsManager.getPlayerSetting(sender, (String)args[0]);
                     StringPlaceholders placeholders = StringPlaceholders.builder()
