@@ -18,6 +18,7 @@ public interface CobaltPlugin extends Plugin {
 
     default void reloadManagers() {}
 
+    @Deprecated
     default void initDatabaseTables() {}
 
     default void preInit() {}
