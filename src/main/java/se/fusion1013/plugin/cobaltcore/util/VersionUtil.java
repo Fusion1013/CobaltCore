@@ -3,7 +3,7 @@ package se.fusion1013.plugin.cobaltcore.util;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 
 public class VersionUtil {
 
@@ -19,11 +19,11 @@ public class VersionUtil {
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("plugin_name", desc.getName())
                 .addPlaceholder("version", desc.getVersion())
-                .addPlaceholder("github_issues_link", "") // TODO: ADD GITHUB
+                .addPlaceholder("website", desc.getWebsite())
                 .build();
 
         localeManager.sendMessage(plugin, player, "version.version", placeholders);
         localeManager.sendMessage(plugin, player, "version.author", placeholders);
-        // localeManager.sendMessage(player, new Message("version.github_issues"), placeholders);
+        localeManager.sendMessage(player, "version.website", placeholders);
     }
 }
