@@ -9,7 +9,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.GeometryUtil;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -55,6 +55,15 @@ public class ParticleStyleSphere extends ParticleStyle {
     }
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "density" -> density = (int) value;
+            case "radius" -> radius = (double) value;
+            case "inSphere" -> inSphere = (boolean) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -143,6 +152,10 @@ public class ParticleStyleSphere extends ParticleStyle {
         int density = 1; // TODO: Change default value
         boolean inSphere;
 
+        public ParticleStyleSphereBuilder(String name) {
+            super(name);
+        }
+
         @Override
         public ParticleStyleSphere build(){
             obj.setRadius(targetRadius);
@@ -192,6 +205,17 @@ public class ParticleStyleSphere extends ParticleStyle {
         this.inSphere = inSphere;
     }
 
+    public int getDensity() {
+        return density;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public boolean isInSphere() {
+        return inSphere;
+    }
 
     // ----- CLONE -----
 
