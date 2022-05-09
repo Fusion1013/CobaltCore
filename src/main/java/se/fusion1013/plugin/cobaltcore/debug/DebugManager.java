@@ -2,7 +2,7 @@ package se.fusion1013.plugin.cobaltcore.debug;
 
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
