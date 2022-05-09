@@ -1,7 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.particle.styles;
 
 import org.bukkit.Location;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 
 import java.util.ArrayList;
@@ -45,6 +45,9 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
     // ----- EXTRA -----
 
     @Override
+    public void setExtraSetting(String key, Object value) {}
+
+    @Override
     public String getExtraSettings() {
         return "";
     }
@@ -65,6 +68,10 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
     // ----- BUILDER -----
 
     public static class ParticleStylePointBuilder extends ParticleStyleBuilder<ParticleStylePoint, ParticleStylePointBuilder> {
+
+        public ParticleStylePointBuilder(String name) {
+            super(name);
+        }
 
         protected ParticleStylePoint createObj() { return new ParticleStylePoint(); }
 
