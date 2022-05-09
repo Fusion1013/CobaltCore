@@ -8,7 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
@@ -50,6 +50,14 @@ public class ParticleStyleCircle extends ParticleStyle {
     }
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "radius" -> radius = (double) value;
+            case "iterations" -> iterations = (int) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -113,12 +121,19 @@ public class ParticleStyleCircle extends ParticleStyle {
         double radius = 1;
         int iterations = 16;
 
+        public ParticleStyleCircleBuilder(String name) {
+            super(name);
+        }
+
         @Override
         public ParticleStyleCircle build() {
+            obj.radius = radius;
+            obj.iterations = iterations;
+
             return super.build();
         }
 
-        protected ParticleStyleCircle createObj() { return new ParticleStyleCircle(); }
+        protected ParticleStyleCircle createObj() { return new ParticleStyleCircle(name); }
 
         protected ParticleStyleCircle.ParticleStyleCircleBuilder getThis() { return this; }
 
@@ -142,6 +157,14 @@ public class ParticleStyleCircle extends ParticleStyle {
 
     public void setIterations(int iterations) {
         this.iterations = iterations;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public int getIterations() {
+        return iterations;
     }
 
     // ----- CLONE METHOD & CONSTRUCTOR -----
