@@ -4,7 +4,7 @@ import dev.jorel.commandapi.arguments.Argument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
@@ -17,7 +17,7 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     // ----- VARIABLES -----
 
     // Internals
-    String internalStyleName;
+    protected String internalStyleName;
     boolean enabled = true;
 
     // Display
@@ -35,6 +35,10 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     double angularVelocityX = 0; // Angular velocity is measured in radians/tick
     double angularVelocityY = 0;
     double angularVelocityZ = 0;
+
+    // Tick skipping
+    protected int skipTicks = 0;
+    int tick = 0;
 
     // ----- CONSTRUCTORS -----
 
@@ -91,6 +95,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.angularVelocityX = target.angularVelocityX;
         this.angularVelocityY = target.angularVelocityY;
         this.angularVelocityZ = target.angularVelocityZ;
+
+        this.skipTicks = target.skipTicks;
+        this.tick = target.tick;
     }
 
     // ----- ROTATING -----
@@ -148,6 +155,14 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     @Override
     public ParticleContainer[] getParticles(Location location) {
+        // Skip ticks
+        if (tick >= skipTicks) {
+            tick = 0;
+        } else {
+            tick++;
+            return new ParticleContainer[0];
+        }
+
         // Update rotation of particles
         rotation.setX((rotation.getX() + angularVelocityX) % (Math.PI * 2));
         rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
@@ -158,6 +173,14 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     @Override
     public ParticleContainer[] getParticles(Location location1, Location location2) {
+        // Skip ticks
+        if (tick >= skipTicks) {
+            tick = 0;
+        } else {
+            tick++;
+            return new ParticleContainer[0];
+        }
+
         // Update rotation of particles
         rotation.setX((rotation.getX() + angularVelocityX) % (Math.PI * 2));
         rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
@@ -197,7 +220,7 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     }
 
     @Override
-    public Object getExtra() {
+    public Object getData() {
         return extra;
     }
 
@@ -222,7 +245,7 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     }
 
     @Override
-    public void setExtra(Object extra) {
+    public void setData(Object extra) {
         this.extra = extra;
     }
 
@@ -244,6 +267,10 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.angularVelocityX = angularVelocityX;
         this.angularVelocityY = angularVelocityY;
         this.angularVelocityZ = angularVelocityZ;
+    }
+
+    public void setSkipTicks(int skipTicks) {
+        this.skipTicks = skipTicks;
     }
 
     @Override
@@ -285,7 +312,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     protected static abstract class ParticleStyleBuilder<T extends ParticleStyle, B extends ParticleStyleBuilder> {
 
-        T obj;
+        protected T obj;
+
+        protected String name = "unset";
 
         Particle particle = Particle.FLAME;
         Vector offset = new Vector(0, 0, 0);
@@ -298,7 +327,8 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         double angularVelocityY = 0;
         double angularVelocityZ = 0;
 
-        public ParticleStyleBuilder(){
+        public ParticleStyleBuilder(String name){
+            this.name = name;
             obj = createObj();
         }
 
@@ -307,7 +337,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
             obj.setOffset(offset);
             obj.setCount(count);
             obj.setSpeed(speed);
-            obj.setExtra(extra);
+            obj.setData(extra);
+            obj.setRotation(rotation);
+            obj.setAngularVelocity(angularVelocityX, angularVelocityY, angularVelocityZ);
 
             return obj;
         }
@@ -359,15 +391,15 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     public abstract ParticleStyle clone();
 
     /**
-     * Creates a clone of a list of <code>ParticleStyle</code>'s.
+     * Creates a clone of an array of <code>ParticleContainer</code>'s.
      *
-     * @param list a list of <code>ParticleStyle</code>'s.
-     * @return a list of <code>ParticleStyle</code>'s.
+     * @param particles an array of <code>ParticleContainer</code>'s.
+     * @return an array of <code>ParticleContainer</code>'s.
      */
-    public static List<ParticleStyle> cloneList(List<ParticleStyle> list) {
-        if (list == null) return new ArrayList<>();
-        List<ParticleStyle> clone = new ArrayList<>(list.size());
-        for (ParticleStyle item : list) clone.add(item.clone());
+    public static ParticleContainer[] cloneContainers(ParticleContainer[] particles) {
+        if (particles == null) return new ParticleContainer[0];
+        ParticleContainer[] clone = new ParticleContainer[particles.length];
+        for (int i = 0; i < clone.length; i++) clone[i] = particles[i].clone();
         return clone;
     }
 }
