@@ -35,7 +35,26 @@ public class ParticleGroupCommand {
                 .withSubcommand(createAddStyleCommand())
                 .withSubcommand(createDisplayCommand())
                 .withSubcommand(createEditStyleCommand())
-                .withSubcommand(createRemoveCommand());
+                .withSubcommand(createRemoveCommand())
+                .withSubcommand(editIntegrityCommand());
+    }
+
+    // ----- CREATE EDIT INTEGRITY COMMAND -----
+
+    private static CommandAPICommand editIntegrityCommand() {
+        return new CommandAPICommand("integrity")
+                .withPermission("cobalt.core.commands.cparticle.group")
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleGroupManager.getParticleGroupNames())))
+                .withArguments(new DoubleArgument("integrity"))
+                .executes(ParticleGroupCommand::editIntegrity);
+    }
+
+    private static void editIntegrity(CommandSender sender, Object[] args) {
+        String name = (String) args[0];
+        double integrity = (double) args[1];
+
+        ParticleGroup group = ParticleGroupManager.getParticleGroup(name);
+        if (group != null) group.setIntegrity(integrity);
     }
 
     // ----- CREATE CREATE COMMAND -----
