@@ -1,24 +1,30 @@
 package se.fusion1013.plugin.cobaltcore;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.fusion1013.plugin.cobaltcore.bossbar.BossBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltSummonCommand;
-import se.fusion1013.plugin.cobaltcore.commands.TradeCommand;
+import se.fusion1013.plugin.cobaltcore.commands.CommandGenerator;
 import se.fusion1013.plugin.cobaltcore.commands.particle.MainParticleCommand;
 import se.fusion1013.plugin.cobaltcore.commands.settings.SettingCommand;
-import se.fusion1013.plugin.cobaltcore.database.Database;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
+import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
+import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.Database;
+import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.*;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
+import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockManager;
+import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
 
 import java.util.*;
 
@@ -48,7 +54,6 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         this.managers.get(this).values().forEach(Manager::disable);
-        // this.managers.values().forEach(Manager::disable);
     }
 
     // ----- MANAGERS -----
@@ -84,7 +89,12 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     public void reloadManagers() {
         if (this.managers.get(this) != null) this.managers.get(this).values().forEach(Manager::disable);
 
-        this.getManager(this, ConfigManager.class);
+        this.getManager(this, ConfigManager.class); // DataManager uses ConfigManager, so it has to be instantiated before
+
+        this.getManager(this, DataManager.class); // This manager must be instantiated before any manager that uses data storage
+
+        this.getManager(this, CommandManager.class); // This manager must be instantiated before any manager that registers a command
+
         this.getManager(this, LocaleManager.class);
         this.getManager(this, CustomItemManager.class);
         this.getManager(this, SettingsManager.class);
@@ -93,6 +103,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, CustomEntityManager.class);
         this.getManager(this, ParticleStyleManager.class);
         this.getManager(this, ParticleGroupManager.class);
+        this.getManager(this, BossBarManager.class);
+        this.getManager(this, BlockManager.class);
     }
 
     // ----- LISTENERS -----
@@ -108,7 +120,6 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     @Override
     public void registerCommands() {
-        TradeCommand.register();
         MainParticleCommand.register();
         CobaltSummonCommand.register();
     } // Do not register cobalt and setting commands here, that is done elsewhere since they must be reloaded every time a new plugin is loaded.
@@ -133,7 +144,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             // Connect to database if the plugin is CobaltCore
             if (plugin instanceof CobaltCore) {
                 // getLogger().info("Instantiating Database...");
-                db = new SQLite(this);
+                db = new SQLite(this); // TODO: Move to DataManager
                 db.load();
             }
 
@@ -142,7 +153,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             LocaleManager.loadLocale(plugin);
 
             // Init Database Tables
-            plugin.initDatabaseTables();
+            plugin.initDatabaseTables(); // TODO: Remove this method (Needs to be removed from other plugins too)
 
             // Reloads all Managers
             // getLogger().info("Reloading Managers for " + plugin.getName() + "...");
@@ -163,6 +174,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         // getLogger().info("Reloading cobalt command...");
         CobaltCommand.register();
         SettingCommand.register();
+        CommandGenerator.register();
 
         getLogger().info("Successfully registered " + plugin.getName() + ".");
         return true;
@@ -197,5 +209,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
      *
      * @return the database
      */
-    public Database getRDatabase() { return db; }
+    public Database getSQLDatabase() { return db; }
+
+    @Deprecated
+    public Database getRDatabase() { return getSQLDatabase(); }
 }
