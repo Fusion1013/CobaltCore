@@ -2,7 +2,9 @@ package se.fusion1013.plugin.cobaltcore.settings;
 
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
+import se.fusion1013.plugin.cobaltcore.database.setting.ISettingDao;
+import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 import java.util.HashMap;
@@ -114,11 +116,11 @@ public class SettingsManager extends Manager {
     }
 
     private void loadSettings() {
-        playerSettings = SQLite.getSettings();
+        playerSettings = DataManager.getInstance().getDao(ISettingDao.class).getSettings();
     }
 
     private void savePlayerSettings() {
-        SQLite.saveSettings(playerSettings);
+        DataManager.getInstance().getDao(ISettingDao.class).saveSettings(playerSettings);
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----
