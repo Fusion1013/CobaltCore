@@ -5,9 +5,10 @@ import com.google.gson.JsonObject;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
+import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
@@ -49,6 +50,14 @@ public class ParticleStyleLine extends ParticleStyle {
     }
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "density" -> density = (int) value;
+            case "location2" -> location2 = (Location) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -95,10 +104,12 @@ public class ParticleStyleLine extends ParticleStyle {
 
     @Override
     public ParticleContainer[] getParticleContainers(Location startLocation, Location endLocation) {
+        // return drawLine(startLocation, endLocation, steps);
+
         List<ParticleContainer> particles = new ArrayList<>();
 
         double distance = startLocation.distance(endLocation);
-        int steps = density * (int)Math.round(distance);
+        int steps = (int)Math.round(density * distance);
 
         Vector direction = endLocation.clone().subtract(startLocation).toVector().normalize();
 
@@ -110,12 +121,32 @@ public class ParticleStyleLine extends ParticleStyle {
         return particles.toArray(new ParticleContainer[0]);
     }
 
+    public ParticleContainer[] drawLine(Location point1, Location point2, double space) {
+        List<ParticleContainer> particles = new ArrayList<>();
+        World world = point1.getWorld();
+        Validate.isTrue(point2.getWorld().equals(world), "Lines cannot be in different worlds!");
+        double distance = point1.distance(point2);
+        Vector p1 = point1.toVector();
+        Vector p2 = point2.toVector();
+        Vector vector = p2.clone().subtract(p1).normalize().multiply(space);
+        double length = 0;
+        for (; length < distance; p1.add(vector)) {
+            length += space;
+            particles.add(new ParticleContainer(new Location(world, p1.getX(), p1.getY(), p1.getZ()), offset.getX(), offset.getY(), offset.getZ(), speed, count));
+        }
+        return particles.toArray(new ParticleContainer[0]);
+    }
+
     // ----- BUILDER -----
 
     public static class ParticleStyleLineBuilder extends ParticleStyleBuilder<ParticleStyleLine, ParticleStyleLineBuilder> {
 
         int density = 8;
         Location location2 = null;
+
+        public ParticleStyleLineBuilder(String name) {
+            super(name);
+        }
 
         @Override
         public ParticleStyleLine build() {
