@@ -8,7 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
@@ -58,12 +58,28 @@ public class ParticleStyleTesseract extends ParticleStyle {
                 .addPlaceholder("density", density)
                 .addPlaceholder("width", width)
                 .build();
-        info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.tesseract.info"));
+        info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.tesseract.info", placeholders));
         return info;
     }
 
 
     // ----- SET EXTRA SETTINGS -----
+
+    @Override
+    public void setExtraSetting(String key, Object value) {
+        switch (key) {
+            case "rx" -> rx = (double) value;
+            case "ry" -> ry = (double) value;
+            case "rz" -> rz = (double) value;
+            case "rw" -> rw = (double) value;
+            case "dx" -> dx = (double) value;
+            case "dy" -> dy = (double) value;
+            case "dz" -> dz = (double) value;
+            case "dw" -> dw = (double) value;
+            case "density" -> density = (int) value;
+            case "width" -> width = (int) value;
+        }
+    }
 
     @Override
     public Argument[] getExtraSettingsArguments() {
@@ -183,9 +199,6 @@ public class ParticleStyleTesseract extends ParticleStyle {
 
         // Get Vertex locations
         List<ParticleContainer> containers = new ArrayList<>();
-
-        ParticleStyleLine line = new ParticleStyleLine("tesseract", Particle.END_ROD, new Vector(0, 0, 0), 1, 0, null);
-        line.setDensity(1);
 
         // --- Horizontal planes
         // Upper
