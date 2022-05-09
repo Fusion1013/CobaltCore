@@ -3,9 +3,14 @@ package se.fusion1013.plugin.cobaltcore.particle.manager;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.database.SQLite;
+import se.fusion1013.plugin.cobaltcore.database.particle.style.IParticleStyleDao;
+import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.*;
+import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleAlchemical;
+import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleFinnishGlyph;
+import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleGalactic;
+import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleText;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +85,7 @@ public class ParticleStyleManager extends Manager {
      * @return true if the <code>ParticleStyle</code> was deleted.
      */
     public static boolean deleteStyle(String styleName) {
-        SQLite.removeParticleStyle(styleName);
+        DataManager.getInstance().getDao(IParticleStyleDao.class).removeParticleStyle(styleName);
         ParticleGroupManager.removeStyle(styleName);
         if (particleStyleList.remove(styleName) == null) return false;
         else return true;
@@ -113,7 +118,7 @@ public class ParticleStyleManager extends Manager {
         style.setOffset(offset);
         style.setCount(count);
         style.setSpeed(speed);
-        style.setExtra(extra);
+        style.setData(extra);
 
         particleStyleList.put(name, style);
         return true;
@@ -129,6 +134,10 @@ public class ParticleStyleManager extends Manager {
         return defaultParticleStyles.get(internalStyleName);
     }
 
+    public static ParticleStyle fromJsonFile() {
+        return null; // TODO
+    }
+
     // ----- REGISTER -----
 
     public static final ParticleStyle PARTICLE_STYLE_POINT = register(new ParticleStylePoint("default_point"));
@@ -137,8 +146,14 @@ public class ParticleStyleManager extends Manager {
     public static final ParticleStyle PARTICLE_STYLE_ICOSPHERE = register(new ParticleStyleIcosphere("default_icosphere"));
     public static final ParticleStyle PARTICLE_STYLE_LINE = register(new ParticleStyleLine("default_line"));
     public static final ParticleStyle PARTICLE_STYLE_CIRCLE = register(new ParticleStyleCircle("default_circle"));
-    public static final ParticleStyle PARTICLE_STYLE_GALACTIC = register(new ParticleStyleGalactic("default_galactic"));
     public static final ParticleStyle PARTICLE_STYLE_TESSERACT = register(new ParticleStyleTesseract("default_tesseract"));
+    public static final ParticleStyle PARTICLE_STYLE_PARAMETRIC = register(new ParticleStyleParametric("default_parametric"));
+
+    public static final ParticleStyle PARTICLE_STYLE_TEXT = register(new ParticleStyleText("default_text"));
+
+    public static final ParticleStyle PARTICLE_STYLE_GALACTIC = register(new ParticleStyleGalactic("default_galactic"));
+    public static final ParticleStyle PARTICLE_STYLE_FINNISH_GLYPH = register(new ParticleStyleFinnishGlyph("default_finnish_glyph"));
+    public static final ParticleStyle PARTICLE_STYLE_ALCHEMICAL = register(new ParticleStyleAlchemical("default_alchemical"));
 
     /**
      * Registers a new <code>ParticleStyle</code>.
@@ -163,13 +178,13 @@ public class ParticleStyleManager extends Manager {
     @Override
     public void reload() {
         particleStyleList.clear();
-        particleStyleList = SQLite.getParticleStyles();
+        particleStyleList = DataManager.getInstance().getDao(IParticleStyleDao.class).getParticleStyles();
     }
 
     @Override
     public void disable() {
         // Store particle styles in database
-        SQLite.insertParticleStyles(new ArrayList<>(particleStyleList.values()));
+        DataManager.getInstance().getDao(IParticleStyleDao.class).insertParticleStyles(new ArrayList<>(particleStyleList.values()));
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----
