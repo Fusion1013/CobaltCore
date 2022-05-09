@@ -5,10 +5,6 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import dev.sergiferry.playernpc.api.NPC;
-import dev.sergiferry.playernpc.api.NPCLib;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
@@ -43,22 +39,6 @@ public class CobaltCommand {
                 .withSubcommand(createItemCommand())
                 //.withSubcommand(createNpcCommand())
                 .register();
-    }
-
-    private static CommandAPICommand createNpcCommand() {
-        return new CommandAPICommand("npc")
-                .executesPlayer(((sender, args) -> {
-                    NPC npc = NPCLib.getInstance().generateNPC(sender, CobaltCore.getInstance(), UUID.randomUUID().toString(), sender.getLocation());
-
-                    npc.setSkin(new NPC.Skin("ewogICJ0aW1lc3RhbXAiIDogMTYxNDA3NzM1MjgzOSwKICAicHJvZmlsZUlkIiA6ICJkNGY1ZGQ2YzVhYjE0NTNlYmJiNTg2ZTU2NzVkMDUyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICIwMDAwMDAwMDAwMDAwMDBQIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJjNjc0OTM0ZTBjYmE3MDU4YzA4YjQwYmIwYzA0Mzk3OWRkOTZkOThiMmExZmMxNzYwNDJiMTVkMjllNjEyZjciCiAgICB9CiAgfQp9", "ftCGwl52G/z+TpPv+OvhOILXguWTckmb9UuiF4bwUMr07Iz8/iXaIKv4ElFNYJlJzs0cSKTKgWkKYqih2U0sDLO2gA8NGOItJ4WkRgh4Grnut7o9cLtm9FzljFMNgg7rmXlWwla8mp5JDgQIR36vfDf6zirFsxmM2AKRolO34S7322V3lnhf2exg6tA7iRIF4M5TcJReDYatpg6F/gaOlOr16TXQtfSAt/970OLEe5V/Syexe3D6D0p8GHX3iwurIoShG7g8pjkoXxIqDVg6Mw1hWD3fqgV9xiM1Y7natBefdL9wN7afbLstQNentPRHQDPUy0o0H2ceI/6mhHhbSb1dzRkkBMtwGg7WciiYeQuEg1I31z0YJr7pAHG2Inkx+7l4DoLIet3naiSbzzKRBgBxBy2TryFjwPioYF964GAT3AJLdHnby5FWjyVjj+Qxci80JnuXwb4220Wt4f4vFLIgdP+5s/07FgNQ5J92YGMMrgf6nS2CcpAIFDDWcYy3LUKX141DafEx5ZNgZlXxiZjI8nD2sQhryVo1yEbZU3Y6ZHvdrMDzXy6z2Po/6lesf4Erg9dTWnjGBvsJf/KcB3xk6r+QdVYcGKwo9uTIzdE4Q+1c94N2oWnbR+QkLaudyDmsuNum9vRqVGgCPbtlLtFGhZFFe0DADQjx4CK1kM4="));
-                    npc.setFollowLookType(NPC.FollowLookType.NEAREST_PLAYER);
-
-                    npc.create();
-                    npc.show();
-
-                    npc.followPlayer();
-                    npc.update();
-                }));
     }
 
     // ----- CGIVE COMMAND -----
