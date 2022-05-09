@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandHandler;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
 import se.fusion1013.plugin.cobaltcore.entity.modules.*;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ability.ChargeAbility;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
@@ -102,6 +104,15 @@ public class CustomEntityManager extends Manager {
             names[i] = inbuiltCustomEntities.get(i).getInternalName();
         }
         return names;
+    }
+
+    // ----- ENTITY SUMMONING ----- // TODO
+
+    @CommandHandler(
+            parameterNames = {""}
+    )
+    public CommandResult csummon() {
+        return CommandResult.SUCCESS;
     }
 
     // ----- CONSTRUCTORS -----
