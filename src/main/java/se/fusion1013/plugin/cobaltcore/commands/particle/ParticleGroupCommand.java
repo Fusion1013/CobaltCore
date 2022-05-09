@@ -2,16 +2,16 @@ package se.fusion1013.plugin.cobaltcore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.SuggestionInfo;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Location;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.manager.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
@@ -85,8 +85,8 @@ public class ParticleGroupCommand {
     private static CommandAPICommand createAddStyleCommand() {
         return new CommandAPICommand("add")
                 .withPermission("cobalt.core.commands.cparticle.group")
-                .withArguments(new StringArgument("groupName").replaceSuggestions(info -> ParticleGroupManager.getParticleGroupNames()))
-                .withArguments(new StringArgument("styleName").replaceSuggestions(info -> ParticleStyleManager.getParticleStyleNames()))
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleGroupManager.getParticleGroupNames())))
+                .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames())))
                 .executes(ParticleGroupCommand::addStyle);
     }
 
@@ -122,7 +122,7 @@ public class ParticleGroupCommand {
     private static CommandAPICommand createDisplayCommand() {
         return new CommandAPICommand("display")
                 .withPermission("cobalt.core.commands.cparticle.group")
-                .withArguments(new StringArgument("groupName").replaceSuggestions(info -> ParticleGroupManager.getParticleGroupNames()))
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleGroupManager.getParticleGroupNames())))
                 .withArguments(new LocationArgument("location"))
                 .executes(ParticleGroupCommand::displayGroup);
     }
@@ -185,7 +185,7 @@ public class ParticleGroupCommand {
     private static CommandAPICommand createRemoveCommand() {
         return new CommandAPICommand("remove")
                 .withPermission("cobalt.core.commands.cparticle.group")
-                .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleGroupManager.getParticleGroupNames())))
                 .executes(ParticleGroupCommand::removeGroup);
     }
 
@@ -209,15 +209,15 @@ public class ParticleGroupCommand {
         return new CommandAPICommand("edit_style")
                 .withPermission("cobalt.core.commands.cparticle.group")
                 .withSubcommand(new CommandAPICommand("offset")
-                        .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
-                        .withArguments(new StringArgument("styleName").replaceSuggestions(ParticleGroupCommand::getStyleNames))
+                        .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleGroupManager.getParticleGroupNames())))
+                        .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(ParticleGroupCommand::getStyleNames)))
                         .withArguments(new DoubleArgument("x_offset"))
                         .withArguments(new DoubleArgument("y_offset"))
                         .withArguments(new DoubleArgument("z_offset"))
                         .executes(ParticleGroupCommand::editOffset))
                 .withSubcommand(new CommandAPICommand("rotation")
-                        .withArguments(new StringArgument("groupName").replaceSuggestions(suggestionInfo -> ParticleGroupManager.getParticleGroupNames()))
-                        .withArguments(new StringArgument("styleName").replaceSuggestions(ParticleGroupCommand::getStyleNames))
+                        .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> ParticleGroupManager.getParticleGroupNames())))
+                        .withArguments(new StringArgument("styleName").replaceSuggestions(ArgumentSuggestions.strings(ParticleGroupCommand::getStyleNames)))
                         .withArguments(new DoubleArgument("x_rotation"))
                         .withArguments(new DoubleArgument("y_rotation"))
                         .withArguments(new DoubleArgument("z_rotation"))
