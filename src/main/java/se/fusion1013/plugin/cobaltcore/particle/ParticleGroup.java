@@ -4,13 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.particle.styles.IParticleStyle;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -22,6 +23,7 @@ public class ParticleGroup implements Cloneable {
 
     UUID uuid;
     String name;
+    double integrity = 1; // Value between 0 and 1, determines the percentage of particles that will be shown
     private final List<ParticleStyleHolder> particleStyleList;
 
     // ----- CONSTRUCTORS -----
@@ -84,6 +86,12 @@ public class ParticleGroup implements Cloneable {
         holder.offset = offset;
     }
 
+    public void setStyleRotationSpeed(String styleName, Vector rotationSpeed) {
+        ParticleStyleHolder holder = getHolder(styleName);
+        if (holder == null) return;
+        holder.rotationSpeed = rotationSpeed;
+    }
+
     public void setStyleRotation(String styleName, Vector rotation, Vector rotationSpeed) {
         ParticleStyleHolder holder = getHolder(styleName);
         if (holder == null) return;
@@ -105,17 +113,21 @@ public class ParticleGroup implements Cloneable {
      */
     public void display(Location location, Player... players) {
         if (location == null) return;
+        if (!location.isWorldLoaded()) return;
+        Random r = new Random();
 
         // Display the particle for all online players
-        for (Player p : players){
-            for (ParticleStyleHolder psh : particleStyleList){
-                ParticleContainer[] particles = psh.getParticles(location);
-                Object extra = psh.style.getExtra();
+        for (ParticleStyleHolder psh : particleStyleList) {
+            ParticleContainer[] particles = psh.getParticles(location);
+            for (Player p : players) {
+                Object extra = psh.style.getData();
 
                 // Display all particles in the style
-                for (ParticleContainer particle : particles){
-                    if (extra != null) p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra);
-                    else p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed());
+                for (ParticleContainer particle : particles) {
+                    if (r.nextDouble() <= integrity) {
+                        if (extra != null) p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra);
+                        else p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed());
+                    }
                 }
             }
         }
@@ -129,18 +141,23 @@ public class ParticleGroup implements Cloneable {
      * @param players the players to display the <code>ParticleGroup</code> to.
      */
     public void display(Location location1, Location location2, Player... players) {
+
         if (location1 == null || location2 == null) return;
+        if (!location1.isWorldLoaded() || !location2.isWorldLoaded()) return;
+        Random r = new Random();
 
         // Display the particle for all online players
-        for (Player p : players){
-            for (ParticleStyleHolder psh : particleStyleList) {
-                ParticleContainer[] particles = psh.getParticles(location1, location2);
-                Object extra = psh.style.getExtra();
+        for (ParticleStyleHolder psh : particleStyleList) {
+            ParticleContainer[] particles = psh.getParticles(location1, location2);
+            for (Player p : players) {
+                Object extra = psh.style.getData();
 
                 // Display all particles in the style
                 for (ParticleContainer particle : particles){
-                    if (extra != null) p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra);
-                    else p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed());
+                    if (r.nextDouble() <= integrity) {
+                        if (extra != null) p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra);
+                        else p.spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed());
+                    }
                 }
             }
         }
@@ -152,7 +169,23 @@ public class ParticleGroup implements Cloneable {
      * @param location the location to center the <code>ParticleGroup</code> on.
      */
     public void display(Location location) {
-        display(location, Bukkit.getOnlinePlayers().toArray(new Player[0]));
+        if (location == null) return;
+        if (!location.isWorldLoaded()) return;
+        Random r = new Random();
+
+        // Display the particle for all online players
+        for (ParticleStyleHolder psh : particleStyleList) {
+            ParticleContainer[] particles = psh.getParticles(location);
+            Object extra = psh.style.getData();
+
+            // Display all particles in the style
+            for (ParticleContainer particle : particles) {
+                if (r.nextDouble() <= integrity) {
+                    if (extra != null) location.getWorld().spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra, true);
+                    else location.getWorld().spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), null, true);
+                }
+            }
+        }
     }
 
     /**
@@ -162,10 +195,34 @@ public class ParticleGroup implements Cloneable {
      * @param location2 the second location.
      */
     public void display(Location location1, Location location2) {
-        display(location1, location2, Bukkit.getOnlinePlayers().toArray(new Player[0]));
+        if (location1 == null || location2 == null) return;
+        if (!location1.isWorldLoaded() || !location2.isWorldLoaded()) return;
+        Random r = new Random();
+
+        // Display the particle for all online players
+        for (ParticleStyleHolder psh : particleStyleList) {
+            ParticleContainer[] particles = psh.getParticles(location1, location2);
+            Object extra = psh.style.getData();
+
+            // Display all particles in the style
+            for (ParticleContainer particle : particles){
+                if (r.nextDouble() <= integrity) {
+                    if (extra != null) location1.getWorld().spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), extra, true);
+                    else location1.getWorld().spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), null, true);
+                }
+            }
+        }
     }
 
     // ----- GETTERS / SETTERS -----
+
+    public void setIntegrity(double integrity) {
+        this.integrity = integrity;
+    }
+
+    public double getIntegrity() {
+        return integrity;
+    }
 
     public boolean hasParticleStyle(String styleName) {
         for (ParticleStyleHolder holder : particleStyleList) {
