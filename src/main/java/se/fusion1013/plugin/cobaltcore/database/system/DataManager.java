@@ -12,9 +12,14 @@ import se.fusion1013.plugin.cobaltcore.database.player.PlayerDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.database.setting.ISettingDao;
 import se.fusion1013.plugin.cobaltcore.database.setting.SettingDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.sound.area.ISoundAreaDao;
+import se.fusion1013.plugin.cobaltcore.database.sound.area.SoundAreaDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.spawner.CustomSpawnerDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.spawner.ICustomSpawnerDao;
+import se.fusion1013.plugin.cobaltcore.database.structure.IStructureDao;
+import se.fusion1013.plugin.cobaltcore.database.structure.StructureDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.trades.ITradesDao;
 import se.fusion1013.plugin.cobaltcore.database.trades.TradesDaoSQLite;
-import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 import java.util.HashMap;
@@ -58,7 +63,7 @@ public class DataManager extends Manager {
 
         // Updates the dao if needed
         ISystemDao system = getDao(ISystemDao.class);
-        dao.update(system.getVersion(dao.getId() + dao.getStorageType().name()));
+        dao.update(system.getVersion(dao.getId() + dao.getStorageType().name(), dao.getVersion()));
         system.setVersion(dao.getId() + dao.getStorageType().name(), dao.getVersion());
 
         return dao;
@@ -110,6 +115,9 @@ public class DataManager extends Manager {
     @Override
     public void reload() {
 
+        // MongoDB mongoDB = MongoDB.getInstance();
+        // mongoDB.connect();
+
         // Load the database connection
         loadDatabaseConnection();
 
@@ -137,6 +145,8 @@ public class DataManager extends Manager {
 
                 // Initialize database
                 String url = (String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "mongo-db-url");
+                // mongoClient = new MongoClient(new MongoClientURI(url));
+                // mongoDB = mongoClient.getDatabase((String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "mongo-db-name"));
             }
         }
 
@@ -152,9 +162,6 @@ public class DataManager extends Manager {
                     sqliteDb.load();
                 }
             }
-            case "mongodb" -> {
-
-            }
         }
     }
 
@@ -164,16 +171,16 @@ public class DataManager extends Manager {
     private void initDao() {
         // SQLITE
         registerDao(new SystemDaoSQLite(), ISystemDao.class);
+
         registerDao(new LocationDaoSQLite(), ILocationDao.class);
         registerDao(new ParticleGroupDaoSQLite(), IParticleGroupDao.class);
         registerDao(new ParticleStyleDaoSQLite(), IParticleStyleDao.class);
         registerDao(new PlayerDaoSQLite(), IPlayerDao.class);
         registerDao(new SettingDaoSQLite(), ISettingDao.class);
         registerDao(new TradesDaoSQLite(), ITradesDao.class);
-
-        // MONGODB
-        // registerDao(new LocationDaoMongoDB(), ILocationDao.class);
-        // registerDao(new PlayerDaoMongoDB(), IPlayerDao.class);
+        registerDao(new SoundAreaDaoSQLite(), ISoundAreaDao.class);
+        registerDao(new CustomSpawnerDaoSQLite(), ICustomSpawnerDao.class);
+        registerDao(new StructureDaoSQLite(), IStructureDao.class);
     }
 
     @Override
