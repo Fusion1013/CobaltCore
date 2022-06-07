@@ -104,6 +104,14 @@
   "bossbar.create": "&7Created new bossbar with identifier &3%id%",
   "bossbar.delete": "&7Deleted bossbar &3%id%",
 
+
+  "sound_area.create": "&7Created new Sound Area &3%sound%&7 at &3%location%&7, with activation range &3%activation_range%&7 and cooldown &3%cooldown%&7",
+  "sound_area.already_exists": "&7A Sound Area already exists at the location &3%location%",
+  "sound_area.info.list": "&b - %sound%&7: Location: &3%location%&7, Activation Range: &3%activation_range%&7, Cooldown: &3%cooldown%",
+  "sound_area.delete": "&7Deleted Sound Area: &3%sound%",
+  "sound_area.does_not_exist": "&7Sound Area &3%sound%&7 does not exist",
+
+
   "block.could_not_place": "&7Could not place block %block% at %location%",
   "block.placed": "&7Placed block %block% at %location%",
 
