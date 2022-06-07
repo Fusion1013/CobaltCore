@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.entity.modules.ability;
 
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 import se.fusion1013.plugin.cobaltcore.entity.modules.EntityModule;
 
 /**
@@ -23,13 +24,13 @@ public abstract class AbilityModule extends EntityModule implements IAbilityModu
     // ----- COOLDOWN -----
 
     @Override
-    public boolean attemptAbility(CustomEntity entity) {
+    public boolean attemptAbility(CustomEntity entity, ISpawnParameters spawnParameters) {
         if (currentAbilityCooldown > 0) {
             currentAbilityCooldown-=0.05;
             return false;
         } else {
             currentAbilityCooldown = abilityCooldown;
-            execute(entity);
+            execute(entity, spawnParameters);
             return true;
         }
     }
