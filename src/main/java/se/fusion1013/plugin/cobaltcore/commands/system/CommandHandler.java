@@ -22,6 +22,7 @@ public @interface CommandHandler {
 
     enum ParameterType {
         TEXT,
+        LOCATION_BLOCK,
         NONE
     }
 
