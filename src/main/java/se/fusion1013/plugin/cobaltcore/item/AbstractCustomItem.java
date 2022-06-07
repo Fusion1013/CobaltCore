@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.item;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -12,7 +13,9 @@ import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractCustomItem implements ICustomItem {
 
@@ -35,6 +38,12 @@ public abstract class AbstractCustomItem implements ICustomItem {
     // Crafting Recipe
     List<Recipe> recipes = new ArrayList<>();
 
+    // Item Meta
+    IItemMetaEditor metaEditor;
+
+    // Item Activators
+    private Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutors = new HashMap<>();
+
     // ----- CONSTRUCTORS -----
 
     public AbstractCustomItem(String internalName){
@@ -44,7 +53,9 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
     // ----- LOGIC -----
 
+    @Override
     public boolean compareTo(ItemStack item) {
+        if (item == null) return false;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
         return meta.getPersistentDataContainer().has(namespacedKey, PersistentDataType.INTEGER);
@@ -55,7 +66,26 @@ public abstract class AbstractCustomItem implements ICustomItem {
         return false;
     }
 
+    // ----- ACTIVATORS -----
+
+    @Override
+    public void activatorTriggered(ItemActivator activator, Event event) {
+
+        IItemActivatorExecutor executor = itemActivatorExecutors.get(activator);
+        if (executor != null) executor.execute(this, event);
+
+    }
+
     // ----- GETTERS / SETTERS -----
+
+    /**
+     * Sets all the <code>IItemActivatorExecutors</code> for this item.
+     *
+     * @param itemActivatorExecutors the <code>IItemActivatorExecutors</code> to set.
+     */
+    public void setItemActivatorExecutors(Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutors) {
+        this.itemActivatorExecutors = itemActivatorExecutors;
+    }
 
     public void addShapedRecipe(String row1, String row2, String row3, ShapedIngredient... ingredients) {
         StringBuilder keyString = new StringBuilder(namespacedKey.getKey() + ".shapeless.");
@@ -135,6 +165,9 @@ public abstract class AbstractCustomItem implements ICustomItem {
             PersistentDataContainer pdc = meta.getPersistentDataContainer();
             pdc.set(namespacedKey, PersistentDataType.INTEGER, 1);
 
+            // Custom Item Editor Function
+            if (metaEditor != null) meta = metaEditor.editMeta(meta);
+
             is.setItemMeta(meta);
         }
 
@@ -168,6 +201,12 @@ public abstract class AbstractCustomItem implements ICustomItem {
         // Crafting Recipes
         List<CobaltRecipe> recipes = new ArrayList<>();
 
+        // Item Meta
+        IItemMetaEditor metaEditor = null;
+
+        // Item Activator
+        Map<ItemActivator, IItemActivatorExecutor> itemActivators = new HashMap<>();
+
         public AbstractCustomItemBuilder(String internalName, Material material, int count){
             this.internalName = internalName;
             this.tags = new ArrayList<>();
@@ -186,11 +225,14 @@ public abstract class AbstractCustomItem implements ICustomItem {
             obj.customName = customName;
             obj.lore = lore;
             obj.customModel = customModel;
+            obj.metaEditor = metaEditor;
 
             for (CobaltRecipe recipe : recipes) {
                 if (recipe.shaped) obj.addShapedRecipe(recipe.row1, recipe.row2, recipe.row3, recipe.shapedIngredients);
                 else obj.addShapelessRecipe(recipe.shapelessIngredients);
             }
+
+            obj.setItemActivatorExecutors(itemActivators);
 
             return obj;
         }
@@ -224,6 +266,13 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
         public B setCustomName(String customName){
             this.customName = customName;
+            return getThis();
+        }
+
+        // Item Meta
+
+        public B setItemMetaEditor(IItemMetaEditor metaEditor) {
+            this.metaEditor = metaEditor;
             return getThis();
         }
 
@@ -261,6 +310,20 @@ public abstract class AbstractCustomItem implements ICustomItem {
                 this.shapelessIngredients = ingredients;
                 this.shaped = false;
             }
+        }
+
+        // Item Activators
+
+        /**
+         * Adds a new <code>IItemActivatorExecutor</code> to the item. This will get activated when the <code>ItemActivator</code> fires.
+         *
+         * @param activator the <code>ItemActivator</code> that determines when the <code>IItemActivatorExecutor</code> executes.
+         * @param executor the <code>IItemActivatorExecutor</code> that executes when the <code>ItemActivator</code> fires.
+         * @return the builder.
+         */
+        public B addItemActivator(ItemActivator activator, IItemActivatorExecutor executor) {
+            itemActivators.put(activator, executor);
+            return getThis();
         }
     }
 }
