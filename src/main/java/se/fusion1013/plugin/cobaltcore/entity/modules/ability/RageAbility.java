@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 public class RageAbility extends AbilityModule {
 
@@ -27,7 +28,7 @@ public class RageAbility extends AbilityModule {
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
 
         Entity entity = customEntity.getSummonedEntity();
         if (entity instanceof LivingEntity living) {

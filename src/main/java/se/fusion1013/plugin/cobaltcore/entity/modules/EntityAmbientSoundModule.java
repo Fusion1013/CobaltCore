@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 import java.util.Random;
 
@@ -55,7 +56,7 @@ public class EntityAmbientSoundModule extends EntityModule implements ITickExecu
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Location currentLocation = customEntity.getSummonedEntity().getLocation();
         World currentWorld = currentLocation.getWorld();
 

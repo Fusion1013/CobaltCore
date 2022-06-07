@@ -7,7 +7,10 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
+import se.fusion1013.plugin.cobaltcore.item.loot.CustomLootTable;
 
+import java.util.List;
 import java.util.Random;
 
 public class EntityDropModule extends EntityModule implements IDeathExecutable {
@@ -20,8 +23,21 @@ public class EntityDropModule extends EntityModule implements IDeathExecutable {
     ItemStack itemDrop;
     double dropChance = 1;
 
+    CustomLootTable lootTable;
+
     // ----- CONSTRUCTORS -----
 
+    public EntityDropModule(int xp, int xpSplit, CustomLootTable lootTable) {
+        this.xp = xp;
+        this.xpSplit = xpSplit;
+        this.lootTable = lootTable;
+    }
+
+    public EntityDropModule(CustomLootTable lootTable) {
+        this.lootTable = lootTable;
+    }
+
+    @Deprecated
     public EntityDropModule(int xp, int xpSplit, ItemStack item, double dropChance) {
         this.xp = xp;
         this.xpSplit = xpSplit;
@@ -29,6 +45,7 @@ public class EntityDropModule extends EntityModule implements IDeathExecutable {
         this.dropChance = dropChance;
     }
 
+    @Deprecated
     public EntityDropModule(ItemStack item, double dropChance) {
         this.itemDrop = item;
         this.dropChance = dropChance;
@@ -46,7 +63,7 @@ public class EntityDropModule extends EntityModule implements IDeathExecutable {
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Location dropLocation = customEntity.getSummonedEntity().getLocation();
         World dropWorld = dropLocation.getWorld();
 
@@ -57,9 +74,13 @@ public class EntityDropModule extends EntityModule implements IDeathExecutable {
             Random r = new Random();
 
             if (r.nextDouble() <= dropChance) {
-                Item droppedItem = (Item) dropWorld.spawnEntity(dropLocation, EntityType.DROPPED_ITEM);
-                droppedItem.setItemStack(itemDrop);
+                dropWorld.dropItemNaturally(dropLocation, itemDrop);
             }
+        }
+
+        if (lootTable != null) {
+            List<ItemStack> items = lootTable.getLoot(Integer.MAX_VALUE);
+            for (ItemStack item : items) dropWorld.dropItemNaturally(dropLocation, item);
         }
 
         // Create XP Drops
@@ -79,6 +100,7 @@ public class EntityDropModule extends EntityModule implements IDeathExecutable {
         this.xpSplit = target.xpSplit;
         if (target.itemDrop != null) this.itemDrop = target.itemDrop;
         this.dropChance = target.dropChance;
+        if (target.lootTable != null) this.lootTable = target.lootTable;
     }
 
     @Override

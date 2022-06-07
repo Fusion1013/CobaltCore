@@ -6,6 +6,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 public class EntityEquipmentModule extends EntityModule implements ISpawnExecutable, Cloneable {
 
@@ -44,7 +45,7 @@ public class EntityEquipmentModule extends EntityModule implements ISpawnExecuta
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Entity entity = customEntity.getSummonedEntity();
 
         if (entity instanceof LivingEntity living) {

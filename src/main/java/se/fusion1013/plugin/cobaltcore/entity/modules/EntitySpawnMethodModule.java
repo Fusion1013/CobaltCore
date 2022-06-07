@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.entity.modules;
 
 import org.bukkit.entity.Entity;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 /**
  * Executes a lambda expression on the entity on spawn
@@ -19,8 +20,8 @@ public class EntitySpawnMethodModule extends EntityModule implements ISpawnExecu
     // ----- EXECUTE METHOD -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
-        method.execute(customEntity);
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
+        method.execute(customEntity, spawnParameters);
     }
 
     // ----- CLONE -----

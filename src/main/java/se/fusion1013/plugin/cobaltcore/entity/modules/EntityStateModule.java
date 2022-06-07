@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.entity.modules;
 
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 import se.fusion1013.plugin.cobaltcore.state.StateEngine;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class EntityStateModule extends EntityModule implements ITickExecutable {
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         for (StateEngine<CustomEntity> engine : stateEngines) {
             engine.tick(customEntity);
         }

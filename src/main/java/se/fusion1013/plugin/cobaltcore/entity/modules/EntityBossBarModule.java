@@ -13,6 +13,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 public class EntityBossBarModule extends EntityModule implements ITickExecutable, Cloneable {
 
@@ -54,7 +55,7 @@ public class EntityBossBarModule extends EntityModule implements ITickExecutable
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
 
         // If the entity is not alive, remove the bossbar.
         if (!customEntity.isAlive()) {
@@ -94,6 +95,12 @@ public class EntityBossBarModule extends EntityModule implements ITickExecutable
                 }
             }
         }
+    }
+
+    // ----- GETTERS / SETTERS -----
+
+    public BossBar getBossBar() {
+        return bossBar;
     }
 
     // ----- CLONE -----

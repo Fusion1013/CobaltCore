@@ -4,6 +4,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 public class EntityPotionEffectModule extends EntityModule implements ITickExecutable, ISpawnExecutable {
 
@@ -25,7 +26,7 @@ public class EntityPotionEffectModule extends EntityModule implements ITickExecu
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Entity entity = customEntity.getSummonedEntity();
 
         if (entity instanceof LivingEntity living) {

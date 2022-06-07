@@ -5,6 +5,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
 public class EntityHealthModule extends EntityModule implements ISpawnExecutable, Cloneable {
 
@@ -28,7 +29,7 @@ public class EntityHealthModule extends EntityModule implements ISpawnExecutable
     // ----- EXECUTE -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Entity entity = customEntity.getSummonedEntity();
 
         // Only set health if entity is living.

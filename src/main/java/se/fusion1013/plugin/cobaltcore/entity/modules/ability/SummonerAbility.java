@@ -4,8 +4,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 import se.fusion1013.plugin.cobaltcore.entity.ICustomEntity;
+import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 import se.fusion1013.plugin.cobaltcore.util.GeometryUtil;
 
 import java.util.Random;
@@ -20,6 +22,9 @@ public class SummonerAbility extends AbilityModule implements IAbilityModule {
 
     final int summonCountMin;
     final int summonCountMax;
+
+    double spawnChance = 1;
+    ISpawnParameters customSpawnParameters = null;
 
     // TODO: Particles
 
@@ -42,29 +47,40 @@ public class SummonerAbility extends AbilityModule implements IAbilityModule {
     // ----- EXECUTE METHODS -----
 
     @Override
-    public void execute(CustomEntity customEntity) {
+    public void execute(CustomEntity customEntity, ISpawnParameters spawnParameters) {
         Random r = new Random();
+        if (r.nextDouble() > spawnChance) return;
+
         int spawnCount = r.nextInt(summonCountMin, summonCountMax+1);
 
         for (int i = 0; i < spawnCount; i++) {
             // Calculate spawn location
             World world = customEntity.getSummonedEntity().getWorld();
             Vector position = GeometryUtil.getPointInUnit(GeometryUtil.Shape.SPHERE);
-            Location location = new Location(world, position.getX(), Math.max(position.getY(), customEntity.getSummonedEntity().getLocation().getY()), position.getZ());
+            Location location = new Location(world,
+                    position.getX() + customEntity.getSummonedEntity().getLocation().getX(),
+                    Math.max(position.getY() + customEntity.getSummonedEntity().getLocation().getY(), customEntity.getSummonedEntity().getLocation().getY()),
+                    position.getZ() + customEntity.getSummonedEntity().getLocation().getZ()
+            );
 
             // Summon Entity
-            if (customEntitySummon != null) customEntitySummon.forceSpawn(location);
+            if (customEntitySummon != null) customEntitySummon.forceSpawn(location, customSpawnParameters);
             if (entityTypeSummon != null) world.spawnEntity(location, entityTypeSummon);
         }
     }
 
-    @Override
-    public boolean attemptAbility(CustomEntity entity) {
-        execute(entity);
-        return true;
+    // ----- GETTERS / SETTERS -----
+
+
+    public SummonerAbility setSpawnChance(double spawnChance) {
+        this.spawnChance = spawnChance;
+        return this;
     }
 
-    // ----- GETTERS / SETTERS -----
+    public SummonerAbility setCustomSpawnParameters(ISpawnParameters customSpawnParameters) {
+        this.customSpawnParameters = customSpawnParameters;
+        return this;
+    }
 
     @Override
     public String getAbilityName() {
@@ -90,6 +106,8 @@ public class SummonerAbility extends AbilityModule implements IAbilityModule {
 
         this.summonCountMax = target.summonCountMax;
         this.summonCountMin = target.summonCountMin;
+        this.spawnChance = target.spawnChance;
+        this.customSpawnParameters = target.customSpawnParameters;
     }
 
     @Override
