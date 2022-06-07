@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
+import se.fusion1013.plugin.cobaltcore.debug.ParticleDebugEvent;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
@@ -27,6 +29,10 @@ public class ParticleGroup implements Cloneable {
     private final List<ParticleStyleHolder> particleStyleList;
 
     // ----- CONSTRUCTORS -----
+
+    public ParticleGroup() {
+        particleStyleList = new ArrayList<>();
+    }
 
     /**
      * Creates a new <code>ParticleGroup</code> with a name and a random <code>UUID</code>.
@@ -116,9 +122,16 @@ public class ParticleGroup implements Cloneable {
         if (!location.isWorldLoaded()) return;
         Random r = new Random();
 
+        ParticleDebugEvent event = new ParticleDebugEvent();
+        event.addDescriptionLine("Displaying Particles:");
+
         // Display the particle for all online players
         for (ParticleStyleHolder psh : particleStyleList) {
             ParticleContainer[] particles = psh.getParticles(location);
+
+            // Event
+            event.addDescriptionLine(" - " + psh.style.getInternalName());
+
             for (Player p : players) {
                 Object extra = psh.style.getData();
 
@@ -131,6 +144,8 @@ public class ParticleGroup implements Cloneable {
                 }
             }
         }
+
+        DebugManager.throwDebugEvent(event);
     }
 
     /**
@@ -146,9 +161,16 @@ public class ParticleGroup implements Cloneable {
         if (!location1.isWorldLoaded() || !location2.isWorldLoaded()) return;
         Random r = new Random();
 
+        ParticleDebugEvent event = new ParticleDebugEvent();
+        event.addDescriptionLine("Displaying Particles:");
+
         // Display the particle for all online players
         for (ParticleStyleHolder psh : particleStyleList) {
             ParticleContainer[] particles = psh.getParticles(location1, location2);
+
+            // Event
+            event.addDescriptionLine(" - " + psh.style.getInternalName());
+
             for (Player p : players) {
                 Object extra = psh.style.getData();
 
@@ -161,6 +183,8 @@ public class ParticleGroup implements Cloneable {
                 }
             }
         }
+
+        DebugManager.throwDebugEvent(event);
     }
 
     /**
@@ -173,9 +197,16 @@ public class ParticleGroup implements Cloneable {
         if (!location.isWorldLoaded()) return;
         Random r = new Random();
 
+        ParticleDebugEvent event = new ParticleDebugEvent();
+        event.addDescriptionLine("Displaying Particles:");
+
         // Display the particle for all online players
         for (ParticleStyleHolder psh : particleStyleList) {
             ParticleContainer[] particles = psh.getParticles(location);
+
+            // Event
+            event.addDescriptionLine(" - " + psh.style.getInternalName());
+
             Object extra = psh.style.getData();
 
             // Display all particles in the style
@@ -186,6 +217,8 @@ public class ParticleGroup implements Cloneable {
                 }
             }
         }
+
+        DebugManager.throwDebugEvent(event);
     }
 
     /**
@@ -199,9 +232,16 @@ public class ParticleGroup implements Cloneable {
         if (!location1.isWorldLoaded() || !location2.isWorldLoaded()) return;
         Random r = new Random();
 
+        ParticleDebugEvent event = new ParticleDebugEvent();
+        event.addDescriptionLine("Displaying Particles:");
+
         // Display the particle for all online players
         for (ParticleStyleHolder psh : particleStyleList) {
             ParticleContainer[] particles = psh.getParticles(location1, location2);
+
+            // Event
+            event.addDescriptionLine(" - " + psh.style.getInternalName());
+
             Object extra = psh.style.getData();
 
             // Display all particles in the style
@@ -211,6 +251,33 @@ public class ParticleGroup implements Cloneable {
                     else location1.getWorld().spawnParticle(psh.style.getParticle(), particle.getLocation(), particle.getCount(), particle.getxOff(), particle.getyOff(), particle.getzOff(), particle.getSpeed(), null, true);
                 }
             }
+        }
+
+        DebugManager.throwDebugEvent(event);
+    }
+
+    // ----- BUILDER -----
+
+    /**
+     * Builds a new particle group
+     */
+    public static class ParticleGroupBuilder {
+
+        ParticleGroup obj;
+
+        public ParticleGroupBuilder() { obj = new ParticleGroup(); }
+
+        public ParticleGroupBuilder(String name){
+            obj = new ParticleGroup(name);
+        }
+
+        public ParticleGroup build(){
+            return obj;
+        }
+
+        public ParticleGroupBuilder addStyle(ParticleStyle style){
+            obj.addParticleStyle(style);
+            return this;
         }
     }
 
