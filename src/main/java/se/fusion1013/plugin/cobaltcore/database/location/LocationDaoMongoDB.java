@@ -1,5 +1,8 @@
 package se.fusion1013.plugin.cobaltcore.database.location;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
@@ -8,9 +11,8 @@ import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 
 import java.util.UUID;
 
-public class LocationDaoMongoDB /*extends Dao implements ILocationDao*/ {
+public class LocationDaoMongoDB extends Dao implements ILocationDao {
 
-    /*
     MongoCollection<Document> collection;
 
     @Override
@@ -36,12 +38,8 @@ public class LocationDaoMongoDB /*extends Dao implements ILocationDao*/ {
 
     @Override
     public void init() {
-        /*
-        DataManager.getInstance().getMongoDB().createCollection("location");
-
-        collection = DataManager.getInstance().getMongoDB().getCollection("location");
-
+        // DataManager.getInstance().getMongoDB().createCollection("location");
+        // collection = DataManager.getInstance().getMongoDB().getCollection("location");
     }
 
-     */
 }
