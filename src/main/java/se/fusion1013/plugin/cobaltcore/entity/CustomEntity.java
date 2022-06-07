@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.entity.modules.EntityModule;
 import se.fusion1013.plugin.cobaltcore.entity.modules.IDeathExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ISpawnExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ITickExecutable;
@@ -40,8 +41,9 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     List<ITickExecutable> executeModuleOnTick = new ArrayList<>();
     List<IDeathExecutable> executeModuleOnDeath = new ArrayList<>();
 
-    // Spawn Location
+    // Spawn Info
     private Location spawnLocation; // The location that the entity spawned at
+    private ISpawnParameters spawnParameters;
 
     // Entity Information
     EntityType baseEntityType;
@@ -69,22 +71,18 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     // ----- ENTITY SPAWNING -----
 
     @Override
-    public CustomEntity attemptNaturalSpawn(Location location) {
-        return forceSpawn(location); // TODO: Add spawn requirements
+    public CustomEntity attemptNaturalSpawn(Location location, ISpawnParameters spawnParameters) {
+        return forceSpawn(location, spawnParameters); // TODO: Spawn Requirements
     }
 
-    /**
-     * Spawns the entity at the given location.
-     *
-     * @param location the location to spawn the entity at.
-     * @return the spawned <code>CustomEntity</code> object.
-     */
     @Override
-    public CustomEntity forceSpawn(Location location) {
-        return this.clone().spawnWithoutClone(location);
+    public CustomEntity forceSpawn(Location location, ISpawnParameters spawnParameters) {
+        return this.clone().spawnWithoutClone(location, spawnParameters);
     }
 
-    public CustomEntity spawnWithoutClone(Location location) {
+    public CustomEntity spawnWithoutClone(Location location, ISpawnParameters spawnParameters) {
+
+        this.spawnParameters = spawnParameters;
 
         // Store Location and Summon Entity
         this.spawnLocation = location;
@@ -103,7 +101,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
         // Execute all OnSpawn Modules
         for (ISpawnExecutable module : executeModuleOnSpawn) {
-            module.execute(this);
+            module.execute(this, spawnParameters);
         }
 
         // Start the runnable
@@ -119,7 +117,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
         // Execute all tick modules
         for (ITickExecutable module : executeModuleOnTick) {
-            module.execute(this);
+            module.execute(this, spawnParameters);
         }
 
         // Check if entity is dead, if so, cancel the task.
@@ -131,9 +129,11 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         // Attempt to execute abilities
         if (currentAbilityCooldown <= 0) {
             for (AbilityModule ability : abilityModules) {
-                if (ability.attemptAbility(this)) {
-                    currentAbilityCooldown = generalAbilityCooldown;
-                    break;
+                if (ability.attemptAbility(this, spawnParameters)) {
+                    if (generalAbilityCooldown > 0) {
+                        currentAbilityCooldown = generalAbilityCooldown;
+                        break;
+                    }
                 }
             }
         } else {
@@ -151,7 +151,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     public void onDeath() {
         // Execute all OnDeath Modules.
         for (IDeathExecutable module : executeModuleOnDeath) {
-            module.execute(this);
+            module.execute(this, spawnParameters);
         }
 
         // Remove entity from summoned entities.
@@ -183,6 +183,8 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         this.summonedEntity = target.summonedEntity;
 
         this.customName = target.customName;
+
+        this.spawnParameters = target.spawnParameters;
     }
 
     @Override
@@ -321,6 +323,13 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         return null;
     }
 
+    public <T extends ITickExecutable> T getTickExecutable(Class<T> entityModuleClass) {
+        for (ITickExecutable module : executeModuleOnTick) {
+            if (module.getClass() == entityModuleClass) return (T) module;
+        }
+        return null;
+    }
+
     public Location getSpawnLocation() {
         return spawnLocation;
     }
@@ -347,6 +356,11 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
     public void setExecuteModuleOnDeath(List<IDeathExecutable> executeModuleOnDeath) {
         this.executeModuleOnDeath = executeModuleOnDeath;
+    }
+
+    @Override
+    public EntityType getBaseEntityType() {
+        return baseEntityType;
     }
 
     @Override
