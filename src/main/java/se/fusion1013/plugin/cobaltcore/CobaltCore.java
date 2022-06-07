@@ -8,10 +8,13 @@ import se.fusion1013.plugin.cobaltcore.commands.CobaltSummonCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CommandGenerator;
 import se.fusion1013.plugin.cobaltcore.commands.particle.MainParticleCommand;
 import se.fusion1013.plugin.cobaltcore.commands.settings.SettingCommand;
+import se.fusion1013.plugin.cobaltcore.commands.spawner.SpawnerCommand;
+import se.fusion1013.plugin.cobaltcore.commands.structure.StructureCommand;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
+import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
@@ -24,6 +27,9 @@ import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.world.block.BlockManager;
+import se.fusion1013.plugin.cobaltcore.world.sound.SoundAreaManager;
+import se.fusion1013.plugin.cobaltcore.world.sound.SoundManager;
+import se.fusion1013.plugin.cobaltcore.world.spawner.SpawnerManager;
 import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
 
 import java.util.*;
@@ -105,6 +111,13 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, ParticleGroupManager.class);
         this.getManager(this, BossBarManager.class);
         this.getManager(this, BlockManager.class);
+
+        this.getManager(this, SoundAreaManager.class);
+        this.getManager(this, SoundManager.class);
+
+        this.getManager(this, SpawnerManager.class);
+
+        this.getManager(this, DebugManager.class);
     }
 
     // ----- LISTENERS -----
@@ -122,6 +135,9 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     public void registerCommands() {
         MainParticleCommand.register();
         CobaltSummonCommand.register();
+
+        StructureCommand.register();
+        SpawnerCommand.register();
     } // Do not register cobalt and setting commands here, that is done elsewhere since they must be reloaded every time a new plugin is loaded.
 
     // ----- PLUGIN REGISTRATION -----
@@ -213,4 +229,14 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     @Deprecated
     public Database getRDatabase() { return getSQLDatabase(); }
+
+    /**
+     * Gets this plugin's ClassLoader. Used to pass the right reference to Morphia for populating objects.
+     *
+     * @return The ClassLoader of this plugin.
+     */
+    public ClassLoader getMongoHack() {
+        return getClassLoader();
+    }
+
 }
