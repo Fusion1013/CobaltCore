@@ -11,6 +11,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
+import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -38,7 +39,19 @@ public class CobaltCommand {
                 .withSubcommand(createLocaleCommand())
                 .withSubcommand(createItemCommand())
                 //.withSubcommand(createNpcCommand())
+                .withSubcommand(createDebugCommand())
                 .register();
+    }
+
+    // ----- DEBUG COMMAND -----
+
+    private static CommandAPICommand createDebugCommand() {
+        return new CommandAPICommand("debug")
+                .withPermission("commands.core.debug")
+                .withArguments(new StringArgument("event"))
+                .executesPlayer(((sender, args) -> {
+                    DebugManager.getInstance().subscribe(sender, (String) args[0]);
+                }));
     }
 
     // ----- CGIVE COMMAND -----
