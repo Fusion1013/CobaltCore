@@ -144,6 +144,10 @@ public class ParticleStyleLine extends ParticleStyle {
         int density = 8;
         Location location2 = null;
 
+        public ParticleStyleLineBuilder() {
+            super();
+        }
+
         public ParticleStyleLineBuilder(String name) {
             super(name);
         }

@@ -121,6 +121,10 @@ public class ParticleStyleCircle extends ParticleStyle {
         double radius = 1;
         int iterations = 16;
 
+        public ParticleStyleCircleBuilder() {
+            super();
+        }
+
         public ParticleStyleCircleBuilder(String name) {
             super(name);
         }

@@ -69,6 +69,10 @@ public class ParticleStylePoint extends ParticleStyle implements IParticleStyle,
 
     public static class ParticleStylePointBuilder extends ParticleStyleBuilder<ParticleStylePoint, ParticleStylePointBuilder> {
 
+        public ParticleStylePointBuilder() {
+            super();
+        }
+
         public ParticleStylePointBuilder(String name) {
             super(name);
         }

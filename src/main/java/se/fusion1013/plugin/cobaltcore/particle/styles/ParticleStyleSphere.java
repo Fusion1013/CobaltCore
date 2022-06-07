@@ -152,6 +152,10 @@ public class ParticleStyleSphere extends ParticleStyle {
         int density = 1; // TODO: Change default value
         boolean inSphere;
 
+        public ParticleStyleSphereBuilder() {
+            super();
+        }
+
         public ParticleStyleSphereBuilder(String name) {
             super(name);
         }

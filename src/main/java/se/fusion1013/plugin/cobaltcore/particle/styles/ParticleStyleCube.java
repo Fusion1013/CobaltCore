@@ -141,6 +141,10 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
         private double edgeLength = 1;
         private int particlesPerEdge = 4;
 
+        public ParticleStyleCubeBuilder() {
+            super();
+        }
+
         public ParticleStyleCubeBuilder(String name) {
             super(name);
         }

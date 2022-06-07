@@ -207,6 +207,10 @@ public class ParticleStyleParametric extends ParticleStyle {
 
     public static class ParticleStyleParametricBuilder extends ParticleStyleBuilder<ParticleStyleParametric, ParticleStyleParametric.ParticleStyleParametricBuilder> {
 
+        public ParticleStyleParametricBuilder() {
+            super();
+        }
+
         public ParticleStyleParametricBuilder(String name) {
             super(name);
         }

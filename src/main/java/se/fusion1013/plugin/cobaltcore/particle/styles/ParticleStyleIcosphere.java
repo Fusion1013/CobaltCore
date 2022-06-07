@@ -177,6 +177,10 @@ public class ParticleStyleIcosphere extends ParticleStyle implements IParticleSt
         double angularVelocityY;
         double angularVelocityZ;
 
+        public ParticleStyleIcosphereBuilder() {
+            super();
+        }
+
         public ParticleStyleIcosphereBuilder(String name) {
             super(name);
         }
