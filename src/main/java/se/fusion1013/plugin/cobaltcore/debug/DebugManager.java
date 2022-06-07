@@ -1,11 +1,17 @@
 package se.fusion1013.plugin.cobaltcore.debug;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandExecutor;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandHandler;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
+import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,23 +27,25 @@ public class DebugManager extends Manager {
     public static void throwDebugEvent(IDebugEvent event) {
         String name = event.getName();
         List<Player> players = debugSubscriptions.get(name);
+        if (players == null) return;
         for (Player p : players) event.throwEvent(p);
     }
 
     // ----- SUBSCRIBING / UNSUBSCRIBING -----
 
-    public static void subscribe(Player player, IDebugEvent event) {
-        String name = event.getName();
-        debugSubscriptions.get(name).add(player);
+    public CommandResult subscribe(Player player, String event) {
+        debugSubscriptions.computeIfAbsent(event, k -> new ArrayList<>()).add(player);
 
         // Send message to player if they are online.
         if (player.isOnline()) {
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("player", player.getName())
-                    .addPlaceholder("event", name)
+                    .addPlaceholder("event", event)
                     .build();
             LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "debug.event.subscribe", placeholders);
         }
+
+        return CommandResult.SUCCESS;
     }
 
     public static void unsubscribe(Player player, IDebugEvent event) {
@@ -64,7 +72,6 @@ public class DebugManager extends Manager {
 
     @Override
     public void reload() {
-
     }
 
     @Override
