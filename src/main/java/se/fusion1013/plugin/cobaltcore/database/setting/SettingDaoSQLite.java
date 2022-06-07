@@ -69,6 +69,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
                 }
             }
             conn.commit();
+            conn.close();
             ps.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
