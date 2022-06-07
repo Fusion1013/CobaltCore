@@ -51,13 +51,13 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>dev.jorel.CommandAPI</groupId>
+            <groupId>dev.jorel</groupId>
             <artifactId>commandapi-core</artifactId>
-            <version>8.0.0</version>
+            <version>8.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -112,7 +112,7 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.18.1 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
+                            <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.18.2 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
