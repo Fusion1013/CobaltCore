@@ -34,7 +34,7 @@ public class CustomEntityManager extends Manager {
             .addExecuteOnSpawnModule(new EntityEquipmentModule(EquipmentSlot.CHEST, new ItemStack(Material.IRON_CHESTPLATE)))
             .addExecuteOnSpawnModule(new EntityEquipmentModule(EquipmentSlot.HAND, new ItemStack(Material.IRON_SWORD)))
             .addExecuteOnSpawnModule(new EntityPotionEffectModule(new PotionEffect(PotionEffectType.GLOWING, 1000000, 1, false, false)))
-            .addExecuteOnSpawnModule(new EntitySpawnMethodModule((customEntity -> {
+            .addExecuteOnSpawnModule(new EntitySpawnMethodModule(((customEntity, spawnParameters) -> {
                 Entity entity = customEntity.getSummonedEntity();
                 if (entity instanceof Zombie zombie) zombie.setAdult();
             })))
@@ -75,7 +75,7 @@ public class CustomEntityManager extends Manager {
         ICustomEntity entityToSummon = getCustomEntity(entityName);
         if (entityToSummon == null) return false;
 
-        CustomEntity summoned = entityToSummon.forceSpawn(location);
+        CustomEntity summoned = entityToSummon.forceSpawn(location, null);
         if (summoned == null) return false;
 
         summonedCustomEntities.put(summoned.getEntityUuid(), summoned);
@@ -88,7 +88,7 @@ public class CustomEntityManager extends Manager {
      * @param entityName the internal name of the entity.
      * @return the <code>CustomEntity</code>. Returns null if not found.
      */
-    private static ICustomEntity getCustomEntity(String entityName) {
+    public static ICustomEntity getCustomEntity(String entityName) {
         for (ICustomEntity entity : inbuiltCustomEntities) if (entity.getInternalName().equalsIgnoreCase(entityName)) return entity;
         return null;
     }
