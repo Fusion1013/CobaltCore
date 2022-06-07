@@ -327,6 +327,11 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         double angularVelocityY = 0;
         double angularVelocityZ = 0;
 
+        public ParticleStyleBuilder() {
+            this.name = "internal_style";
+            obj = createObj();
+        }
+
         public ParticleStyleBuilder(String name){
             this.name = name;
             obj = createObj();
