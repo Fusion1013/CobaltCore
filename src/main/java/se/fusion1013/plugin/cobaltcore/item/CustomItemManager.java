@@ -5,12 +5,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -37,6 +37,10 @@ public class CustomItemManager extends Manager implements Listener {
             .setCustomName(ChatColor.RESET + "Test Item")
             .addLoreLine("This item is only used to test the CustomItem system.")
             .addShapedRecipe("-*-", "*%*", "-*-", new AbstractCustomItem.ShapedIngredient('*', Material.DIAMOND), new AbstractCustomItem.ShapedIngredient('%', Material.NETHER_STAR))
+            .addItemActivator(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event) -> {
+                PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
+                sneakEvent.getPlayer().sendMessage("U DO DE SNEAK");
+            })
             .build());
 
     // Item used for testing the CustomBlock system.
@@ -53,6 +57,8 @@ public class CustomItemManager extends Manager implements Listener {
     }
 
     // ----- RECIPES -----
+
+    // TODO: Move Recipes to CustomItem or AbstractCustomItem
 
     @EventHandler
     private void onHangingPlace(HangingPlaceEvent event) { // TODO: Move somewhere else
@@ -136,6 +142,36 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- GETTERS / SETTERS -----
 
     /**
+     * Gets a <code>ICustomItem</code> from an <code>ItemStack</code>.
+     *
+     * @param item the <code>ItemStack</code>.
+     * @return the <code>ICustomItem</code>, or null if it was not found.
+     */
+    public static ICustomItem getCustomItem(ItemStack item) {
+        for (ICustomItem customItem : INBUILT_CUSTOM_ITEMS.values()) {
+            if (customItem.compareTo(item)) return customItem;
+        }
+        return null;
+    }
+
+    /**
+     * Get all <code>ICustomItem</code>'s from a <code>Player</code>'s inventory.
+     *
+     * @param player the <code>Player</code>.
+     * @return an array of <code>ICustomItem</code>'s.
+     */
+    public static ICustomItem[] getPlayerCustomItems(Player player) {
+        List<ICustomItem> items = new ArrayList<>();
+
+        for (ItemStack item : player.getInventory()) {
+            ICustomItem customItem = getCustomItem(item);
+            if (customItem != null) items.add(customItem);
+        }
+
+        return items.toArray(new ICustomItem[0]);
+    }
+
+    /**
      * Creates a player head from a give command.
      *
      * @param giveCommand the /give command to generate a player head from. Use https://minecraft-heads.com/ to get /give commands.
@@ -149,6 +185,12 @@ public class CustomItemManager extends Manager implements Listener {
         return head;
     }
 
+    /**
+     * Gets the internal name of an item.
+     *
+     * @param stack the item.
+     * @return the internal name of the item.
+     */
     public static String getItemName(ItemStack stack) {
         for (CustomItem i : INBUILT_CUSTOM_ITEMS.values()) {
             if (i.compareTo(stack)) return i.getInternalName();
@@ -239,6 +281,7 @@ public class CustomItemManager extends Manager implements Listener {
     @Override
     public void reload() {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
+        Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
     }
 
     @Override
