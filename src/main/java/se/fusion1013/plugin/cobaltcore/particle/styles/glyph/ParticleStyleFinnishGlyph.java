@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.particle.styles.glyph;
 
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleCircle;
 
 public class ParticleStyleFinnishGlyph extends ParticleStyleGlyph {
 
@@ -13,6 +14,25 @@ public class ParticleStyleFinnishGlyph extends ParticleStyleGlyph {
 
     public ParticleStyleFinnishGlyph(String name) {
         super("finnish_glyph", name);
+    }
+
+    // ----- BUILDER -----
+
+    public static class ParticleStyleFinnishGlyphBuilder extends ParticleStyleGlyphBuilder<ParticleStyleFinnishGlyph, ParticleStyleFinnishGlyphBuilder> {
+
+        public ParticleStyleFinnishGlyphBuilder(String name) {
+            super(name);
+        }
+
+        @Override
+        protected ParticleStyleFinnishGlyph createObj() {
+            return new ParticleStyleFinnishGlyph(super.name);
+        }
+
+        @Override
+        protected ParticleStyleFinnishGlyphBuilder getThis() {
+            return this;
+        }
     }
 
     // ----- REGISTER -----
