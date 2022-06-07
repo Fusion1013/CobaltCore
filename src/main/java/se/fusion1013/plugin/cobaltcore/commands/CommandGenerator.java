@@ -162,9 +162,8 @@ public class CommandGenerator {
 
     private static Argument constructArgument(Class<?> type, String parameterName, CommandHandler.ParameterType override) {
         switch (override) {
-            case TEXT -> {
-                return new TextArgument(parameterName);
-            }
+            case TEXT: return new TextArgument(parameterName);
+            case LOCATION_BLOCK: return new LocationArgument(parameterName, LocationType.BLOCK_POSITION);
         }
 
         if (type.equals(Location.class)) return new LocationArgument(parameterName);
