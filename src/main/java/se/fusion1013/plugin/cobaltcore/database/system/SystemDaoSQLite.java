@@ -18,18 +18,28 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
     // ----- METHODS ------
 
     @Override
-    public int getVersion(String id) {
+    public int getVersion(String id, int internalVersion) {
         try {
             Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM versions WHERE identifier = ?");
-            ps.setString(1, id);
+            conn.setAutoCommit(false);
 
-            ResultSet result = ps.executeQuery();
+            // Inserts the internal version if the database was just created
+            PreparedStatement ps1 = conn.prepareStatement("INSERT OR IGNORE INTO versions(identifier, version) VALUES(?, ?)");
+            ps1.setString(1, id);
+            ps1.setInt(2, internalVersion);
+            ps1.execute();
+
+            // Get the version from the database
+            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM versions WHERE identifier = ?");
+            ps2.setString(1, id);
+
+            ResultSet result = ps2.executeQuery();
 
             int currentVersion = 0;
             while (result.next()) {
                 if (result.getInt("version") > currentVersion) currentVersion = result.getInt("version");
             }
+            conn.commit();
             conn.close();
             return currentVersion;
 
