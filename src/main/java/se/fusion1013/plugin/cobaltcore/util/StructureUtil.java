@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.plugin.Plugin;
@@ -13,6 +14,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -125,14 +127,15 @@ public class StructureUtil {
 
                         if (material == Material.STRUCTURE_VOID) continue; // Don't replace blocks at structure voids
 
+                        Location placementLocation = location.clone().add(new Vector(x, y, z));
+
                         // Don't place commands blocks, as they are used for connections. Place air instead
                         if (material == Material.COMMAND_BLOCK) {
-                            location.clone().add(new Vector(x, y, z)).getBlock().setType(Material.AIR);
+                            BlockPlacementManager.addBlock(Material.AIR, placementLocation);
                             continue;
                         }
 
-                        location.clone().add(new Vector(x, y, z)).getBlock().setType(material);
-                        location.clone().add(new Vector(x, y, z)).getBlock().setBlockData(data);
+                        BlockPlacementManager.addBlock(material, data, placementLocation);
                     }
                 }
             }
