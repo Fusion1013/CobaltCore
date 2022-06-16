@@ -1,15 +1,16 @@
 package se.fusion1013.plugin.cobaltcore.item;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -59,33 +60,6 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- RECIPES -----
 
     // TODO: Move Recipes to CustomItem or AbstractCustomItem
-
-    @EventHandler
-    private void onHangingPlace(HangingPlaceEvent event) { // TODO: Move somewhere else
-        if (event.getItemStack().getItemMeta().getPersistentDataContainer().has(Constants.INVISIBLE_KEY)) {
-            ItemFrame itemFrame = (ItemFrame) event.getEntity();
-            itemFrame.setVisible(false);
-            event.getEntity().getPersistentDataContainer().set(Constants.INVISIBLE_KEY, PersistentDataType.BYTE, (byte) 1);
-        }
-    }
-
-    ShapedRecipe INVISIBLE_ITEM_FRAME = addShapedRecipe(
-            getInvisibleItemFrame(),
-            "---", "-*-", "---",
-            new AbstractCustomItem.ShapedIngredient('-', Material.GLOWSTONE_DUST),
-            new AbstractCustomItem.ShapedIngredient('*', Material.ITEM_FRAME)
-    );
-
-    private static ItemStack getInvisibleItemFrame() {
-        ItemStack stack = new ItemStack(Material.ITEM_FRAME);
-        ItemMeta meta = stack.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addEnchant(Enchantment.DURABILITY, 1, true);
-        meta.setDisplayName(ChatColor.WHITE + "Invisible Item Frame");
-        meta.getPersistentDataContainer().set(Constants.INVISIBLE_KEY, PersistentDataType.BYTE, (byte) 1);
-        stack.setItemMeta(meta);
-        return stack;
-    }
 
     /**
      * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
