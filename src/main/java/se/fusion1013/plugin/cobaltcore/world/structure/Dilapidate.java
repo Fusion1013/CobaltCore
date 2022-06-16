@@ -3,6 +3,7 @@ package se.fusion1013.plugin.cobaltcore.world.structure;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class Dilapidate {
     int width;
     int depth;
     int height;
+
+    Material[][][] originalMaterials;
+    BlockData[][][] originalData;
 
     // Dilapidation Info
     double integrity = 1;
