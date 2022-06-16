@@ -3,6 +3,7 @@ package se.fusion1013.plugin.cobaltcore.util;
 import dev.jorel.commandapi.SuggestionInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -15,10 +16,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Contains various methods for working with players.
@@ -264,6 +262,30 @@ public class PlayerUtil {
         ItemStack item = inventory.getItemInMainHand();
         item.setAmount(item.getAmount()-count);
         inventory.setItemInMainHand(item);
+    }
+
+    /**
+     * Drops a percentage of all <code>ItemStack</code>'s in a <code>Player</code>'s inventory on the ground at their <code>Location</code>.
+     *
+     * @param player the <code>Player</code> to drop the <code>ItemStack</code>'s of.
+     * @param percent the percent chance of an <code>ItemStack</code> being dropped.
+     */
+    public static void dropPercentageOfInventory(Player player, double percent) {
+        Random r = new Random();
+        World world = player.getWorld();
+        Location location = player.getLocation();
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (r.nextDouble() <= percent) {
+                if (item != null) {
+                    if (item.getType() != Material.AIR) {
+                        world.dropItemNaturally(location, item);
+                        player.getInventory().setItem(i, new ItemStack(Material.AIR));
+                    }
+                }
+            }
+        }
     }
 
     // ----- STORAGE -----
