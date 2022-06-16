@@ -3,10 +3,7 @@ package se.fusion1013.plugin.cobaltcore.item;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -69,11 +66,16 @@ public abstract class AbstractCustomItem implements ICustomItem {
     // ----- ACTIVATORS -----
 
     @Override
-    public void activatorTriggered(ItemActivator activator, Event event) {
+    public void activatorTriggered(ItemActivator activator, Event event, EquipmentSlot slot) {
 
         IItemActivatorExecutor executor = itemActivatorExecutors.get(activator);
-        if (executor != null) executor.execute(this, event);
+        if (executor != null) executor.execute(this, event, slot);
 
+    }
+
+    @Override
+    public void activatorTriggered(ItemActivator activator, Event event) {
+        activatorTriggered(activator, event, null);
     }
 
     // ----- GETTERS / SETTERS -----
