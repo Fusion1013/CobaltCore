@@ -26,7 +26,8 @@ import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
-import se.fusion1013.plugin.cobaltcore.world.block.BlockManager;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
+import se.fusion1013.plugin.cobaltcore.world.block.CustomBlockManager;
 import se.fusion1013.plugin.cobaltcore.world.sound.SoundAreaManager;
 import se.fusion1013.plugin.cobaltcore.world.sound.SoundManager;
 import se.fusion1013.plugin.cobaltcore.world.spawner.SpawnerManager;
@@ -104,13 +105,14 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, LocaleManager.class);
         this.getManager(this, CustomItemManager.class);
         this.getManager(this, SettingsManager.class);
+        this.getManager(this, BlockPlacementManager.class);
         this.getManager(this, StructureManager.class);
         this.getManager(this, CustomTradesManager.class);
         this.getManager(this, CustomEntityManager.class);
         this.getManager(this, ParticleStyleManager.class);
         this.getManager(this, ParticleGroupManager.class);
         this.getManager(this, BossBarManager.class);
-        this.getManager(this, BlockManager.class);
+        this.getManager(this, CustomBlockManager.class);
 
         this.getManager(this, SoundAreaManager.class);
         this.getManager(this, SoundManager.class);
