@@ -17,10 +17,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.Constants;
+import se.fusion1013.plugin.cobaltcore.util.PlayerUtil;
 
 import java.util.*;
 
@@ -38,7 +41,7 @@ public class CustomItemManager extends Manager implements Listener {
             .setCustomName(ChatColor.RESET + "Test Item")
             .addLoreLine("This item is only used to test the CustomItem system.")
             .addShapedRecipe("-*-", "*%*", "-*-", new AbstractCustomItem.ShapedIngredient('*', Material.DIAMOND), new AbstractCustomItem.ShapedIngredient('%', Material.NETHER_STAR))
-            .addItemActivator(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event) -> {
+            .addItemActivator(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event, slot) -> {
                 PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
                 sneakEvent.getPlayer().sendMessage("U DO DE SNEAK");
             })
@@ -143,6 +146,19 @@ public class CustomItemManager extends Manager implements Listener {
         }
 
         return items.toArray(new ICustomItem[0]);
+    }
+
+    /**
+     * Get all <code>ICustomItem</code>'s from a <code>Player</code>'s main hand and offhand.
+     *
+     * @param player the <code>Player</code>.
+     * @return an array of <code>CustomItem</code>'s.
+     */
+    public static ICustomItem[] getPlayerHeldCustomItem(Player player) {
+        ICustomItem itemMainHand = getCustomItem(player.getInventory().getItemInMainHand());
+        ICustomItem itemOffHand = getCustomItem(player.getInventory().getItemInOffHand());
+
+        return new ICustomItem[] {itemMainHand, itemOffHand};
     }
 
     /**
