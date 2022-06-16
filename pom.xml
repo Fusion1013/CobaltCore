@@ -6,7 +6,7 @@
 
     <groupId>se.fusion1013.plugin</groupId>
     <artifactId>cobaltCore</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <!--<packaging>jar</packaging>-->
 
     <name>CobaltCore</name>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.19-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -112,7 +112,7 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.18.2 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
+                            <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.19 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
