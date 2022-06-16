@@ -13,10 +13,14 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.spigotmc.event.entity.EntityDismountEvent;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
 public class ItemEventHandler implements Listener {
 
@@ -117,9 +121,7 @@ public class ItemEventHandler implements Listener {
         ICustomItem newCustom = CustomItemManager.getCustomItem(newItem);
 
         if (oldCustom != null) oldCustom.activatorTriggered(ItemActivator.PLAYER_DESELECT_CUSTOM_ITEM, event);
-        else if (newCustom != null) newCustom.activatorTriggered(ItemActivator.PLAYER_SELECT_CUSTOM_ITEM, event);
-
-        executeActivator(event.getPlayer(), ItemActivator.PLAYER_CLICK_AT_ENTITY, event);
+        else if (newCustom != null) newCustom.activatorTriggered(ItemActivator.PLAYER_SELECT_CUSTOM_ITEM, event, EquipmentSlot.HAND);
     }
 
     @EventHandler
@@ -233,6 +235,11 @@ public class ItemEventHandler implements Listener {
         executeActivator(event.getPlayer(), ItemActivator.PLAYER_SHEAR_ENTITY, event);
     }
 
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) executeActivator(player, ItemActivator.PLAYER_HIT_ENTITY, event);
+    }
+
     /*
     @EventHandler
     public void onPlayerTrampleCrop(Block event) {
@@ -245,12 +252,19 @@ public class ItemEventHandler implements Listener {
         if (event.getWhoClicked() instanceof Player player) executeActivator(player, ItemActivator.INVENTORY_CLICK, event);
     }
 
+    @EventHandler
+    public void onHangingPlace(HangingPlaceEvent event) {
+        ICustomItem item = CustomItemManager.getCustomItem(event.getItemStack());
+        if (item != null) item.activatorTriggered(ItemActivator.HANGING_PLACE, event);
+    }
+
     // ----- HELPER METHOD -----
 
     private void executeActivator(Player player, ItemActivator activator, Event event) {
-        ICustomItem[] items = CustomItemManager.getPlayerCustomItems(player);
-        for (ICustomItem item : items) {
-            item.activatorTriggered(activator, event);
-        }
+        CobaltCore.getInstance().getServer().getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+            ICustomItem[] items = CustomItemManager.getPlayerHeldCustomItem(player);
+            if (items[0] != null) items[0].activatorTriggered(activator, event, EquipmentSlot.HAND);
+            if (items[1] != null) items[1].activatorTriggered(activator, event, EquipmentSlot.OFF_HAND);
+        });
     }
 }
