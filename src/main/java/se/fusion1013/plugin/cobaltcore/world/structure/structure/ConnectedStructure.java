@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 import se.fusion1013.plugin.cobaltcore.world.structure.modules.IStructureModule;
 import se.fusion1013.plugin.cobaltcore.world.structure.modules.StructureModuleType;
 
@@ -58,12 +59,18 @@ public class ConnectedStructure extends SimpleStructure implements IStructure {
 
     private void placeStructure(Location location, IStructure structure, long seed) {
         // Run connected structure pre-processing
-        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.PRE) module.executeWithSeed(location, structure.getStructureHolder(), seed);
+        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.PRE) {
+            BlockPlacementManager.addStructureModule(location, structure.getStructureHolder(), seed, module);
+            // module.executeWithSeed(location, structure.getStructureHolder(), seed);
+        }
 
         structure.softForceGenerate(location); // Individual room processing
 
         // Run connected structure post-processing
-        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.POST) module.executeWithSeed(location, structure.getStructureHolder(), seed);
+        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.POST) {
+            BlockPlacementManager.addStructureModule(location, structure.getStructureHolder(), seed, module);
+            // module.executeWithSeed(location, structure.getStructureHolder(), seed);
+        }
     }
 
     // ----- GENERATION -----
@@ -85,15 +92,7 @@ public class ConnectedStructure extends SimpleStructure implements IStructure {
         // TODO: Move into common method
         // If onGround, shift structure down to ground
         if (onGround) {
-            for (int y = location.getBlockY(); y > location.getWorld().getMinHeight(); y--) {
-                location.setY(y);
-
-                boolean isGround = true;
-                for (Material mat : nonGroundBlocks) {
-                    if (location.getBlock().getType() == mat) isGround = false;
-                }
-                if (isGround) break;
-            }
+            super.moveToGround(location);
         }
 
         // Offset
