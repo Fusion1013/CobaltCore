@@ -7,6 +7,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.bukkit.util.noise.NoiseGenerator;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 import se.fusion1013.plugin.cobaltcore.world.structure.modules.IStructureModule;
 import se.fusion1013.plugin.cobaltcore.world.structure.modules.StructureModuleType;
 
@@ -53,22 +54,17 @@ public class SimpleStructure extends AbstractStructure implements IStructure {
     public void generate(Location location) {
 
         // Run all pre-generation Structure Modules
-        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.PRE) module.execute(location, structureHolder);
+        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.PRE) {
+            BlockPlacementManager.addStructureModule(location, structureHolder, 0, module);
+            // module.execute(location, structureHolder);
+        }
 
         // TODO: Move the below ones to structure modules
         // TODO: Move pre-gen and post-gen to abstract method (???)
 
         // If onGround, shift structure down to ground
         if (onGround) {
-            for (int y = location.getBlockY(); y > location.getWorld().getMinHeight(); y--) {
-                location.setY(y);
-
-                boolean isGround = true;
-                for (Material mat : nonGroundBlocks) {
-                    if (location.getBlock().getType() == mat) isGround = false;
-                }
-                if (isGround) break;
-            }
+            super.moveToGround(location);
         }
 
         // Offset
@@ -80,7 +76,10 @@ public class SimpleStructure extends AbstractStructure implements IStructure {
         // Post Process functions
         // postProcess(location, structureHolder); // TODO: Move to structure modules
 
-        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.POST) module.execute(location, structureHolder);
+        for (IStructureModule module : structureModules) if (module.getModuleType() == StructureModuleType.POST) {
+            BlockPlacementManager.addStructureModule(location, structureHolder, 0, module);
+            // module.execute(location, structureHolder);
+        }
     }
 
     @Override
