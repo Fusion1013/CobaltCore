@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.world.structure.structure;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.noise.NoiseGenerator;
@@ -27,6 +28,7 @@ public abstract class AbstractStructure implements IStructure {
 
     // Generation
     NoiseGenerator noiseGenerator;
+    static final Material[] nonGroundBlocks = new Material[] {Material.AIR, Material.CAVE_AIR, Material.WATER};
 
     // Generation Criteria
     boolean naturalGeneration = true;
@@ -70,6 +72,31 @@ public abstract class AbstractStructure implements IStructure {
     }
 
     // ----- GENERATION -----
+
+    public void moveToGround(Location location) {
+
+        boolean moveUp = isGroundBlock(location);
+
+        if (moveUp) {
+            for (int y = location.getBlockY(); y < location.getWorld().getMaxHeight(); y++) {
+                if (!isGroundBlock(location)) break;
+                location.setY(y);
+            }
+        } else {
+            for (int y = location.getBlockY(); y > location.getWorld().getMinHeight(); y--) {
+                location.setY(y);
+                if (isGroundBlock(location)) break;
+            }
+        }
+    }
+
+    private boolean isGroundBlock(Location location) {
+        for (Material mat : nonGroundBlocks) {
+            if (location.getBlock().getType() == mat) return false;
+        }
+
+        return location.getBlock().getType().isSolid();
+    }
 
     @Override
     public boolean attemptGenerate(Location location, double threshold, int depth) {
