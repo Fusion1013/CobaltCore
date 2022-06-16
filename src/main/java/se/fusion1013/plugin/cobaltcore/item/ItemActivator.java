@@ -198,6 +198,10 @@ public enum ItemActivator {
      * Activates when a player shears an entity.
      */
     PLAYER_SHEAR_ENTITY,
+    /**
+     * Activates when a player hits an entity.
+     */
+    PLAYER_HIT_ENTITY,
 
     PLAYER_TRAMPLE_CROP, // TODO
 
@@ -208,6 +212,11 @@ public enum ItemActivator {
      * Activates when a player clicks an inventory slot.
      */
     INVENTORY_CLICK,
+
+    /**
+     * Activates when a player hangs an item frame / painting.
+     */
+    HANGING_PLACE,
 
     LOOP // Activates on repeat as long as the item is in the players inventory // TODO
 
