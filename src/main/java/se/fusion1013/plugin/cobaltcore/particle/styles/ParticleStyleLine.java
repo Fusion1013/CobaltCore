@@ -5,9 +5,9 @@ import com.google.gson.JsonObject;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
-import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -124,7 +124,7 @@ public class ParticleStyleLine extends ParticleStyle {
     public ParticleContainer[] drawLine(Location point1, Location point2, double space) {
         List<ParticleContainer> particles = new ArrayList<>();
         World world = point1.getWorld();
-        Validate.isTrue(point2.getWorld().equals(world), "Lines cannot be in different worlds!");
+        if (!point2.getWorld().equals(world)) CobaltCore.getInstance().getLogger().info("Lines cannot be in different worlds!");
         double distance = point1.distance(point2);
         Vector p1 = point1.toVector();
         Vector p2 = point2.toVector();
