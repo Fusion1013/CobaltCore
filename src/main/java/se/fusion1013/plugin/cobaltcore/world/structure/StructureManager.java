@@ -142,7 +142,7 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
 
                 // Structure generation
                 if (noise.noise(chunk.getX() * mult, chunk.getZ() * mult) >= structure.getGenerationThreshold()) {
-                    Bukkit.getScheduler().runTask(CobaltCore.getInstance(), () -> {
+                    Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                         attemptStructureGeneration(world, chunk, structure, noise, mult);
                     });
                 }
