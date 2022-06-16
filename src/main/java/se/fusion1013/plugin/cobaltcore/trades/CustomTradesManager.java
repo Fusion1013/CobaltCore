@@ -18,9 +18,23 @@ import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CustomTradesManager extends Manager implements CommandExecutor {
+
+    // ----- VILLAGER -----
+
+    private static Map<String, VillagerType> villagerTypes = new HashMap<>();
+
+    public static VillagerType getVillagerType(String internalName) {
+        return villagerTypes.get(internalName);
+    }
+
+    public static VillagerType registerVillagerType(VillagerType villagerType) {
+        return villagerTypes.put(villagerType.getInternalName(), villagerType);
+    }
 
     // ----- WANDERING TRADER -----
 
