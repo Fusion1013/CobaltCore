@@ -72,7 +72,7 @@ public class CustomBossBar {
             AttributeInstance attribute = living.getAttribute(Attribute.GENERIC_MAX_HEALTH);
             if (attribute == null) return;
             double maxHealth = attribute.getBaseValue();
-            bossBar.setProgress(currentHealth / maxHealth);
+            bossBar.setProgress(Math.max(0, Math.min(currentHealth / maxHealth, 1)));
 
             // Add players to the bossbar
             for (Player player : Bukkit.getOnlinePlayers()) {
