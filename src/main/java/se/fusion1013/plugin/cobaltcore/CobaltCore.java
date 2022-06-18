@@ -167,23 +167,29 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             }
 
             // Register Locale for Plugin
-            // getLogger().info("Loading locale for " + plugin.getName() + "...");
+            long time = System.currentTimeMillis();
             LocaleManager.loadLocale(plugin);
+            plugin.getLogger().info("Loaded locale in " + (System.currentTimeMillis() - time) + "ms");
 
             // Init Database Tables
+            time = System.currentTimeMillis();
             plugin.initDatabaseTables(); // TODO: Remove this method (Needs to be removed from other plugins too)
+            plugin.getLogger().info("Initialized database in " + (System.currentTimeMillis() - time) + "ms");
 
             // Reloads all Managers
-            // getLogger().info("Reloading Managers for " + plugin.getName() + "...");
+            time = System.currentTimeMillis();
             plugin.reloadManagers();
+            plugin.getLogger().info("Reloaded managers in " + (System.currentTimeMillis() - time) + "ms");
 
             // Registers all Commands
-            // getLogger().info("Registering Commands for " + plugin.getName() + "...");
+            time = System.currentTimeMillis();
             plugin.registerCommands();
+            plugin.getLogger().info("Commands registered in " + (System.currentTimeMillis() - time) + "ms");
 
             // Registers all Listeners
-            // getLogger().info("Registering Listeners for " + plugin.getName() + "...");
+            time = System.currentTimeMillis();
             plugin.registerListeners();
+            plugin.getLogger().info("Registered Listeners in " + (System.currentTimeMillis() - time) + "ms");
 
             // Post Init
             plugin.postInit();
