@@ -206,24 +206,6 @@ Particle groups are used to group particle styles and display all of them. Style
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Roadmap
-
-### 3.0.0 - Module System
-* Automatic command generation
-
-### ?.0.0 - Scene System
-The scene system will allow for complex, scripted interactions between different Cobalt systems.
-
-### ?.0.0 - Extended Item System
-* Item Event Interactions
-* Item Enchantments
-
-### ?.0.0 - Structure System
-
-### ?.0.0 - GUI System
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 <!-- https://shields.io/ -->
