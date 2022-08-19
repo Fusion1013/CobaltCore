@@ -7,6 +7,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Rotatable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONArray;
@@ -253,6 +254,29 @@ public class StructureUtil {
                                 case EAST -> directional.setFacing(BlockFace.SOUTH);
                                 case SOUTH -> directional.setFacing(BlockFace.WEST);
                                 case WEST -> directional.setFacing(BlockFace.NORTH);
+                            }
+                        }
+                        if (currentData instanceof Rotatable rotatable) {
+                            switch (rotatable.getRotation()) {
+                                case NORTH -> rotatable.setRotation(BlockFace.EAST);
+                                case EAST -> rotatable.setRotation(BlockFace.SOUTH);
+                                case SOUTH -> rotatable.setRotation(BlockFace.WEST);
+                                case WEST -> rotatable.setRotation(BlockFace.NORTH);
+
+                                case NORTH_EAST -> rotatable.setRotation(BlockFace.SOUTH_EAST);
+                                case SOUTH_EAST -> rotatable.setRotation(BlockFace.SOUTH_WEST);
+                                case SOUTH_WEST -> rotatable.setRotation(BlockFace.NORTH_WEST);
+                                case NORTH_WEST -> rotatable.setRotation(BlockFace.NORTH_EAST);
+
+                                case NORTH_NORTH_EAST -> rotatable.setRotation(BlockFace.EAST_SOUTH_EAST);
+                                case EAST_SOUTH_EAST -> rotatable.setRotation(BlockFace.SOUTH_SOUTH_WEST);
+                                case SOUTH_SOUTH_WEST -> rotatable.setRotation(BlockFace.WEST_NORTH_WEST);
+                                case WEST_NORTH_WEST -> rotatable.setRotation(BlockFace.NORTH_NORTH_EAST);
+
+                                case NORTH_NORTH_WEST -> rotatable.setRotation(BlockFace.EAST_NORTH_EAST);
+                                case EAST_NORTH_EAST -> rotatable.setRotation(BlockFace.SOUTH_SOUTH_EAST);
+                                case SOUTH_SOUTH_EAST -> rotatable.setRotation(BlockFace.WEST_SOUTH_WEST);
+                                case WEST_SOUTH_WEST -> rotatable.setRotation(BlockFace.NORTH_NORTH_WEST);
                             }
                         }
                         holder.data[depth-1-z][y][x] = currentData;
