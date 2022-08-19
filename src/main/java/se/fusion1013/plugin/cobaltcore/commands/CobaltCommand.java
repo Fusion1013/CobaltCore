@@ -65,6 +65,21 @@ public class CobaltCommand {
                         })));
     }
 
+    // ----- FIX ITEM COMMAND -----
+
+    private static CommandAPICommand createFixItemCommand() {
+        return new CommandAPICommand("fixitem")
+                .executesPlayer(((player, args) -> {
+                    ItemStack heldItem = player.getInventory().getItemInMainHand();
+                    ICustomItem customItem = CustomItemManager.getCustomItem(heldItem);
+                    if (customItem == null) return; // TODO: Display error message
+
+                    ItemStack customItemStack = customItem.getItemStack();
+                    customItemStack.setAmount(heldItem.getAmount());
+                    player.getInventory().setItemInMainHand(customItemStack);
+                }));
+    }
+
     // ----- DEBUG COMMAND -----
 
     private static CommandAPICommand createDebugCommand() {
