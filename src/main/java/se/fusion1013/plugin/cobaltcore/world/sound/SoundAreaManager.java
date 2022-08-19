@@ -125,6 +125,7 @@ public class SoundAreaManager extends Manager implements Listener, CommandExecut
         // Get the nearest sound area
         Vector pl = player.getLocation().toVector();
         double[] coords = new double[] {pl.getX(), pl.getY(), pl.getZ()};
+        // TODO: Make different KDTrees for each dimension
         IMultiPoint point = soundAreaLocations.nearest(new Hyperpoint(coords));
 
         if (point == null) return;
@@ -132,6 +133,7 @@ public class SoundAreaManager extends Manager implements Listener, CommandExecut
         // Get the sound area
         Location soundAreaLocation = new Location(player.getWorld(), point.getCoordinate(1), point.getCoordinate(2), point.getCoordinate(3));
         SoundArea area = soundAreas.get(soundAreaLocation);
+        if (area == null) return;
         area.attemptActivation(player);
     }
 
