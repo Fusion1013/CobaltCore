@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Zombie;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
@@ -16,9 +17,11 @@ import se.fusion1013.plugin.cobaltcore.entity.modules.IDeathExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ISpawnExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ITickExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ability.AbilityModule;
+import se.fusion1013.plugin.cobaltcore.util.constants.EntityConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
@@ -44,6 +47,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     // Spawn Info
     private Location spawnLocation; // The location that the entity spawned at
     private ISpawnParameters spawnParameters;
+    List<IEntityModification> entityModifications = new ArrayList<>();
 
     // Entity Information
     EntityType baseEntityType;
@@ -63,7 +67,6 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     public CustomEntity(String internalName, EntityType baseEntityType) {
         this.internalName = internalName;
         this.baseEntityType = baseEntityType;
-        this.entityUuid = UUID.randomUUID();
 
         this.key = new NamespacedKey(CobaltCore.getInstance(), internalName);
     }
@@ -90,8 +93,13 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         if (spawnWorld == null) return null;
         summonedEntity = spawnWorld.spawnEntity(location, baseEntityType);
 
+        // Modify the entity
+        for (IEntityModification modification : entityModifications) modification.modifyEntity(summonedEntity);
+
         // Set entity tag
+        this.entityUuid = UUID.randomUUID();
         summonedEntity.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte)1);
+        summonedEntity.getPersistentDataContainer().set(EntityConstants.IS_CUSTOM_ENTITY, PersistentDataType.STRING, entityUuid.toString());
 
         // Set entity name
         if (customName != null) {
@@ -115,6 +123,8 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     @Override
     public void run() {
 
+        Random r = new Random();
+
         // Execute all tick modules
         for (ITickExecutable module : executeModuleOnTick) {
             module.execute(this, spawnParameters);
@@ -122,7 +132,6 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
         // Check if entity is dead, if so, cancel the task.
         if (!isAlive()) {
-            onDeath();
             task.cancel();
         }
 
@@ -131,7 +140,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
             for (AbilityModule ability : abilityModules) {
                 if (ability.attemptAbility(this, spawnParameters)) {
                     if (generalAbilityCooldown > 0) {
-                        currentAbilityCooldown = generalAbilityCooldown;
+                        currentAbilityCooldown = generalAbilityCooldown + (r.nextDouble() / 2.0);
                         break;
                     }
                 }
@@ -146,16 +155,25 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         return summonedEntity.isValid();
     }
 
-    // ----- ENTITY DEATH -----
+    // ----- ENTITY DEATH / DESPAWN -----
 
+    @Override
+    public void despawn() {
+        if (summonedEntity.isValid()) summonedEntity.remove();
+
+        // Remove entity from summoned entities.
+        CustomEntityManager.removeEntity(entityUuid);
+    }
+
+    @Override
     public void onDeath() {
         // Execute all OnDeath Modules.
         for (IDeathExecutable module : executeModuleOnDeath) {
             module.execute(this, spawnParameters);
         }
 
-        // Remove entity from summoned entities.
-        CustomEntityManager.removeEntity(entityUuid);
+        // Execute everything that would happen if it were to despawn
+        despawn();
     }
 
     // ----- CLONE -----
@@ -185,6 +203,8 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         this.customName = target.customName;
 
         this.spawnParameters = target.spawnParameters;
+
+        this.entityModifications = target.entityModifications;
     }
 
     @Override
@@ -212,6 +232,8 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
         // Name
         String customName = null;
+
+        List<IEntityModification> entityModifications = new ArrayList<>();
 
         // ----- CONSTRUCTORS -----
 
@@ -241,10 +263,23 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
             obj.setExecuteModuleOnTick(executeModuleOnTick);
             obj.setExecuteModuleOnDeath(executeModuleOnDeath);
 
+            obj.setEntityModifications(entityModifications);
+
             return obj;
         }
 
         // ----- SETTERS / ADDERS -----
+
+        /**
+         * Adds a modification to an entity.
+         *
+         * @param modification the modification to add.
+         * @return the builder.
+         */
+        public CustomEntityBuilder addEntityModification(IEntityModification modification) {
+            this.entityModifications.add(modification);
+            return this;
+        }
 
         /**
          * Sets the custom name to display over the entity.
@@ -316,6 +351,12 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
 
     // ----- GETTERS / SETTERS -----
 
+    @Override
+    public Location getLocation() {
+        if (isAlive()) return summonedEntity.getLocation();
+        else return null;
+    }
+
     public <T extends AbilityModule> T getAbilityModule(Class<T> abilityModuleClass) {
         for (AbilityModule module : abilityModules) {
             if (module.getClass() == abilityModuleClass) return (T)module;
@@ -358,6 +399,14 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         this.executeModuleOnDeath = executeModuleOnDeath;
     }
 
+    public void addEntityModification(IEntityModification modification) {
+        this.entityModifications.add(modification);
+    }
+
+    public void setEntityModifications(List<IEntityModification> entityModifications) {
+        this.entityModifications = entityModifications;
+    }
+
     @Override
     public EntityType getBaseEntityType() {
         return baseEntityType;
@@ -375,4 +424,11 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     public UUID getEntityUuid() {
         return entityUuid;
     }
+
+    // ----- ENTITY MODIFICATION INTERFACE -----
+
+    public interface IEntityModification {
+        void modifyEntity(Entity entity);
+    }
+
 }
