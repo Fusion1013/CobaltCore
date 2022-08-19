@@ -2,7 +2,8 @@ package se.fusion1013.plugin.cobaltcore.database.trades;
 
 import se.fusion1013.plugin.cobaltcore.database.system.IDao;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
-import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
+import se.fusion1013.plugin.cobaltcore.util.PreGeneratedWeightsRandom;
+import se.fusion1013.plugin.cobaltcore.util.RandomCollection;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface ITradesDao extends IDao {
      *
      * @return all Merchant Trades in the database.
      */
-    PreCalculateWeightsRandom<CustomTradesManager.MerchantRecipePlaceholder> getMerchantTrades();
+    RandomCollection<CustomTradesManager.MerchantRecipePlaceholder> getMerchantTrades();
 
     /**
      * Saves all Merchant Trades to the database.
@@ -29,7 +30,7 @@ public interface ITradesDao extends IDao {
      * @param trades the trades to save.
      * @param weights the weights associated with the trades.
      */
-    void saveMerchantTrades(List<CustomTradesManager.MerchantRecipePlaceholder> trades, List<Integer> weights);
+    void saveMerchantTrades(List<CustomTradesManager.MerchantRecipePlaceholder> trades, Double[] weights);
 
     @Override
     default String getId() { return "trades"; }
