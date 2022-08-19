@@ -104,9 +104,16 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             return (T) this.managers.get(plugin).get(managerClass);
 
         try {
+            long time = System.currentTimeMillis();
+
+            plugin.getLogger().info("Reloading manager " + managerClass.getName());
+
             T manager = managerClass.getConstructor(this.getClass()).newInstance(this);
             this.managers.get(plugin).put(managerClass, manager);
             manager.reload();
+
+            plugin.getLogger().info("Reloaded manager " + managerClass.getName() + " in " + (System.currentTimeMillis() - time) + "ms");
+
             return manager;
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
