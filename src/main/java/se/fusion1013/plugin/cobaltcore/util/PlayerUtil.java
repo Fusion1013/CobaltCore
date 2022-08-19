@@ -190,6 +190,29 @@ public class PlayerUtil {
     }
 
     /**
+     * Gets the closest player to the <code>Location</code>.
+     *
+     * @param location the location to get the closest player to.
+     * @param gameMode the <code>GameMode</code> of the player
+     * @return the closest player, or null if no player was found.
+     */
+    public static Player getClosestPlayer(Location location, GameMode gameMode) {
+        Player current = null;
+        double currentDistance = Double.MAX_VALUE;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+
+            if (!p.getGameMode().equals(gameMode)) continue;
+
+            double dist = location.distanceSquared(p.getLocation());
+            if (dist < currentDistance) {
+                current = p;
+                currentDistance = dist;
+            }
+        }
+        return current;
+    }
+
+    /**
      * Gets an array of strings containing the names of currently online players.
      *
      * @return an array of names.
