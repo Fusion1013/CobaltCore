@@ -156,6 +156,13 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, DebugManager.class);
     }
 
+    public <T extends Manager> void reloadPluginIntegrationManager(String pluginName, CobaltPlugin plugin, Class<T> manager) {
+        if (getServer().getPluginManager().getPlugin(pluginName) != null) {
+            this.getManager(plugin, manager);
+            getLogger().info("Plugin " + pluginName + " found. Integrating...");
+        }
+    }
+
     // ----- LISTENERS -----
 
     @Override
