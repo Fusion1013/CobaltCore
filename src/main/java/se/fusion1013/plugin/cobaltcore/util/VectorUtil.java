@@ -144,4 +144,11 @@ public class VectorUtil {
     public static double angleToXAxis(Vector vector) {
         return Math.atan2(vector.getX(), vector.getY());
     }
+
+    public static Vector lerp(Vector a, Vector b, double lambda) {
+        a.setX(a.getX() + lambda * (b.getX() - a.getX()));
+        a.setY(a.getY() + lambda * (b.getY() - a.getY()));
+        a.setZ(a.getZ() + lambda * (b.getZ() - a.getZ()));
+        return a;
+    }
 }
