@@ -123,10 +123,23 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
         this.getManager(this, CommandManager.class); // This manager must be instantiated before any manager that registers a command
 
+        // Managers that integrate with other plugins
+        // Only instantiate if that plugin was found
+        reloadPluginIntegrationManager("WorldGuard", this, WorldGuardManager.class);
+        reloadPluginIntegrationManager("CrazyAdvancementsAPI", this, CobaltAdvancementManager.class);
+
+        // Internal Managers
         this.getManager(this, LocaleManager.class);
         this.getManager(this, CustomItemManager.class);
         this.getManager(this, SettingsManager.class);
+
+        this.getManager(this, ChunkBoundObjectManager.class);
+
+        // Block
         this.getManager(this, BlockPlacementManager.class);
+        this.getManager(this, BlockEntityManager.class);
+        this.getManager(this, CustomBlockManager.class);
+
         this.getManager(this, StructureManager.class);
         this.getManager(this, CustomTradesManager.class);
         this.getManager(this, CustomEntityManager.class);
