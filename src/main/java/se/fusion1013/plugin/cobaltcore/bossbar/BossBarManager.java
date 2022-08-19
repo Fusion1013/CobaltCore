@@ -79,7 +79,8 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
      * @return the result of the operation.
      */
     @CommandHandler(
-            parameterNames = {"identifier", "owner", "title", "color", "style"}
+            parameterNames = {"identifier", "owner", "title", "color", "style"},
+            overrideTypes = {CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.TEXT, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE}
     )
     public static CommandResult create(String identifier, Entity owner, String title, BarColor color, BarStyle style) {
         return create(identifier, owner, title, color, style, -1);
