@@ -7,13 +7,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -120,8 +120,8 @@ public class ItemEventHandler implements Listener {
         ICustomItem oldCustom = CustomItemManager.getCustomItem(oldItem);
         ICustomItem newCustom = CustomItemManager.getCustomItem(newItem);
 
-        if (oldCustom != null) oldCustom.activatorTriggered(ItemActivator.PLAYER_DESELECT_CUSTOM_ITEM, event);
-        else if (newCustom != null) newCustom.activatorTriggered(ItemActivator.PLAYER_SELECT_CUSTOM_ITEM, event, EquipmentSlot.HAND);
+        if (oldCustom != null) oldCustom.activatorTriggeredAsync(ItemActivator.PLAYER_DESELECT_CUSTOM_ITEM, event);
+        else if (newCustom != null) newCustom.activatorTriggeredAsync(ItemActivator.PLAYER_SELECT_CUSTOM_ITEM, event, EquipmentSlot.HAND);
     }
 
     @EventHandler
@@ -134,7 +134,7 @@ public class ItemEventHandler implements Listener {
         ItemStack drop = event.getItemDrop().getItemStack();
         ICustomItem custom = CustomItemManager.getCustomItem(drop);
 
-        if (custom != null) custom.activatorTriggered(ItemActivator.PLAYER_DROP_CUSTOM_ITEM, event);
+        if (custom != null) custom.activatorTriggeredAsync(ItemActivator.PLAYER_DROP_CUSTOM_ITEM, event);
         executeActivator(event.getPlayer(), ItemActivator.PLAYER_DROP_ITEM, event);
     }
 
@@ -151,8 +151,8 @@ public class ItemEventHandler implements Listener {
         ICustomItem newCustom = CustomItemManager.getCustomItem(newItem);
         ICustomItem oldCustom = CustomItemManager.getCustomItem(oldItem);
 
-        if (newCustom != null) newCustom.activatorTriggered(ItemActivator.PLAYER_EQUIP_CUSTOM_ITEM, event);
-        if (oldCustom != null) oldCustom.activatorTriggered(ItemActivator.PLAYER_UNEQUIP_CUSTOM_ITEM, event);
+        if (newCustom != null) newCustom.activatorTriggeredAsync(ItemActivator.PLAYER_EQUIP_CUSTOM_ITEM, event);
+        if (oldCustom != null) oldCustom.activatorTriggeredAsync(ItemActivator.PLAYER_UNEQUIP_CUSTOM_ITEM, event);
 
         executeActivator(event.getPlayer(), ItemActivator.PLAYER_EQUIP_ITEM, event);
         executeActivator(event.getPlayer(), ItemActivator.PLAYER_UNEQUIP_ITEM, event);
@@ -181,9 +181,11 @@ public class ItemEventHandler implements Listener {
     @EventHandler
     public void onPlayerKill(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
+            if (event.getEntity() instanceof Player player2) {
+                if (player2.getHealth() - event.getFinalDamage() <= 0) executeActivator(player, ItemActivator.PLAYER_KILL_PLAYER, event);
+            }
             if (event.getEntity() instanceof LivingEntity living) {
-                if (living.getHealth() < 0) executeActivator(player, ItemActivator.PLAYER_KILL_ENTITY, event);
-                if (event.getEntity() instanceof Player) executeActivator(player, ItemActivator.PLAYER_KILL_PLAYER, event);
+                if (living.getHealth() - event.getFinalDamage() <= 0) executeActivator(player, ItemActivator.PLAYER_KILL_ENTITY, event);
             }
         }
     }
@@ -255,16 +257,24 @@ public class ItemEventHandler implements Listener {
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         ICustomItem item = CustomItemManager.getCustomItem(event.getItemStack());
-        if (item != null) item.activatorTriggered(ItemActivator.HANGING_PLACE, event);
+        if (item != null) item.activatorTriggeredAsync(ItemActivator.HANGING_PLACE, event);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerBucket(PlayerBucketFillEvent event) {
+        executeActivator(event.getPlayer(), ItemActivator.PLAYER_BUCKET, event);
     }
 
     // ----- HELPER METHOD -----
 
-    private void executeActivator(Player player, ItemActivator activator, Event event) {
+    private <T extends Event> void executeActivator(Player player, ItemActivator activator, T event) {
+        ICustomItem[] items = CustomItemManager.getPlayerHeldCustomItem(player);
+        if (items[0] != null) items[0].activatorTriggeredSync(activator, event, EquipmentSlot.HAND); // TODO: Check how this affects performance
+        if (items[1] != null) items[1].activatorTriggeredSync(activator, event, EquipmentSlot.OFF_HAND);
+
         CobaltCore.getInstance().getServer().getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            ICustomItem[] items = CustomItemManager.getPlayerHeldCustomItem(player);
-            if (items[0] != null) items[0].activatorTriggered(activator, event, EquipmentSlot.HAND);
-            if (items[1] != null) items[1].activatorTriggered(activator, event, EquipmentSlot.OFF_HAND);
+            if (items[0] != null) items[0].activatorTriggeredAsync(activator, event, EquipmentSlot.HAND); // TODO: Event cancelling doesn't really work. Might be because it is running async
+            if (items[1] != null) items[1].activatorTriggeredAsync(activator, event, EquipmentSlot.OFF_HAND);
         });
     }
 }
