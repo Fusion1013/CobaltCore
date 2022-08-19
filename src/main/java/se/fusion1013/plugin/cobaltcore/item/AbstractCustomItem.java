@@ -8,6 +8,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,10 @@ public abstract class AbstractCustomItem implements ICustomItem {
     String internalName;
     NamespacedKey namespacedKey;
     String[] tags;
+
+    // Item Categories
+    IItemCategory itemCategory;
+    List<IItemCategory> itemSubCategories;
 
     // Creation
     Material material;
@@ -39,7 +45,8 @@ public abstract class AbstractCustomItem implements ICustomItem {
     IItemMetaEditor metaEditor;
 
     // Item Activators
-    private Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutors = new HashMap<>();
+    private Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsSync = new HashMap<>();
+    private Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsAsync = new HashMap<>();
 
     // ----- CONSTRUCTORS -----
 
@@ -66,16 +73,27 @@ public abstract class AbstractCustomItem implements ICustomItem {
     // ----- ACTIVATORS -----
 
     @Override
-    public void activatorTriggered(ItemActivator activator, Event event, EquipmentSlot slot) {
+    public void activatorTriggeredAsync(ItemActivator activator, Event event, EquipmentSlot slot) {
 
-        IItemActivatorExecutor executor = itemActivatorExecutors.get(activator);
+        IItemActivatorExecutor executor = itemActivatorExecutorsAsync.get(activator);
         if (executor != null) executor.execute(this, event, slot);
 
     }
 
     @Override
-    public void activatorTriggered(ItemActivator activator, Event event) {
-        activatorTriggered(activator, event, null);
+    public void activatorTriggeredAsync(ItemActivator activator, Event event) {
+        activatorTriggeredAsync(activator, event, null);
+    }
+
+    @Override
+    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot) {
+        IItemActivatorExecutor executor = itemActivatorExecutorsSync.get(activator);
+        if (executor != null) executor.execute(this, event, slot);
+    }
+
+    @Override
+    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event) {
+        activatorTriggeredSync(activator, event, null);
     }
 
     // ----- GETTERS / SETTERS -----
@@ -83,10 +101,18 @@ public abstract class AbstractCustomItem implements ICustomItem {
     /**
      * Sets all the <code>IItemActivatorExecutors</code> for this item.
      *
-     * @param itemActivatorExecutors the <code>IItemActivatorExecutors</code> to set.
+     * @param itemActivatorExecutorsSync the <code>IItemActivatorExecutors</code> to set.
      */
-    public void setItemActivatorExecutors(Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutors) {
-        this.itemActivatorExecutors = itemActivatorExecutors;
+    public void setItemActivatorExecutorsSync(Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsSync) {
+        this.itemActivatorExecutorsSync = itemActivatorExecutorsSync;
+    }
+
+    public void setItemActivatorExecutorsAsync(Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsAsync) {
+        this.itemActivatorExecutorsAsync = itemActivatorExecutorsAsync;
+    }
+
+    public void addStoneCuttingRecipe(Material originMaterial) {
+        CobaltCore.getInstance().getServer().addRecipe(new StonecuttingRecipe(new NamespacedKey(CobaltCore.getInstance(), namespacedKey.getKey() + ".stonecutter." + originMaterial.name()), getItemStack(), originMaterial));
     }
 
     public void addShapedRecipe(String row1, String row2, String row3, ShapedIngredient... ingredients) {
@@ -181,6 +207,26 @@ public abstract class AbstractCustomItem implements ICustomItem {
         return tags;
     }
 
+    public void setTags(String[] tags) {
+        this.tags = tags;
+    }
+
+    public void setItemCategory(IItemCategory itemCategory) {
+        this.itemCategory = itemCategory;
+    }
+
+    public IItemCategory getItemCategory() {
+        return itemCategory;
+    }
+
+    public void setItemSubCategories(List<IItemCategory> subCategories) {
+        this.itemSubCategories = subCategories;
+    }
+
+    public List<IItemCategory> getItemSubCategories() {
+        return itemSubCategories;
+    }
+
     // ----- BUILDER -----
 
     protected static abstract class AbstractCustomItemBuilder<T extends AbstractCustomItem, B extends AbstractCustomItemBuilder>{
@@ -190,6 +236,10 @@ public abstract class AbstractCustomItem implements ICustomItem {
         // Internals
         String internalName;
         List<String> tags;
+
+        // Item Categories
+        IItemCategory itemCategory = ItemCategory.OTHER;
+        List<IItemCategory> itemSubCategories = new ArrayList<>();
 
         // Creation
         Material material;
@@ -202,12 +252,14 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
         // Crafting Recipes
         List<CobaltRecipe> recipes = new ArrayList<>();
+        List<Material> stoneCutterRecipe = new ArrayList<>();
 
         // Item Meta
         IItemMetaEditor metaEditor = null;
 
         // Item Activator
-        Map<ItemActivator, IItemActivatorExecutor> itemActivators = new HashMap<>();
+        Map<ItemActivator, IItemActivatorExecutor> itemActivatorsSync = new HashMap<>();
+        Map<ItemActivator, IItemActivatorExecutor> itemActivatorsAsync = new HashMap<>();
 
         public AbstractCustomItemBuilder(String internalName, Material material, int count){
             this.internalName = internalName;
@@ -234,7 +286,18 @@ public abstract class AbstractCustomItem implements ICustomItem {
                 else obj.addShapelessRecipe(recipe.shapelessIngredients);
             }
 
-            obj.setItemActivatorExecutors(itemActivators);
+            for (Material material : stoneCutterRecipe) {
+                obj.addStoneCuttingRecipe(material);
+            }
+
+            obj.setItemActivatorExecutorsSync(itemActivatorsSync);
+            obj.setItemActivatorExecutorsAsync(itemActivatorsAsync);
+
+            obj.setTags(tags.toArray(new String[0]));
+
+            // Item Categories
+            obj.setItemCategory(itemCategory);
+            obj.setItemSubCategories(itemSubCategories);
 
             return obj;
         }
@@ -246,6 +309,18 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
         public B addTag(String tag) {
             this.tags.add(tag);
+            return getThis();
+        }
+
+        // Item Categories
+
+        public B setItemCategory(IItemCategory itemCategory) {
+            this.itemCategory = itemCategory;
+            return getThis();
+        }
+
+        public B addItemSubCategory(IItemCategory subCategory) {
+            this.itemSubCategories.add(subCategory);
             return getThis();
         }
 
@@ -290,6 +365,14 @@ public abstract class AbstractCustomItem implements ICustomItem {
             return getThis();
         }
 
+        /**
+         * WARNING: STONECUTTING RECIPES MUST BE REGISTERED IN ALPHABETICAL ORDER
+         */
+        public B addStoneCuttingRecipe(Material originMaterial) {
+            this.stoneCutterRecipe.add(originMaterial);
+            return getThis();
+        }
+
         private static class CobaltRecipe {
             String row1;
             String row2;
@@ -317,14 +400,37 @@ public abstract class AbstractCustomItem implements ICustomItem {
         // Item Activators
 
         /**
-         * Adds a new <code>IItemActivatorExecutor</code> to the item. This will get activated when the <code>ItemActivator</code> fires.
+         * Adds a new <code>IItemActivatorExecutor</code> to the item. This will get activated when the <code>ItemActivator</code> fires. Defaults to run async.
          *
          * @param activator the <code>ItemActivator</code> that determines when the <code>IItemActivatorExecutor</code> executes.
          * @param executor the <code>IItemActivatorExecutor</code> that executes when the <code>ItemActivator</code> fires.
          * @return the builder.
          */
         public B addItemActivator(ItemActivator activator, IItemActivatorExecutor executor) {
-            itemActivators.put(activator, executor);
+            return addItemActivatorAsync(activator, executor);
+        }
+
+        /**
+         * Adds a new <code>IItemActivatorExecutor</code> to the item. This will get activated when the <code>ItemActivator</code> fires.
+         *
+         * @param activator the <code>ItemActivator</code> that determines when the <code>IItemActivatorExecutor</code> executes.
+         * @param executor the <code>IItemActivatorExecutor</code> that executes when the <code>ItemActivator</code> fires.
+         * @return the builder.
+         */
+        public B addItemActivatorSync(ItemActivator activator, IItemActivatorExecutor executor) {
+            itemActivatorsSync.put(activator, executor);
+            return getThis();
+        }
+
+        /**
+         * Adds a new <code>IItemActivatorExecutor</code> to the item. This will get activated when the <code>ItemActivator</code> fires.
+         *
+         * @param activator the <code>ItemActivator</code> that determines when the <code>IItemActivatorExecutor</code> executes.
+         * @param executor the <code>IItemActivatorExecutor</code> that executes when the <code>ItemActivator</code> fires.
+         * @return the builder.
+         */
+        public B addItemActivatorAsync(ItemActivator activator, IItemActivatorExecutor executor) {
+            itemActivatorsAsync.put(activator, executor);
             return getThis();
         }
     }
