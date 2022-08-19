@@ -105,6 +105,23 @@ public class SpawnerManager extends Manager implements Listener, Runnable {
         loadedSpawners.put(location.getChunk().getChunkKey(), spawnerMap);
     }
 
+    public void placeSpawner(CustomSpawner spawnerTemplate, Location location) {
+        spawnerTemplate.setLocation(location);
+        Map<Location, CustomSpawner> spawnerMap = loadedSpawners.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>());
+        spawnerMap.put(location, spawnerTemplate);
+        loadedSpawners.put(location.getChunk().getChunkKey(), spawnerMap);
+    }
+
+    // ----- SPAWNER GETTING -----
+
+    public CustomSpawner getSpawner(Location location) {
+        Map<Location, CustomSpawner> spawnerMap = loadedSpawners.get(location.getChunk().getChunkKey());
+        if (spawnerMap == null) spawnerMap = unloadedSpawners.get(location.getChunk().getChunkKey());
+        if (spawnerMap == null) return null;
+
+        return spawnerMap.get(location);
+    }
+
     // ----- CONSTRUCTORS -----
 
     public SpawnerManager(CobaltCore cobaltCore) {
