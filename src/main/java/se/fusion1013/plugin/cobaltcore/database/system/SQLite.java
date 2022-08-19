@@ -1,20 +1,10 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
-import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
-import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
-import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
-import se.fusion1013.plugin.cobaltcore.settings.PlayerSettingHolder;
-import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -36,11 +26,11 @@ public class SQLite extends Database {
     // ----- LOGIC -----
 
     public static void dropTable(String table) {
-        try {
-            Connection connection = CobaltCore.getInstance().getSQLDatabase().getSQLConnection();
-            PreparedStatement s = connection.prepareStatement("DROP TABLE IF EXISTS " + table + ";");
+        try (
+                Connection connection = CobaltCore.getInstance().getSQLDatabase().getSQLConnection();
+                PreparedStatement s = connection.prepareStatement("DROP TABLE IF EXISTS " + table + ";")
+        ) {
             s.executeUpdate();
-            s.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -52,11 +42,11 @@ public class SQLite extends Database {
      * @param string Statement to execute.
      */
     public void executeString(String string){
-        connection = getSQLConnection();
-        try {
-            Statement s = connection.createStatement();
+        try (
+                Connection conn = getSQLConnection();
+                Statement s = conn.createStatement()
+        ) {
             s.executeUpdate(string);
-            s.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -73,9 +63,24 @@ public class SQLite extends Database {
             }
         }
         try {
+            /*
+            // This is a stupid solution
+            long startTick = System.currentTimeMillis();
+            long lastActivation = System.currentTimeMillis();
+            long waitTick;
+            while (connection != null && !connection.isClosed()) {
+                waitTick = System.currentTimeMillis();
+                if (lastActivation + 5000 <= waitTick) {
+                    CobaltCore.getInstance().getLogger().warning("Something has been trying to access the database while it has been busy for " + (waitTick - startTick) + "ms now. The system might be under heavy load or something might not be closing connection objects correctly");
+                    lastActivation = System.currentTimeMillis();
+                }
+            }
+             */
+
             if (connection != null && !connection.isClosed()) {
                 return connection;
             }
+
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
             return connection;
