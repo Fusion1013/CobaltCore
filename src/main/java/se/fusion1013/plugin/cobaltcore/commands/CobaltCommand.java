@@ -1,19 +1,24 @@
 package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.BooleanArgument;
-import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.executors.PlayerCommandExecutor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.commands.cgive.CGiveCommand;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
+import se.fusion1013.plugin.cobaltcore.item.CustomItem;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
+import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
 import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
@@ -44,6 +49,20 @@ public class CobaltCommand {
                 .withSubcommand(createDebugCommand())
                 .withSubcommand(createStructureCommand())
                 .register();
+    }
+
+    // ----- STRUCTURE COMMAND -----
+
+    private static CommandAPICommand createStructureCommand() {
+        return new CommandAPICommand("structure")
+                .withSubcommand(new CommandAPICommand("place")
+                        .withArguments(new StringArgument("structure").replaceSuggestions(ArgumentSuggestions.strings(info -> StructureManager.getRegisteredStructureNames())))
+                        .withArguments(new LocationArgument("location", LocationType.BLOCK_POSITION))
+                        .executes(((sender, args) -> {
+                            String structureName = (String) args[0];
+                            Location location = (Location) args[1];
+                            StructureManager.placeStructure(structureName, location);
+                        })));
     }
 
     // ----- DEBUG COMMAND -----
