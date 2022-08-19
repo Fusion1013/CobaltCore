@@ -2,9 +2,11 @@ package se.fusion1013.plugin.cobaltcore.world.spawner;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.entity.ICustomEntity;
@@ -28,6 +30,10 @@ public class CustomSpawner {
     int spawnCount;
     double activationRange;
     int spawnRadius;
+
+    int delaySummon = 0;
+    String playSound = "";
+    String playSoundDelayed = "";
 
     // Instant Spawner
 
@@ -91,6 +97,23 @@ public class CustomSpawner {
         this.type = SpawnerType.CONTINUOUS;
     }
 
+    // ----- BUILDER METHODS -----
+
+    public CustomSpawner addDelayedSound(String sound) {
+        this.playSoundDelayed = sound;
+        return this;
+    }
+
+    public CustomSpawner addSound(String sound) {
+        this.playSound = sound;
+        return this;
+    }
+
+    public CustomSpawner addSpawnDelay(int delay) {
+        this.delaySummon = delay;
+        return this;
+    }
+
     // ----- SPAWNER TICK -----
 
     public void tick() {
@@ -107,7 +130,11 @@ public class CustomSpawner {
 
     private void tickInstant() {
         for (Player p : Bukkit.getOnlinePlayers()) {
+
+            if (p.getWorld() != location.getWorld()) continue;
+
             if (p.getLocation().distanceSquared(location) < activationRange*activationRange) {
+                location.getBlock().setType(Material.AIR);
                 spawnMobs();
                 removeNextTick = true;
                 return;
@@ -126,6 +153,9 @@ public class CustomSpawner {
 
         // Spawn Mobs
         for (Player p : Bukkit.getOnlinePlayers()) {
+
+            if (p.getWorld() != location.getWorld()) continue;
+
             if (p.getLocation().distanceSquared(location) < activationRange*activationRange) {
                 spawnMobs();
                 return;
@@ -135,16 +165,30 @@ public class CustomSpawner {
 
     private void spawnMobs() {
         Random r = new Random();
-        for (int i = 0; i < spawnCount; i++) {
-            Vector offset;
-            if (spawnRadius > 0) offset = new Vector(r.nextInt(-spawnRadius, spawnRadius), 0, r.nextInt(-spawnRadius, spawnRadius));
-            else offset = new Vector();
-            CustomEntity spawned = entity.attemptNaturalSpawn(location.clone().add(offset), null);
 
-            if (spawned != null) {
-                location.getWorld().spawnParticle(Particle.FLAME, location.clone().add(offset).add(new Vector(0, 1, 0)), 10, .3, .5, .3, 0);
+        CobaltCore.getInstance().getLogger().info("Executing spawner");
+
+        // Play sound
+        location.getWorld().playSound(location, playSound, 10, 1);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(CobaltCore.getInstance(), () -> {
+
+            // Spawn entities
+            for (int i = 0; i < spawnCount; i++) {
+                Vector offset;
+                if (spawnRadius > 0) offset = new Vector(r.nextInt(-spawnRadius, spawnRadius) + .5, .5, r.nextInt(-spawnRadius, spawnRadius) + .5);
+                else offset = new Vector();
+                boolean hasSpawned = CustomEntityManager.attemptSummonEntity(entityName, location.clone().add(offset), null);
+
+                if (hasSpawned) {
+                    location.getWorld().spawnParticle(Particle.FLAME, location.clone().add(offset).add(new Vector(0, 1, 0)), 10, .3, .5, .3, 0);
+                }
             }
-        }
+
+            // Play delayed sound
+            location.getWorld().playSound(location, playSoundDelayed, 10, 1);
+
+        }, delaySummon);
     }
 
     // ----- GETTERS / SETTERS -----
@@ -181,5 +225,21 @@ public class CustomSpawner {
 
     public int getCooldown() {
         return cooldown;
+    }
+
+    public int getDelaySummon() {
+        return delaySummon;
+    }
+
+    public String getPlaySound() {
+        return playSound;
+    }
+
+    public String getPlaySoundDelayed() {
+        return playSoundDelayed;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }
