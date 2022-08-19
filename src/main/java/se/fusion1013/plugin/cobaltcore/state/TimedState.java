@@ -53,7 +53,7 @@ public class TimedState<T> extends CobaltState<T> implements Cloneable {
     public TimedState(TimedState<T> target) {
         super(target);
 
-        this.currentTick = target.currentTick;
+        this.currentTick = 0;
         this.timer = target.timer;
     }
 
