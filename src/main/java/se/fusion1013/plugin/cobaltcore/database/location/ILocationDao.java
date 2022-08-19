@@ -15,12 +15,27 @@ public interface ILocationDao extends IDao {
     void removeLocation(UUID uuid);
 
     /**
+     * Removes a location from the database.
+     *
+     * @param uuid the unique identifier of the location.
+     */
+    void removeLocationSync(UUID uuid);
+
+    /**
      * Inserts a location into the database.
      *
      * @param uuid the unique identifier of the location.
      * @param location the location to insert.
      */
     void insertLocation(UUID uuid, Location location);
+
+    /**
+     * Inserts a location into the database.
+     *
+     * @param uuid the unique identifier of the location.
+     * @param location the location to insert.
+     */
+    void insertLocationSync(UUID uuid, Location location);
 
     @Override
     default String getId() { return "location"; }
