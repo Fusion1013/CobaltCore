@@ -52,19 +52,17 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
     @Override
     public void removeParticleGroup(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+            try (
+                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
+                    PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE group_uuid = ?")
+            ) {
                 conn.setAutoCommit(false);
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
-                PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE group_uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps2.setString(1, uuid.toString());
                 ps.executeUpdate();
                 ps2.executeUpdate();
                 conn.commit();
-                conn.close();
-                ps.close();
-                ps2.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -73,11 +71,12 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
     @Override
     public void insertParticleGroups(List<ParticleGroup> groups) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+        try (
+                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name, integrity) VALUES(?,?, ?)");
+                PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+        ) {
             conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name, integrity) VALUES(?,?, ?)");
-            PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)");
 
             for (ParticleGroup group : groups) {
                 ps.setString(1, group.getUuid().toString());
@@ -105,7 +104,6 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
             }
 
             conn.commit();
-            conn.close();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -117,9 +115,10 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
         Map<String, ParticleGroup> groupMap = new HashMap<>();
 
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_group_view");
+        try (
+                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_group_view")
+        ) {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
