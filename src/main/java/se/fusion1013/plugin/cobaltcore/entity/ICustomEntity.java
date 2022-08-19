@@ -29,7 +29,11 @@ public interface ICustomEntity {
      */
     boolean isAlive();
 
-    // TODO: Kill method
+    Location getLocation();
+
+    void onDeath();
+
+    void despawn();
 
     // ----- GETTERS / SETTERS -----
 
