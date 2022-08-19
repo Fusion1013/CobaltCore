@@ -1,14 +1,23 @@
 package se.fusion1013.plugin.cobaltcore.entity;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
@@ -17,10 +26,11 @@ import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
 import se.fusion1013.plugin.cobaltcore.entity.modules.*;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ability.ChargeAbility;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
+import se.fusion1013.plugin.cobaltcore.util.constants.EntityConstants;
 
 import java.util.*;
 
-public class CustomEntityManager extends Manager {
+public class CustomEntityManager extends Manager implements Listener {
 
     // ----- VARIABLES -----
 
@@ -83,6 +93,25 @@ public class CustomEntityManager extends Manager {
     }
 
     /**
+     * Attempts to summon a <code>CustomEntity</code>, checking spawning requirements.
+     *
+     * @param entityName the name of the entity to summon.
+     * @param location the location to summon the entity.
+     * @param spawnParameters the spawn parameters.
+     * @return true if the entity was summoned.
+     */
+    public static boolean attemptSummonEntity(String entityName, Location location, ISpawnParameters spawnParameters) {
+        ICustomEntity entityToSummon = getCustomEntity(entityName);
+        if (entityToSummon == null) return false;
+
+        CustomEntity summoned = entityToSummon.attemptNaturalSpawn(location, spawnParameters);
+        if (summoned == null) return false;
+
+        summonedCustomEntities.put(summoned.getEntityUuid(), summoned);
+        return true;
+    }
+
+    /**
      * Gets the registered <code>CustomEntity</code> with the registered name.
      *
      * @param entityName the internal name of the entity.
@@ -106,13 +135,23 @@ public class CustomEntityManager extends Manager {
         return names;
     }
 
-    // ----- ENTITY SUMMONING ----- // TODO
+    // ----- ENTITY DEATH -----
 
-    @CommandHandler(
-            parameterNames = {""}
-    )
-    public CommandResult csummon() {
-        return CommandResult.SUCCESS;
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity entity = event.getEntity();
+        PersistentDataContainer container = entity.getPersistentDataContainer();
+        if (container.has(EntityConstants.IS_CUSTOM_ENTITY)) {
+            String uuidString = container.getOrDefault(EntityConstants.IS_CUSTOM_ENTITY, PersistentDataType.STRING, "");
+            UUID uuid = UUID.fromString(uuidString);
+
+            ICustomEntity customEntity = summonedCustomEntities.get(uuid);
+
+            if (customEntity != null) {
+                customEntity.onDeath();
+                CobaltCore.getInstance().getLogger().info("On death for entity " + customEntity.getInternalName());
+            }
+        }
     }
 
     // ----- CONSTRUCTORS -----
@@ -125,7 +164,7 @@ public class CustomEntityManager extends Manager {
 
     @Override
     public void reload() {
-
+        Bukkit.getServer().getPluginManager().registerEvents(this, CobaltCore.getInstance());
     }
 
     @Override
