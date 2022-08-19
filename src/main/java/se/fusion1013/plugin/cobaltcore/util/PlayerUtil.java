@@ -1,10 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
 import dev.jorel.commandapi.SuggestionInfo;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -309,6 +306,97 @@ public class PlayerUtil {
                 }
             }
         }
+    }
+
+    // ----- EXPERIENCE ----- // Credit: DOGC_Kyle
+
+    /**
+     * Calculates the amount of EXP needed to level up.
+     *
+     * @param level
+     * @return
+     */
+    public static int getExpToLevelUp(int level){
+        if(level <= 15){
+            return 2*level+7;
+        } else if(level <= 30){
+            return 5*level-38;
+        } else {
+            return 9*level-158;
+        }
+    }
+
+    /**
+     * Calculates the total experience needed up to a level.
+     *
+     * @param level
+     * @return
+     */
+    public static int getExpAtLevel(int level){
+        if(level <= 16){
+            return (int) (Math.pow(level,2) + 6*level);
+        } else if(level <= 31){
+            return (int) (2.5*Math.pow(level,2) - 40.5*level + 360.0);
+        } else {
+            return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
+        }
+    }
+
+    /**
+     * Calculates the <code>Player</code>'s current EXP amount.
+     *
+     * @param player the <code>Player</code> to get the EXP from.
+     * @return the EXP amount.
+     */
+    public static int getPlayerExp(Player player){
+        int exp = 0;
+        int level = player.getLevel();
+
+        // Get the amount of XP in past levels
+        exp += getExpAtLevel(level);
+
+        // Get amount of XP towards next level
+        exp += Math.round(getExpToLevelUp(level) * player.getExp());
+
+        return exp;
+    }
+
+    /**
+     * Increases or decreases the <code>Player</code> EXP by the given amount.
+     *
+     * @param player the <code>Player</code> to change the EXP of.
+     * @param exp the EXP amount to change the <code>Player</code>'s with.
+     * @return the new EXP amount.
+     */
+    public static int changePlayerExp(Player player, int exp){
+        // Get player's current exp
+        int currentExp = getPlayerExp(player);
+
+        // Reset player's current exp to 0
+        player.setExp(0);
+        player.setLevel(0);
+
+        // Give the player their exp back, with the difference
+        int newExp = currentExp + exp;
+        player.giveExp(newExp);
+
+        // Return the player's new exp amount
+        return newExp;
+    }
+
+    /**
+     * Changes the <code>Player</code>'s EXP to the given amount.
+     *
+     * @param player the <code>Player</code> to change the EXP of.
+     * @param exp the EXP value to set the value to.
+     */
+    public static void setPlayerExp(Player player, int exp) {
+        // Reset player's current exp to 0
+        player.setExp(0);
+        player.setLevel(0);
+
+        // Give the player the new exp
+        player.giveExp(exp);
     }
 
     // ----- STORAGE -----
