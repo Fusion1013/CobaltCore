@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.util.BlockUtil;
 import se.fusion1013.plugin.cobaltcore.util.GeometryUtil;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
@@ -33,6 +34,8 @@ public class SurfaceStructureStructureModule extends StructureModule implements 
 
         Location placeLocation = location.getWorld().getHighestBlockAt(location.getBlockX(), location.getBlockZ()).getLocation();
         structureHolder.placeStructure(placeLocation.clone().add(offset));
+
+        CobaltCore.getInstance().getLogger().info("Placed surface structure at: " + location.toVector());
     }
 
     @Override
