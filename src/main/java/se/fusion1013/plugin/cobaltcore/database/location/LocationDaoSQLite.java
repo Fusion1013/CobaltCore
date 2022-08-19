@@ -25,24 +25,42 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
             ");";
 
     @Override
+    @Deprecated
     public void removeLocation(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM locations WHERE uuid = ?");
-                ps.setString(1, uuid.toString());
-                ps.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            removeLocationSync(uuid);
         });
     }
 
     @Override
+    @Deprecated
+    public void removeLocationSync(UUID uuid) {
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM locations WHERE uuid = ?")
+        ) {
+            ps.setString(1, uuid.toString());
+            ps.execute();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    @Deprecated
     public void insertLocation(UUID uuid, Location location) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+            insertLocationSync(uuid, location);
+        });
+    }
+
+    @Override
+    @Deprecated
+    public void insertLocationSync(UUID uuid, Location location) {
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+        ) {
             ps.setString(1, uuid.toString());
             ps.setString(2, location.getWorld().getName());
             ps.setDouble(3, location.getX());
@@ -50,8 +68,7 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
             ps.setDouble(5, location.getZ());
             ps.setDouble(6, location.getYaw());
             ps.setDouble(7, location.getPitch());
-            ps.executeUpdate();
-            ps.close();
+            ps.execute();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
