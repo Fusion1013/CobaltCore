@@ -188,7 +188,9 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     private final static Set<CobaltPlugin> cobaltPlugins = new HashSet<>();
 
     public void disableCobaltPlugin(CobaltPlugin plugin) {
+        long time = System.currentTimeMillis();
         if (this.managers.get(plugin) != null) this.managers.get(plugin).values().forEach(Manager::disable);
+        plugin.getLogger().info("Disabled managers in " + (System.currentTimeMillis() - time) + "ms");
     }
 
     public boolean registerCobaltPlugin(CobaltPlugin plugin) {
