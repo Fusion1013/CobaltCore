@@ -204,6 +204,8 @@ public class DataManager extends Manager {
      *
      * @return The object of this class
      */
+
+    @Deprecated
     public static DataManager getInstance(){
         if (INSTANCE == null){
             INSTANCE = new DataManager(CobaltCore.getInstance());
