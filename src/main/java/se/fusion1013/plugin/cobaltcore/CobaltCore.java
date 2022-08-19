@@ -146,7 +146,6 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, ParticleStyleManager.class);
         this.getManager(this, ParticleGroupManager.class);
         this.getManager(this, BossBarManager.class);
-        this.getManager(this, CustomBlockManager.class);
 
         this.getManager(this, SoundAreaManager.class);
         this.getManager(this, SoundManager.class);
