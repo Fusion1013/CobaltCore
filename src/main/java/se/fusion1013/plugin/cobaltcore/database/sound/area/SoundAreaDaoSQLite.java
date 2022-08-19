@@ -62,15 +62,26 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
 
     @Override
     public void saveSoundAreas(Map<Location, SoundArea> soundAreaMap) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+        try (
+                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO sound_areas(sound_area_uuid, sound, activation_range, cooldown) VALUES(?,?,?,?)");
+                PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+        ) {
             conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO sound_areas(sound_area_uuid, sound, activation_range, cooldown) VALUES(?,?,?,?)");
 
             for (SoundArea area : soundAreaMap.values()) {
                 UUID uuid = area.uuid;
                 Location location = area.location;
-                DataManager.getInstance().getDao(ILocationDao.class).insertLocation(uuid, location); // Insert the location into the database
+
+                // Insert location
+                psLocation.setString(1, uuid.toString());
+                psLocation.setString(2, location.getWorld().getName());
+                psLocation.setDouble(3, location.getX());
+                psLocation.setDouble(4, location.getY());
+                psLocation.setDouble(5, location.getZ());
+                psLocation.setDouble(6, location.getYaw());
+                psLocation.setDouble(7, location.getPitch());
+                psLocation.execute();
 
                 ps.setString(1, uuid.toString());
                 ps.setString(2, area.sound);
@@ -81,8 +92,6 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
             }
 
             conn.commit();
-            conn.close();
-            ps.close();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
