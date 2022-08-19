@@ -33,11 +33,11 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
     public Map<Long, Map<LocationUUID, String>> getStructures() {
         Map<Long, Map<LocationUUID, String>> structures = new HashMap<>();
 
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM structure_view");
-            ResultSet rs = ps.executeQuery();
-
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM structure_view");
+                ResultSet rs = ps.executeQuery()
+        ) {
             while (rs.next()) {
                 String name = rs.getString("structure_name");
                 UUID uuid = UUID.fromString(rs.getString("location_uuid"));
@@ -56,26 +56,35 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
 
     @Override
     public void saveStructures(Map<Long, Map<LocationUUID, String>> structures) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement psStructure = conn.prepareStatement("INSERT OR REPLACE INTO structures(structure_name, location_uuid) VALUES(?,?)");
+                PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+        ) {
             conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO structures(structure_name, location_uuid) VALUES(?,?)");
 
             for (Map<LocationUUID, String> locStruPair : structures.values()) {
-                for (LocationUUID location : locStruPair.keySet()) {
-                    String structure = locStruPair.get(location);
-                    ps.setString(1, structure);
-                    ps.setString(2, location.uuid().toString());
+                for (LocationUUID locationUUID : locStruPair.keySet()) {
+                    String structure = locStruPair.get(locationUUID);
+                    psStructure.setString(1, structure);
+                    psStructure.setString(2, locationUUID.uuid().toString());
 
-                    DataManager.getInstance().getDao(ILocationDao.class).insertLocation(location.uuid(), location.location());
+                    Location location = locationUUID.location();
 
-                    ps.executeUpdate();
+                    psLocation.setString(1, locationUUID.uuid().toString());
+                    psLocation.setString(2, location.getWorld().getName());
+                    psLocation.setDouble(3, location.getX());
+                    psLocation.setDouble(4, location.getY());
+                    psLocation.setDouble(5, location.getZ());
+                    psLocation.setDouble(6, location.getYaw());
+                    psLocation.setDouble(7, location.getPitch());
+
+                    psLocation.execute();
+                    psStructure.executeUpdate();
                 }
             }
 
             conn.commit();
-            conn.close();
-            ps.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
