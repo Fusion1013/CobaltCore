@@ -68,6 +68,23 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     private final Map<CobaltPlugin, Map<Class<?>, Manager>> managers;
 
     /**
+     * Safely gets a manager instance. Returns null if the manager has not yet been registered.
+     *
+     * @param plugin the plugin that owns the manager.
+     * @param managerClass the class of the manager instance to get.
+     * @param <T> the manager type.
+     * @return the manager instance or null if one does not exist or has not been registered.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Manager> T getSafeManager(CobaltPlugin plugin, Class<T> managerClass) {
+        this.managers.computeIfAbsent(plugin, k -> new LinkedHashMap<>());
+
+        if (this.managers.get(plugin).containsKey(managerClass)) {
+            return (T) this.managers.get(plugin).get(managerClass);
+        } else return null;
+    }
+
+    /**
      * Gets a manager instance
      *
      * @param plugin the plugin that owns the manager.
