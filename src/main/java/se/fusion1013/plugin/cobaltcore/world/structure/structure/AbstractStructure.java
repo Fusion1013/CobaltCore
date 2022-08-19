@@ -125,8 +125,16 @@ public abstract class AbstractStructure implements IStructure {
 
     @Override
     public boolean canGenerate(Location location, double threshold) {
-        if (threshold < generationThreshold) return false;
-        for (IStructureGenerationCriteria criteria : generationCriteria) if (!criteria.generationCriteriaAchieved(location)) return false;
+        if (threshold < generationThreshold) {
+            // CobaltCore.getInstance().getLogger().info("Threshold criteria failed");
+            return false;
+        }
+        for (IStructureGenerationCriteria criteria : generationCriteria) {
+            if (!criteria.generationCriteriaAchieved(location)) {
+                // CobaltCore.getInstance().getLogger().info("Criteria Failed: " + criteria.getClass().toString());
+                return false;
+            }
+        }
         return true;
     }
 
