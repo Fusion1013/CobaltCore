@@ -20,10 +20,8 @@ import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
 import se.fusion1013.plugin.cobaltcore.database.structure.IStructureDao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
-import se.fusion1013.plugin.cobaltcore.util.FileUtil;
 import se.fusion1013.plugin.cobaltcore.util.LocationUUID;
 import se.fusion1013.plugin.cobaltcore.util.kdtree.Hyperpoint;
-import se.fusion1013.plugin.cobaltcore.util.kdtree.IMultiPoint;
 import se.fusion1013.plugin.cobaltcore.util.kdtree.KDTree;
 import se.fusion1013.plugin.cobaltcore.util.kdtree.TwoDPoint;
 import se.fusion1013.plugin.cobaltcore.world.structure.structure.IStructure;
@@ -47,12 +45,26 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
 
     private static Map<Long, Map<LocationUUID, String>> structures = new HashMap<>();
 
-    private static Map<Vector, IStructure> alwaysLoadStructure = new HashMap<>();
+    private static final Map<Vector, IStructure> alwaysLoadStructure = new HashMap<>();
 
     // ----- CONSTRUCTORS -----
 
     public StructureManager(CobaltCore cobaltCore) {
         super(cobaltCore);
+    }
+
+    // ----- STRUCTURE PLACING -----
+
+    public static void placeStructure(String structureName, Location location) {
+        IStructure structure = registeredStructures.get(structureName);
+        if (structure == null) return;
+
+        TwoDPoint point = new TwoDPoint(location.getChunk().getX() * 16, location.getChunk().getZ() * 16);
+        structureChunkLocations.computeIfAbsent(structure.getName(), k -> new KDTree(2));
+        structureChunkLocations.get(structure.getName()).insert(point);
+        structures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(new LocationUUID(UUID.randomUUID(), location), structure.getName());
+        loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(location, structure.getName());
+        structure.forceGenerate(location);
     }
 
     // ----- DILAPIDATION SYSTEM -----
@@ -73,28 +85,59 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
         return structure;
     }
 
+    public static IStructure registerAlwaysGenerate(IStructure structure, SeedBasedLocation location) {
+
+        CobaltCore.getInstance().getLogger().info("Preparing Structure: " + structure.getName());
+
+        boolean generated = false;
+        for (World world : Bukkit.getWorlds()) {
+            if (registerAlwaysGenerate(structure, location.getLocation(world.getSeed()), world)) generated = true;
+        }
+
+        if (generated) CobaltCore.getInstance().getLogger().info("Structure " + structure.getName() + " prepared");
+        else CobaltCore.getInstance().getLogger().info("Structure " + structure.getName() + " already prepared");
+
+        return structure;
+    }
+
+    public interface SeedBasedLocation {
+        Vector getLocation(long seed);
+    }
+
     public static IStructure registerAlwaysGenerate(IStructure structure, Vector vector) {
         alwaysLoadStructure.put(vector, structure);
 
+        CobaltCore.getInstance().getLogger().info("Preparing Structure: " + structure.getName());
+
+        boolean generated = false;
         for (World world : Bukkit.getWorlds()) {
-            Location location = new Location(world, vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
-
-            if (loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) continue;
-            if (unloadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) continue;
-
-            boolean generated = structure.attemptGenerate(location, 1);
-
-            if (generated) {
-
-                TwoDPoint point = new TwoDPoint(location.getChunk().getX() * 16, location.getChunk().getZ() * 16);
-                structureChunkLocations.computeIfAbsent(structure.getName(), k -> new KDTree(2));
-                structureChunkLocations.get(structure.getName()).insert(point);
-                structures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(new LocationUUID(UUID.randomUUID(), location), structure.getName());
-                loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(location, structure.getName());
-            }
+            if (registerAlwaysGenerate(structure, vector, world)) generated = true;
         }
 
+        if (generated) CobaltCore.getInstance().getLogger().info("Structure " + structure.getName() + " prepared");
+        else CobaltCore.getInstance().getLogger().info("Structure " + structure.getName() + " already prepared");
+
         return structure;
+    }
+
+    private static boolean registerAlwaysGenerate(IStructure structure, Vector vector, World world) {
+
+        Location location = new Location(world, vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+
+        if (loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) return false;
+        if (unloadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) return false;
+
+        boolean generated = structure.attemptGenerate(location, 1);
+
+        if (generated) {
+            TwoDPoint point = new TwoDPoint(location.getChunk().getX() * 16, location.getChunk().getZ() * 16);
+            structureChunkLocations.computeIfAbsent(structure.getName(), k -> new KDTree(2));
+            structureChunkLocations.get(structure.getName()).insert(point);
+            structures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(new LocationUUID(UUID.randomUUID(), location), structure.getName());
+            loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).put(location, structure.getName());
+        }
+
+        return generated;
     }
 
     // ----- CHUNK LOAD EVENT -----
@@ -133,29 +176,45 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
             World world = event.getWorld();
             Chunk chunk = event.getChunk();
 
-            for (IStructure structure : registeredStructures.values()) {
-                if (!structure.getNaturalGeneration()) continue;
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
 
-                // Create noise generators with the structure offset seed
-                NoiseGenerator noise = new PerlinNoiseGenerator(world);
-                double mult = .5;
+                for (IStructure structure : registeredStructures.values()) { // TODO: Currently prioritizes certain structures over others, depending on what is first in the list
+                    if (!structure.getNaturalGeneration()) continue;
 
-                // Structure generation
-                if (noise.noise(chunk.getX() * mult, chunk.getZ() * mult) >= structure.getGenerationThreshold()) {
-                    Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-                        attemptStructureGeneration(world, chunk, structure, noise, mult);
-                    });
+                    // Create noise generators with the structure offset seed
+                    NoiseGenerator noise = new PerlinNoiseGenerator(world);
+                    double mult = .5;
+
+                    // Structure generation
+                    double currentNoise = noise.noise(chunk.getX() * mult + structure.getId(), chunk.getZ() * mult + structure.getId());
+                    if (currentNoise >= structure.getGenerationThreshold() && getHighestAdjacentThreshold(chunk, noise, mult) <= currentNoise) { // Check noise
+                        boolean generated = attemptStructureGeneration(world, chunk, structure, noise, mult);
+                        if (generated) return;
+                    }
                 }
-            }
+            });
         }
     }
 
-    private void attemptStructureGeneration(World world, Chunk chunk, IStructure structure, NoiseGenerator noise, double mult) {
-        // Make sure new structure is far enough away from the nearest one
-        TwoDPoint point = new TwoDPoint(chunk.getX() * 16, chunk.getZ() * 16);
+    private double getHighestAdjacentThreshold(Chunk chunk, NoiseGenerator noise, double mult) {
+        double highestNoise = Float.MIN_VALUE;
 
-        IMultiPoint nearestPoint = structureChunkLocations.computeIfAbsent(structure.getName(), k -> new KDTree(2)).nearest(point);
-        if (nearestPoint != null) if (nearestPoint.distance(point) < structure.getMinDistance()) return;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                double currentNoise = noise.noise((chunk.getX() + x) * mult, (chunk.getZ() + z) * mult);
+                if (currentNoise > highestNoise) highestNoise = currentNoise;
+            }
+        }
+
+        return highestNoise;
+    }
+
+    private boolean attemptStructureGeneration(World world, Chunk chunk, IStructure structure, NoiseGenerator noise, double mult) {
+        // Make sure new structure is far enough away from the nearest one
+        // TwoDPoint point = new TwoDPoint(chunk.getX() * 16, chunk.getZ() * 16);
+
+        // IMultiPoint nearestPoint = structureChunkLocations.computeIfAbsent(structure.getName(), k -> new KDTree(2)).nearest(point);
+        // if (nearestPoint != null) if (nearestPoint.distance(point) < structure.getMinDistance()) return;
 
         // CobaltCore.getInstance().getLogger().info("Attempting to generate structure " + structure.getName() + "...");
 
@@ -164,19 +223,34 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
             double verticalNoise = noise.noise(chunk.getX() * mult, y * mult, chunk.getZ() * mult);
 
             Location generationLocation = new Location(chunk.getWorld(), chunk.getX() * 16, y, chunk.getZ() * 16);
+
             boolean generated = structure.attemptGenerate(generationLocation, verticalNoise);
+            // CobaltCore.getInstance().getLogger().info("Vertical Noise: " + verticalNoise + ". Limit: " + structure.getGenerationThreshold());
 
             if (generated) {
-                structureChunkLocations.get(structure.getName()).insert(point);
-                structures.computeIfAbsent(chunk.getChunkKey(), k -> new HashMap<>()).put(new LocationUUID(UUID.randomUUID(), generationLocation), structure.getName());
-                loadedStructures.computeIfAbsent(chunk.getChunkKey(), k -> new HashMap<>()).put(generationLocation, structure.getName());
-                CobaltCore.getInstance().getLogger().info("Generated Structure " + structure.getName() + " at location " + generationLocation.toVector());
-                break;
+                // structureChunkLocations.get(structure.getName()).insert(point);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(CobaltCore.getInstance(), () -> {
+                    structures.computeIfAbsent(chunk.getChunkKey(), k -> new HashMap<>()).put(new LocationUUID(UUID.randomUUID(), generationLocation), structure.getName());
+                    loadedStructures.computeIfAbsent(chunk.getChunkKey(), k -> new HashMap<>()).put(generationLocation, structure.getName());
+                    CobaltCore.getInstance().getLogger().info("Generated Structure " + structure.getName() + " at location " + generationLocation.toVector());
+                });
+                return true;
             }
         }
+
+        return false;
     }
 
     // ----- GETTERS / SETTERS -----
+
+    /**
+     * Gets all registered <code>IStructure</code> names.
+     *
+     * @return an array of <code>IStructure</code> names.
+     */
+    public static String[] getRegisteredStructureNames() {
+        return registeredStructures.keySet().toArray(new String[0]);
+    }
 
     /**
      * Gets an <code>IStructure</code> from the registered structures.
