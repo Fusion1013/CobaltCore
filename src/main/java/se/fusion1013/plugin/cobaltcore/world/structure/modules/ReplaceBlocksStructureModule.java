@@ -1,9 +1,17 @@
 package se.fusion1013.plugin.cobaltcore.world.structure.modules;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
+import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +57,23 @@ public class ReplaceBlocksStructureModule extends StructureModule {
                         Location replaceLocation = location.clone().add(new Vector(x, y, z));
                         if (replaceLocation.getBlock().getType() == mat) {
                             Material replaceMaterial = replaceArray[r.nextInt(0, replaceArray.length)];
-                            replaceLocation.getBlock().setType(replaceMaterial);
+
+                            BlockData oldData = replaceLocation.getBlock().getBlockData();
+                            BlockData newData = Bukkit.createBlockData(replaceMaterial);
+
+                            if (oldData instanceof Directional oldDirectional && newData instanceof Directional newDirectional) newDirectional.setFacing(oldDirectional.getFacing());
+                            if (oldData instanceof Rotatable oldRotatable && newData instanceof Rotatable newRotatable) newRotatable.setRotation(oldRotatable.getRotation());
+                            if (oldData instanceof Slab oldSlab && newData instanceof Slab newSlab) newSlab.setType(oldSlab.getType());
+                            if (oldData instanceof Stairs oldStairs && newData instanceof Stairs newStairs) {
+                                newStairs.setFacing(oldStairs.getFacing());
+                                newStairs.setShape(oldStairs.getShape());
+                                newStairs.setHalf(oldStairs.getHalf());
+                            }
+                            if (oldData instanceof Waterlogged oldWater && newData instanceof Waterlogged newWater) newWater.setWaterlogged(oldWater.isWaterlogged());
+
+                            BlockPlacementManager.addBlock(replaceMaterial, newData, replaceLocation);
+
+                            // replaceLocation.getBlock().setType(replaceMaterial);
                         }
                     }
                 }
