@@ -7,14 +7,13 @@ import se.fusion1013.plugin.cobaltcore.commands.system.CommandExecutor;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandHandler;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
-import se.fusion1013.plugin.cobaltcore.database.setting.ISettingDao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
-import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.database.trades.ITradesDao;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
-import se.fusion1013.plugin.cobaltcore.util.PreCalculateWeightsRandom;
+import se.fusion1013.plugin.cobaltcore.util.PreGeneratedWeightsRandom;
+import se.fusion1013.plugin.cobaltcore.util.RandomCollection;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
@@ -38,15 +37,15 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
 
     // ----- WANDERING TRADER -----
 
-    private static PreCalculateWeightsRandom<MerchantRecipePlaceholder> wanderingTrades = new PreCalculateWeightsRandom<>();
+    private static RandomCollection<MerchantRecipePlaceholder> wanderingTrades = new RandomCollection<>();
 
     /**
      * Gets an array of all trade weights.
      *
      * @return an array of trade weights.
      */
-    public static Integer[] getWeights() {
-        return wanderingTrades.getTrueWeights().toArray(new Integer[0]);
+    public static Double[] getWeights() {
+        return wanderingTrades.getWeights();
     }
 
     /**
@@ -55,7 +54,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
      * @return an array of merchant recipes.
      */
     public static MerchantRecipePlaceholder[] getRecipes() {
-        return wanderingTrades.getItems().toArray(new MerchantRecipePlaceholder[0]);
+        return wanderingTrades.getValues().toArray(new MerchantRecipePlaceholder[0]);
     }
 
     /**
@@ -65,7 +64,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
      */
     public static String[] getRecipeNames() {
         List<String> recipes = new ArrayList<>();
-        for (MerchantRecipePlaceholder mr : wanderingTrades.getItems()) {
+        for (MerchantRecipePlaceholder mr : wanderingTrades.getValues()) {
             recipes.add("\"" + mr.costItemName + "->" + mr.resultItemName + "\"");
         }
         return recipes.toArray(new String[0]);
@@ -83,7 +82,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
                 .addPlaceholder("header", "Merchant Trades").build();
 
         MerchantRecipePlaceholder[] recipes = getRecipes();
-        Integer[] weights = getWeights();
+        Double[] weights = getWeights();
 
         CommandResult commandResult = CommandResult.LIST;
 
@@ -98,7 +97,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
         // List all trades
         for (int i = 0; i < recipes.length; i++) {
             CustomTradesManager.MerchantRecipePlaceholder recipe = recipes[i];
-            int weight = weights[i];
+            double weight = weights[i];
             StringPlaceholders placeholders1 = StringPlaceholders.builder()
                     .addPlaceholder("cost_count", recipe.getCostAmount())
                     .addPlaceholder("cost_item", recipe.getCostItemName())
@@ -153,7 +152,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
      * @param resultItem the name of the result item.
      */
     public static void removeMerchantRecipe(String costItem, String resultItem) {
-        DataManager.getInstance().getDao(ITradesDao.class).saveMerchantTrades(wanderingTrades.getItems(), wanderingTrades.getTrueWeights());
+        DataManager.getInstance().getDao(ITradesDao.class).saveMerchantTrades(wanderingTrades.getValues(), wanderingTrades.getWeights());
         DataManager.getInstance().getDao(ITradesDao.class).removeMerchantTrade(costItem, resultItem);
         wanderingTrades = DataManager.getInstance().getDao(ITradesDao.class).getMerchantTrades(); // TODO: Replace with removal from the list instead. This is terrible
     }
@@ -197,8 +196,8 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
      * @param recipe the recipe to add.
      * @param weight the weight of the recipe.
      */
-    public static void addMerchantRecipe(MerchantRecipePlaceholder recipe, int weight) {
-        wanderingTrades.addItem(recipe, weight);
+    public static void addMerchantRecipe(MerchantRecipePlaceholder recipe, double weight) {
+        wanderingTrades.addItem(weight, recipe);
     }
 
     /**
@@ -206,7 +205,9 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
      * @return a weighted random <code>MerchantRecipe</code>.
      */
     public static MerchantRecipe getRecipe() {
-        MerchantRecipePlaceholder mrp = wanderingTrades.chooseOne();
+        MerchantRecipePlaceholder mrp = wanderingTrades.next();
+
+        if (mrp == null) return null;
 
         ItemStack result = CustomItemManager.getItemStack(mrp.resultItemName);
         result.setAmount(mrp.resultAmount);
@@ -237,7 +238,7 @@ public class CustomTradesManager extends Manager implements CommandExecutor {
 
     @Override
     public void disable() {
-        DataManager.getInstance().getDao(ITradesDao.class).saveMerchantTrades(wanderingTrades.getItems(), wanderingTrades.getTrueWeights());
+        DataManager.getInstance().getDao(ITradesDao.class).saveMerchantTrades(wanderingTrades.getValues(), wanderingTrades.getWeights());
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----
