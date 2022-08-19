@@ -56,7 +56,39 @@ public class CobaltCommand {
 
     // ----- CGIVE COMMAND -----
 
-    private static CommandAPICommand createItemCommand() {
+    private static CommandAPICommand createCategoriesCommand() {
+        CommandAPICommand categoriesCommand = new CommandAPICommand("item")
+                .withPermission("commands.core.item");
+
+        IItemCategory[] categories = CustomItemManager.getCustomItemCategories();
+
+        // Loop through all categories and create a subcommand for each
+        for (IItemCategory category : categories) {
+            categoriesCommand.withSubcommand(
+                    new CommandAPICommand(category.getInternalName())
+                            .executesPlayer(((sender, args) -> {
+                                giveAllInCategory(sender, category);
+                            })
+                            )
+                            //.withArguments(new StringArgument("item_name").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getItemNamesInCategory(category))))
+                            //.executesPlayer(CobaltCommand::giveItem)
+            );
+        }
+
+        return categoriesCommand;
+    }
+
+    private static void giveAllInCategory(Player player, IItemCategory category) {
+        String[] items = CustomItemManager.getItemNamesInCategory(category);
+        List<ItemStack> itemStacks = new ArrayList<>();
+        for (String s : items) {
+            ItemStack item = CustomItemManager.getCustomItemStack(s);
+            if (item != null) itemStacks.add(item);
+        }
+        ItemUtil.giveShulkerBox(player, itemStacks.toArray(new ItemStack[0]), Material.WHITE_SHULKER_BOX, category.getName());
+    }
+
+    private static CommandAPICommand createAllItemsCommand() {
         return new CommandAPICommand("item")
                 .withPermission("commands.core.item")
                 .withArguments(new StringArgument("item_name").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
