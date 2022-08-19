@@ -203,6 +203,8 @@ public enum ItemActivator {
      */
     PLAYER_HIT_ENTITY,
 
+    PLAYER_BUCKET,
+
     PLAYER_TRAMPLE_CROP, // TODO
 
     PROJECTILE_HIT_BLOCK, // TODO
