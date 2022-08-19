@@ -12,15 +12,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.Constants;
 import se.fusion1013.plugin.cobaltcore.util.PlayerUtil;
@@ -33,6 +31,7 @@ public class CustomItemManager extends Manager implements Listener {
 
     private static final Map<String, ItemStack> INBUILT_ITEMS = new HashMap<>(); // Holds all custom items ITEMSTACKS
     private static final Map<String, CustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
+    private static final Map<IItemCategory, Map<String, CustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
 
     // ----- ITEM REGISTERING -----
 
@@ -48,9 +47,9 @@ public class CustomItemManager extends Manager implements Listener {
             .build());
 
     // Item used for testing the CustomBlock system.
-    public static final CustomItem TEST_BLOCK = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
-            .setCustomName(ChatColor.RESET + "Test Block")
-            .setCustomModel(10001)
+    public static final CustomItem MIXING_CAULDRON = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
+            .setCustomName(ChatColor.RESET + "Mixing Cauldron")
+            .setCustomModel(10005)
             .build());
 
     // ----- CONSTRUCTORS -----
@@ -63,6 +62,13 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- RECIPES -----
 
     // TODO: Move Recipes to CustomItem or AbstractCustomItem
+    /**
+     * WARNING: STONECUTTING RECIPES MUST BE REGISTERED IN ALPHABETICAL ORDER
+    */
+    public static StonecuttingRecipe addStoneCuttingRecipe(StonecuttingRecipe recipe) {
+        CobaltCore.getInstance().getServer().addRecipe(recipe);
+        return recipe;
+    }
 
     /**
      * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
@@ -113,10 +119,31 @@ public class CustomItemManager extends Manager implements Listener {
     public static CustomItem register(CustomItem item){
         INBUILT_ITEMS.put(item.getInternalName(), item.getItemStack());
         INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
+        ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
         return item;
     }
 
     // ----- GETTERS / SETTERS -----
+
+    /**
+     * Gets all <code>IItemCategory</code> of registered <code>ICustomItem</code>'s
+     *
+     * @return an array of <code>IItemCategory</code>.
+     */
+    public static IItemCategory[] getCustomItemCategories() {
+        return ITEMS_SORTED_CATEGORY.keySet().toArray(new IItemCategory[0]);
+    }
+
+    /**
+     * Get all <code>CustomItem</code>'s in the given <code>IItemCategory</code>.
+     *
+     * @param category the <code>IItemCategory</code> to get <code>CustomItem</code>'s from.
+     * @return an array of <code>CustomItem</code> names.
+     */
+    public static String[] getItemNamesInCategory(IItemCategory category) {
+        Map<String, CustomItem> items = ITEMS_SORTED_CATEGORY.get(category);
+        return items.keySet().toArray(new String[0]);
+    }
 
     /**
      * Gets a <code>ICustomItem</code> from an <code>ItemStack</code>.
@@ -124,7 +151,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @param item the <code>ItemStack</code>.
      * @return the <code>ICustomItem</code>, or null if it was not found.
      */
-    public static ICustomItem getCustomItem(ItemStack item) {
+    public static ICustomItem getCustomItem(ItemStack item) { // Get persistent data container of item
         for (ICustomItem customItem : INBUILT_CUSTOM_ITEMS.values()) {
             if (customItem.compareTo(item)) return customItem;
         }
