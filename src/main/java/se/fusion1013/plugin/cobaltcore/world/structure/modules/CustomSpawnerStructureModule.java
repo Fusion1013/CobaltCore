@@ -39,18 +39,16 @@ public class CustomSpawnerStructureModule extends StructureModule implements ISt
                     Location replaceLocation = location.clone().add(new Vector(x, y, z));
                     if (replaceLocation.getBlock().getType() == replaceMaterial) {
 
-                        switch (spawner.getType()) {
-                            case INSTANT -> SpawnerManager.getInstance().placeSpawner(replaceLocation, spawner.getEntityName(), spawner.getSpawnCount(), spawner.getActivationRange(), spawner.getSpawnRadius());
-                            case CONTINUOUS -> SpawnerManager.getInstance().placeSpawner(replaceLocation, spawner.getEntityName(), spawner.getSpawnCount(), spawner.getActivationRange(), spawner.getSpawnRadius(), spawner.getCooldown());
-                        }
-
                         replaceLocation.getBlock().setType(Material.SPAWNER);
                         BlockData block = replaceLocation.getBlock().getBlockData();
 
                         if (block instanceof CreatureSpawner spawnerBlock) {
                             spawnerBlock.setSpawnedType(spawner.getEntity().getBaseEntityType());
                             spawnerBlock.setSpawnCount(0);
+                            spawnerBlock.update(true);
                         }
+
+                        SpawnerManager.getInstance().placeSpawner(spawner, replaceLocation);
                     }
                 }
             }
