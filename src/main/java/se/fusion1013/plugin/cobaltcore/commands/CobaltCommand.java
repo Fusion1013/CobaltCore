@@ -16,11 +16,10 @@ import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
+import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CobaltCommand {
 
@@ -37,9 +36,13 @@ public class CobaltCommand {
                 .withSubcommand(createDatabaseCommand())
                 .withSubcommand(createUpdateCommand())
                 .withSubcommand(createLocaleCommand())
-                .withSubcommand(createItemCommand())
+                .withSubcommand(CGiveCommand.createCgiveCommand())
+                //.withSubcommand(createCategoriesCommand())
+                //.withSubcommand(createAllItemsCommand())
                 //.withSubcommand(createNpcCommand())
+                .withSubcommand(createFixItemCommand())
                 .withSubcommand(createDebugCommand())
+                .withSubcommand(createStructureCommand())
                 .register();
     }
 
