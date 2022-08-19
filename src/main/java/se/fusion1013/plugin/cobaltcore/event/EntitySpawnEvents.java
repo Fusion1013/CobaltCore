@@ -51,21 +51,18 @@ public class EntitySpawnEvents implements Listener {
             return;
         }
 
-        // Add trades asynchronously
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            List<MerchantRecipe> newTrades = new ArrayList<>();
+        List<MerchantRecipe> newTrades = new ArrayList<>(wanderingTrader.getRecipes()); // Create list with all old trades
 
-            // Get custom trades
-            MerchantRecipe recipe = CustomTradesManager.getRecipe(); // TODO: Choose more than one?
+        // Add new trades
+        Random r = new Random();
+        for (int i = 0; i < newTrades.size(); i++) {
+            if (r.nextDouble() < .1) {
+                MerchantRecipe newRecipe = CustomTradesManager.getRecipe();
+                if (newRecipe != null && !newTrades.contains(newRecipe)) newTrades.set(i, newRecipe);
+            }
+        }
 
-            Bukkit.getScheduler().runTask(CobaltCore.getInstance(), () -> {
-                newTrades.addAll(wanderingTrader.getRecipes()); // Add all old recipes
-                Random r = new Random();
-                if (recipe != null) newTrades.set(r.nextInt(0, newTrades.size()), recipe); // Replace old trade // TODO: Should be able to change behavior in config
-
-                wanderingTrader.setRecipes(newTrades); // Set all the new recipes
-            });
-        });
+        wanderingTrader.setRecipes(newTrades); // Set all the new recipes
     }
 
 }
