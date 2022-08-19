@@ -1,7 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.item;
 
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -27,8 +26,12 @@ public interface ICustomItem {
 
     // ----- ITEM ACTIVATOR EVENTS -----
 
-    void activatorTriggered(ItemActivator activator, Event event, EquipmentSlot slot);
+    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, EquipmentSlot slot);
 
-    void activatorTriggered(ItemActivator activator, Event event);
+    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event);
+
+    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot);
+
+    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event);
 
 }
