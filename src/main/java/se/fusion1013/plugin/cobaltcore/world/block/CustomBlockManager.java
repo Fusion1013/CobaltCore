@@ -34,7 +34,7 @@ public class CustomBlockManager extends Manager implements CommandExecutor, List
 
     // ----- REGISTER -----
 
-    public static CustomBlock TEST_BLOCK = register(new CustomBlock(CustomItemManager.TEST_BLOCK, Material.END_ROD));
+    public static CustomBlock MIXING_CAULDRON = register(new CustomBlock(CustomItemManager.MIXING_CAULDRON, Material.CAULDRON));
 
     /**
      * Registers a new <code>CustomBlock</code>.
@@ -100,8 +100,8 @@ public class CustomBlockManager extends Manager implements CommandExecutor, List
                 Location placeLocation = clickedBlock.getLocation();
                 BlockFace face = event.getBlockFace();
 
-                // Check if the place location is buildable, if not shift the position according to the clicked block face
-                if (!placeLocation.getBlock().isBuildable()) {
+                // Check if the place location is replaceable, if not shift the position according to the clicked block face
+                if (!placeLocation.getBlock().isReplaceable()) {
                     switch (face) {
                         case DOWN -> placeLocation.add(new Vector(0, -1, 0));
                         case UP -> placeLocation.add(new Vector(0, 1, 0));
@@ -112,8 +112,10 @@ public class CustomBlockManager extends Manager implements CommandExecutor, List
                     }
                 }
 
-                // Check if the place location is buildable, if not return
-                if (!placeLocation.getBlock().isBuildable()) return;
+                // Check if the place location is replaceable, if not return
+                if (!placeLocation.getBlock().isReplaceable()) return;
+
+                // TODO: Check if an entity is in the way
 
                 // Check if the player is on place delay
                 if (placeDelay.contains(event.getPlayer().getUniqueId())) return;
