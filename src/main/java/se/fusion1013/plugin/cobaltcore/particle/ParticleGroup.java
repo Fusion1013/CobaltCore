@@ -67,6 +67,7 @@ public class ParticleGroup implements Cloneable {
         this.uuid = target.uuid;
         this.name = target.name;
         this.particleStyleList = target.particleStyleList;
+        this.integrity = target.integrity;
     }
 
     // ----- PARTICLE STYLE INFO -----
