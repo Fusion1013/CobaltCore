@@ -1,14 +1,12 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.world.protection.WorldGuardManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,7 @@ public class BlockUtil {
      * @param hollow whether the sphere should be hollow or not
      * @return a list of locations representing a sphere
      */
-    private static List<Location> generateSphere(Location centerBlock, int radius, boolean hollow){
+    public static List<Location> generateSphere(Location centerBlock, int radius, boolean hollow){
         if (centerBlock == null) return new ArrayList<>();
 
         List<Location> circleBlocks = new ArrayList<>();
@@ -264,7 +262,11 @@ public class BlockUtil {
         }
     }
 
-    public static void createExplosion(Location location, World world, int explosionRadius, boolean dropItems, boolean fire, boolean destroyBlocks){
+    public static void createExplosion(Location location, World world, int explosionRadius, boolean dropItems, boolean fire, boolean destroyBlocks) {
+
+        WorldGuardManager manager = CobaltCore.getInstance().getManager(CobaltCore.getInstance(), WorldGuardManager.class);
+        if (manager != null) if (!manager.isBlockBreakAllowed(location)) return;
+
         // Explode
         if (destroyBlocks) setBlocksInSphere(location, Material.AIR, explosionRadius, dropItems, false, true, false, true);
         int iterations = Math.max(1, explosionRadius * (explosionRadius / 4));
@@ -277,4 +279,27 @@ public class BlockUtil {
             if (world != null) world.createExplosion(new Location(world, pos.getX(), pos.getY(), pos.getZ()), (float)Math.min(7, explosionRadius), fire, destroyBlocks);
         }
     }
+
+    public static Color getBlockColor(Material material) {
+        return switch (material) {
+            case WHITE_WOOL, WHITE_CONCRETE, WHITE_STAINED_GLASS_PANE, WHITE_STAINED_GLASS, WHITE_TERRACOTTA -> Color.WHITE;
+            case ORANGE_WOOL, ORANGE_CONCRETE, ORANGE_STAINED_GLASS_PANE, ORANGE_STAINED_GLASS, ORANGE_TERRACOTTA -> Color.ORANGE;
+            case MAGENTA_WOOL, MAGENTA_CONCRETE, MAGENTA_STAINED_GLASS_PANE, MAGENTA_STAINED_GLASS, MAGENTA_TERRACOTTA -> Color.fromBGR(151, 21, 173);
+            case LIGHT_BLUE_WOOL, LIGHT_BLUE_CONCRETE, LIGHT_BLUE_STAINED_GLASS_PANE, LIGHT_BLUE_STAINED_GLASS, LIGHT_BLUE_TERRACOTTA -> Color.AQUA;
+            case YELLOW_WOOL, YELLOW_CONCRETE, YELLOW_STAINED_GLASS_PANE, YELLOW_STAINED_GLASS, YELLOW_TERRACOTTA -> Color.YELLOW;
+            case LIME_WOOL, LIME_CONCRETE, LIME_STAINED_GLASS_PANE, LIME_STAINED_GLASS, LIME_TERRACOTTA -> Color.LIME;
+            case PINK_WOOL, PINK_CONCRETE, PINK_STAINED_GLASS_PANE, PINK_STAINED_GLASS, PINK_TERRACOTTA -> Color.fromBGR(248, 3, 252);
+            case GRAY_WOOL, GRAY_CONCRETE, GRAY_STAINED_GLASS_PANE, GRAY_STAINED_GLASS, GRAY_TERRACOTTA -> Color.fromBGR(46, 46, 46);
+            case LIGHT_GRAY_WOOL, LIGHT_GRAY_CONCRETE, LIGHT_GRAY_STAINED_GLASS_PANE, LIGHT_GRAY_STAINED_GLASS, LIGHT_GRAY_TERRACOTTA -> Color.fromBGR(128, 128, 128);
+            case CYAN_WOOL, CYAN_CONCRETE, CYAN_STAINED_GLASS_PANE, CYAN_STAINED_GLASS, CYAN_TERRACOTTA -> Color.fromBGR(16, 146, 163);
+            case PURPLE_WOOL, PURPLE_CONCRETE, PURPLE_STAINED_GLASS_PANE, PURPLE_STAINED_GLASS, PURPLE_TERRACOTTA -> Color.PURPLE;
+            case BLUE_WOOL, BLUE_CONCRETE, BLUE_STAINED_GLASS_PANE, BLUE_STAINED_GLASS, BLUE_TERRACOTTA -> Color.BLUE;
+            case BROWN_WOOL, BROWN_CONCRETE, BROWN_STAINED_GLASS_PANE, BROWN_STAINED_GLASS, BROWN_TERRACOTTA -> Color.fromBGR(99, 57, 25);
+            case GREEN_WOOL, GREEN_CONCRETE, GREEN_STAINED_GLASS_PANE, GREEN_STAINED_GLASS, GREEN_TERRACOTTA -> Color.GREEN;
+            case RED_WOOL, RED_CONCRETE, RED_STAINED_GLASS_PANE, RED_STAINED_GLASS, RED_TERRACOTTA -> Color.RED;
+            case BLACK_WOOL, BLACK_CONCRETE, BLACK_STAINED_GLASS_PANE, BLACK_STAINED_GLASS, BLACK_TERRACOTTA -> Color.BLACK;
+            default -> Color.fromBGR(10, 10,10);
+        };
+    }
+
 }
