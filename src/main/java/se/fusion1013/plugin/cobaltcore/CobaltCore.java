@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.fusion1013.plugin.cobaltcore.advancement.CobaltAdvancementManager;
 import se.fusion1013.plugin.cobaltcore.bossbar.BossBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltSummonCommand;
@@ -28,6 +29,9 @@ import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 import se.fusion1013.plugin.cobaltcore.world.block.CustomBlockManager;
+import se.fusion1013.plugin.cobaltcore.world.block.entity.BlockEntityManager;
+import se.fusion1013.plugin.cobaltcore.world.chunk.ChunkBoundObjectManager;
+import se.fusion1013.plugin.cobaltcore.world.protection.WorldGuardManager;
 import se.fusion1013.plugin.cobaltcore.world.sound.SoundAreaManager;
 import se.fusion1013.plugin.cobaltcore.world.sound.SoundManager;
 import se.fusion1013.plugin.cobaltcore.world.spawner.SpawnerManager;
@@ -60,7 +64,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        this.managers.get(this).values().forEach(Manager::disable);
+        disableCobaltPlugin(this);
     }
 
     // ----- MANAGERS -----
