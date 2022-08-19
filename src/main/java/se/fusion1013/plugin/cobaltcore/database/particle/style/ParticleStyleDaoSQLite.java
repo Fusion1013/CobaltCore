@@ -45,19 +45,17 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
     @Override
     public void removeParticleStyle(String styleName) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+            try (
+                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_styles WHERE name = ?");
+                    PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE style_name = ?")
+            ) {
                 conn.setAutoCommit(false);
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_styles WHERE name = ?");
-                PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE style_name = ?");
                 ps.setString(1, styleName);
                 ps2.setString(1, styleName);
                 ps.executeUpdate();
                 ps2.executeUpdate();
                 conn.commit();
-                conn.close();
-                ps2.close();
-                ps.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -66,10 +64,11 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
 
     @Override
     public void insertParticleStyles(List<ParticleStyle> styles) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+        try (
+                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, data, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+        ) {
             conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, data, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             Gson gson = new Gson();
             for (ParticleStyle style : styles) {
                 ps.setString(1, style.getName());
@@ -91,7 +90,6 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
                 ps.executeUpdate();
             }
             conn.commit();
-            conn.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -102,10 +100,11 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
 
         Map<String, ParticleStyle> styles = new HashMap<>();
 
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_styles");
-            ResultSet rs = ps.executeQuery();
+        try (
+                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_styles");
+                ResultSet rs = ps.executeQuery()
+        ) {
 
             Gson gson = new Gson();
 
