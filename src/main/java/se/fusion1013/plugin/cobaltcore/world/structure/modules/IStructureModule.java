@@ -30,6 +30,8 @@ public interface IStructureModule {
      */
     StructureModuleType getModuleType();
 
+    default void onGenerate(Location location, StructureUtil.StructureHolder holder) {};
+
     default <T extends Event> void onEvent(T event, Location location, StructureUtil.StructureHolder holder) {}
 
 }
