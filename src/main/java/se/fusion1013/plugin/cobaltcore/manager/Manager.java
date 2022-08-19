@@ -4,11 +4,17 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 
 public abstract class Manager {
 
-    protected CobaltCore cobaltCore;
+    // ----- CORE PLUGIN ----- // TODO: Replace with owner plugin?
 
-    public Manager(CobaltCore cobaltCore){
-        this.cobaltCore = cobaltCore;
+    protected CobaltCore core;
+
+    // ----- CONSTRUCTOR -----
+
+    public Manager(CobaltCore cobaltCore) {
+        this.core = cobaltCore;
     }
+
+    // ----- RELOADING / DISABLING -----
 
     public abstract void reload();
 
