@@ -59,7 +59,7 @@ public class ParticleStyleText extends ParticleStyle {
     public void setExtraSetting(String key, Object value) {
         switch (key) {
             case "text" -> text = (String) value;
-            case "spacing" -> spacing = (int) value;
+            case "spacing" -> spacing = (double) value;
             case "compress" -> compress = (double) value;
             case "style" -> glyphStyle = (ParticleStyleGlyph) ParticleStyleManager.getDefaultParticleStyle((String) value).clone();
         }
