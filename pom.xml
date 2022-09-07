@@ -6,7 +6,7 @@
 
     <groupId>se.fusion1013.plugin</groupId>
     <artifactId>cobaltCore</artifactId>
-    <version>4.1.12</version>
+    <version>4.2.0</version>
     <!--<packaging>jar</packaging>-->
 
     <name>CobaltCore</name>
@@ -46,20 +46,17 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.googlecode.json-simple</include>
+                                </includes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>net.objecthunter.exp4j</pattern>
                                     <shadedPattern>de.slikey.exp4j</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <filters>
-                                <filter>
-                                    <artifact>com.elmakers.math:exp4j</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
                             <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.19 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
                         </configuration>
                     </execution>
@@ -120,7 +117,7 @@
             <artifactId>vanish</artifactId>
             <version>3.21.G0.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/java/lib/VanishNoPacket.jar</systemPath>
+            <systemPath>G:/Dokument/Minecraft/Plugin Development/Lib/VanishNoPacket.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.elmakers.math</groupId>
@@ -140,6 +137,11 @@
             <version>2.1.10</version>
             <scope>system</scope>
             <systemPath>G:/Dokument/Minecraft/Minecraft Servers/1.19 - Paper DEV/plugins/CrazyAdvancementsAPI.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
 </project>
