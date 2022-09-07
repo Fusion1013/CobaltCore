@@ -178,11 +178,16 @@ public class CustomSpawner {
                 Vector offset;
                 if (spawnRadius > 0) offset = new Vector(r.nextInt(-spawnRadius, spawnRadius) + .5, .5, r.nextInt(-spawnRadius, spawnRadius) + .5);
                 else offset = new Vector();
-                boolean hasSpawned = CustomEntityManager.attemptSummonEntity(entityName, location.clone().add(offset), null);
 
-                if (hasSpawned) {
-                    location.getWorld().spawnParticle(Particle.FLAME, location.clone().add(offset).add(new Vector(0, 1, 0)), 10, .3, .5, .3, 0);
+                spawnLocation = location.clone().add(offset);
+
+                if (spawnLocation.getBlock().isPassable()) { // Only spawn inside passable blocks
+                    boolean hasSpawned = CustomEntityManager.attemptSummonEntity(entityName, spawnLocation, null);
+                    if (hasSpawned) {
+                        location.getWorld().spawnParticle(Particle.FLAME, spawnLocation.add(new Vector(0, 1, 0)), 10, .3, .5, .3, 0);
+                    }
                 }
+
             }
 
             // Play delayed sound
