@@ -242,4 +242,36 @@ public class CustomSpawner {
     public void setLocation(Location location) {
         this.location = location;
     }
+
+    // ----- CLONE -----
+
+    public CustomSpawner(CustomSpawner target) {
+        // General Spawner Info
+        this.uuid = UUID.randomUUID();
+
+        if (target.location != null) this.location = target.location.clone();
+        this.entityName = target.entityName;
+        this.entity = target.entity;
+        this.type = target.type;
+        this.removeNextTick = target.removeNextTick;
+
+        this.spawnCount = target.spawnCount;
+        this.activationRange = target.activationRange;
+        this.spawnRadius = target.getSpawnRadius();
+
+        this.delaySummon = target.getDelaySummon();
+        this.playSound = target.getPlaySound();
+        this.playSoundDelayed = target.getPlaySoundDelayed();
+
+        // Instant Spawner
+
+        // Continuous Spawner
+        this.cooldown = target.getCooldown();
+        this.currentCooldown = 0;
+    }
+
+    public CustomSpawner clone() {
+        return new CustomSpawner(this);
+    }
+
 }
