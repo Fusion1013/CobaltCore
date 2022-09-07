@@ -131,6 +131,18 @@ public class ParticleGroupManager extends Manager {
         return true;
     }
 
+    /**
+     * Creates a new <code>ParticleGroup</code> and stores it in the map.
+     *
+     * @param template a <code>ParticleGroup</code> to use as a template.
+     * @return if the group was successfully inserted or not.
+     */
+    public static boolean createParticleGroup(ParticleGroup template) {
+        if (groupExists(template.getName())) return false;
+        particleGroupMap.put(template.getName(), template);
+        return true;
+    }
+
     // ----- CONSTRUCTORS -----
 
     public ParticleGroupManager(CobaltCore cobaltCore) {
