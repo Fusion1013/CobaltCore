@@ -56,38 +56,39 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
 
     @Override
     public void saveStructures(Map<Long, Map<LocationUUID, String>> structures) {
-        try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement psStructure = conn.prepareStatement("INSERT OR REPLACE INTO structures(structure_name, location_uuid) VALUES(?,?)");
-                PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
-        ) {
-            conn.setAutoCommit(false);
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement psStructure = conn.prepareStatement("INSERT OR REPLACE INTO structures(structure_name, location_uuid) VALUES(?,?)");
+                    PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+            ) {
+                conn.setAutoCommit(false);
 
-            for (Map<LocationUUID, String> locStruPair : structures.values()) {
-                for (LocationUUID locationUUID : locStruPair.keySet()) {
-                    String structure = locStruPair.get(locationUUID);
-                    psStructure.setString(1, structure);
-                    psStructure.setString(2, locationUUID.uuid().toString());
+                for (Map<LocationUUID, String> locStruPair : structures.values()) {
+                    for (LocationUUID locationUUID : locStruPair.keySet()) {
+                        String structure = locStruPair.get(locationUUID);
+                        psStructure.setString(1, structure);
+                        psStructure.setString(2, locationUUID.uuid().toString());
 
-                    Location location = locationUUID.location();
+                        Location location = locationUUID.location();
 
-                    psLocation.setString(1, locationUUID.uuid().toString());
-                    psLocation.setString(2, location.getWorld().getName());
-                    psLocation.setDouble(3, location.getX());
-                    psLocation.setDouble(4, location.getY());
-                    psLocation.setDouble(5, location.getZ());
-                    psLocation.setDouble(6, location.getYaw());
-                    psLocation.setDouble(7, location.getPitch());
+                        psLocation.setString(1, locationUUID.uuid().toString());
+                        psLocation.setString(2, location.getWorld().getName());
+                        psLocation.setDouble(3, location.getX());
+                        psLocation.setDouble(4, location.getY());
+                        psLocation.setDouble(5, location.getZ());
+                        psLocation.setDouble(6, location.getYaw());
+                        psLocation.setDouble(7, location.getPitch());
 
-                    psLocation.execute();
-                    psStructure.executeUpdate();
+                        psLocation.execute();
+                        psStructure.executeUpdate();
+                    }
                 }
-            }
 
-            conn.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+                conn.commit();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Override
