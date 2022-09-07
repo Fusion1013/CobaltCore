@@ -280,6 +280,11 @@ public class ParticleGroup implements Cloneable {
             obj.addParticleStyle(style);
             return this;
         }
+
+        public ParticleGroupBuilder setIntegrity(double integrity) {
+            obj.integrity = integrity;
+            return this;
+        }
     }
 
     // ----- GETTERS / SETTERS -----
