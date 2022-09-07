@@ -18,6 +18,8 @@ import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.storage.ObjectManager;
+import se.fusion1013.plugin.cobaltcore.storage.StorageTestObject;
 import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
