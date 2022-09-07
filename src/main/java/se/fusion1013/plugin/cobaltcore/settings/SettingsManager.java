@@ -30,6 +30,11 @@ public class SettingsManager extends Manager {
         return setting;
     }
 
+    public static StringSetting register(StringSetting setting) {
+        registeredSettings.put(setting.getId(), setting);
+        return setting;
+    }
+
     // ----- GETTERS / SETTERS -----
 
     public static Setting<?> getSetting(String key) {
