@@ -114,7 +114,7 @@ public abstract class ParticleStyleGlyph extends ParticleStyle {
 
                     Vector offset = new Vector((x - radius) * compress, -(y - topRadius) * compress, 0);
 
-                    particles.add(new ParticleContainer(location.clone().add(offset), 0, 0, 0, 0, 1));
+                    particles.add(new ParticleContainer(location.clone().add(offset), getOffset().getX(), getOffset().getY(), getOffset().getZ(), getSpeed(), (int) getCount()));
                 }
             }
         }
