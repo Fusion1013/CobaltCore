@@ -18,3 +18,8 @@ mongo-db-name: ""
 # Determines how often bossbars are updated
 bossbar-update-period: 10
 #
+#
+# ----- BLOCK PLACEMENT -----
+#
+# Determines how many blocks can be placed per tick. Default: 1000
+block-placement-speed: 1000
