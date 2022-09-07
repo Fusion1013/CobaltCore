@@ -3,7 +3,8 @@ package se.fusion1013.plugin.cobaltcore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.plugin.cobaltcore.advancement.CobaltAdvancementManager;
-import se.fusion1013.plugin.cobaltcore.bossbar.BossBarManager;
+import se.fusion1013.plugin.cobaltcore.bar.BossBarManager;
+import se.fusion1013.plugin.cobaltcore.bar.actionbar.ActionBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltSummonCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CommandGenerator;
@@ -26,7 +27,9 @@ import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
+import se.fusion1013.plugin.cobaltcore.storage.ObjectManager;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
+import se.fusion1013.plugin.cobaltcore.util.ActionBarUtil;
 import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 import se.fusion1013.plugin.cobaltcore.world.block.CustomBlockManager;
 import se.fusion1013.plugin.cobaltcore.world.block.entity.BlockEntityManager;
@@ -160,6 +163,10 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, SpawnerManager.class);
 
         this.getManager(this, DebugManager.class);
+
+        this.getManager(this, ObjectManager.class);
+
+        this.getManager(this, ActionBarManager.class);
     }
 
     public <T extends Manager> void reloadPluginIntegrationManager(String pluginName, CobaltPlugin plugin, Class<T> manager) {
