@@ -16,6 +16,7 @@ import se.fusion1013.plugin.cobaltcore.entity.ICustomEntity;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class SpawnerManager extends Manager implements Listener, Runnable {
@@ -78,14 +79,14 @@ public class SpawnerManager extends Manager implements Listener, Runnable {
     public void run() {
         // Tick all loaded spawners
         for (Map<Location, CustomSpawner> spawners : loadedSpawners.values()) {
-            for (Location location : spawners.keySet()) {
-                CustomSpawner spawner = spawners.get(location);
+
+            spawners.values().removeIf(spawner -> {
+                spawner.tick();
                 if (spawner.removeNextTick) {
-                    spawners.remove(location);
                     DataManager.getInstance().getDao(ICustomSpawnerDao.class).removeCustomSpawner(spawner.getUuid());
                 }
-                spawner.tick();
-            }
+                return spawner.removeNextTick;
+            });
         }
     }
 
@@ -106,9 +107,11 @@ public class SpawnerManager extends Manager implements Listener, Runnable {
     }
 
     public void placeSpawner(CustomSpawner spawnerTemplate, Location location) {
-        spawnerTemplate.setLocation(location);
+        CustomSpawner newSpawner = spawnerTemplate.clone();
+
+        newSpawner.setLocation(location);
         Map<Location, CustomSpawner> spawnerMap = loadedSpawners.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>());
-        spawnerMap.put(location, spawnerTemplate);
+        spawnerMap.put(location, newSpawner);
         loadedSpawners.put(location.getChunk().getChunkKey(), spawnerMap);
     }
 
