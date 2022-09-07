@@ -28,25 +28,28 @@ public class PlayerDaoSQLite extends Dao implements IPlayerDao {
 
     @Override
     public void insertPlayer(Player player) {
-        try  {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT OR IGNORE INTO players(uuid, name) VALUES(?, ?)");
-            ps.setString(1, player.getUniqueId().toString());
-            ps.setString(2, player.getName());
-            ps.executeUpdate();
-            ps.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR IGNORE INTO players(uuid, name) VALUES(?, ?)");
+            ) {
+                ps.setString(1, player.getUniqueId().toString());
+                ps.setString(2, player.getName());
+                ps.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     // ----- PLAYER GETTING -----
 
     @Override
     public String getPlayerName(UUID uuid) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE uuid = ?");
+
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE uuid = ?");
+        ) {
             ps.setString(1, uuid.toString());
             ResultSet rs = ps.executeQuery();
 
@@ -54,7 +57,8 @@ public class PlayerDaoSQLite extends Dao implements IPlayerDao {
                 return rs.getString("name");
             }
 
-            ps.close();
+            rs.close();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

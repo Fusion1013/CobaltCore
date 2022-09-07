@@ -36,10 +36,11 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
     public Map<Location, SoundArea> getSoundAreas() {
         Map<Location, SoundArea> soundAreas = new HashMap<>();
 
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM sound_area_view");
-            ResultSet rs = ps.executeQuery();
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM sound_area_view");
+                ResultSet rs = ps.executeQuery();
+        ) {
 
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString("sound_area_uuid"));
@@ -52,7 +53,6 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
                 soundAreas.put(location, new SoundArea(uuid, location, activationRange, cooldown, sound));
             }
 
-            conn.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -62,59 +62,62 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
 
     @Override
     public void saveSoundAreas(Map<Location, SoundArea> soundAreaMap) {
-        try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO sound_areas(sound_area_uuid, sound, activation_range, cooldown) VALUES(?,?,?,?)");
-                PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
-        ) {
-            conn.setAutoCommit(false);
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO sound_areas(sound_area_uuid, sound, activation_range, cooldown) VALUES(?,?,?,?)");
+                    PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+            ) {
+                conn.setAutoCommit(false);
 
-            for (SoundArea area : soundAreaMap.values()) {
-                UUID uuid = area.uuid;
-                Location location = area.location;
+                for (SoundArea area : soundAreaMap.values()) {
+                    UUID uuid = area.uuid;
+                    Location location = area.location;
 
-                // Insert location
-                psLocation.setString(1, uuid.toString());
-                psLocation.setString(2, location.getWorld().getName());
-                psLocation.setDouble(3, location.getX());
-                psLocation.setDouble(4, location.getY());
-                psLocation.setDouble(5, location.getZ());
-                psLocation.setDouble(6, location.getYaw());
-                psLocation.setDouble(7, location.getPitch());
-                psLocation.execute();
+                    // Insert location
+                    psLocation.setString(1, uuid.toString());
+                    psLocation.setString(2, location.getWorld().getName());
+                    psLocation.setDouble(3, location.getX());
+                    psLocation.setDouble(4, location.getY());
+                    psLocation.setDouble(5, location.getZ());
+                    psLocation.setDouble(6, location.getYaw());
+                    psLocation.setDouble(7, location.getPitch());
+                    psLocation.execute();
 
-                ps.setString(1, uuid.toString());
-                ps.setString(2, area.sound);
-                ps.setDouble(3, area.activationRange);
-                ps.setInt(4, area.cooldown);
+                    ps.setString(1, uuid.toString());
+                    ps.setString(2, area.sound);
+                    ps.setDouble(3, area.activationRange);
+                    ps.setInt(4, area.cooldown);
 
-                ps.executeUpdate();
-            }
+                    ps.executeUpdate();
+                }
 
-            conn.commit();
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void removeSoundArea(UUID uuid) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                // Remove sound area
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM sound_areas WHERE sound_area_uuid = ?");
-                ps.setString(1, uuid.toString());
-                ps.executeUpdate();
-                conn.close();
-
-                // Remove location
-                DataManager.getInstance().getDao(ILocationDao.class).removeLocation(uuid);
+                conn.commit();
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+        });
+    }
+
+    @Override
+    public void removeSoundArea(UUID uuid) {
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM sound_areas WHERE sound_area_uuid = ?");
+                ) {
+                    // Remove sound area
+                    ps.setString(1, uuid.toString());
+                    ps.executeUpdate();
+                    conn.close();
+
+                    // Remove location
+                    DataManager.getInstance().getDao(ILocationDao.class).removeLocation(uuid);
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 

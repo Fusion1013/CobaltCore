@@ -55,68 +55,75 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void saveSettings(Map<UUID, PlayerSettingHolder> settings) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
-            for (UUID uuid : settings.keySet()) {
-                Map<String, String> values = settings.get(uuid).getPlayerSettings();
-                for (String key : values.keySet()) {
-                    ps.setString(1, uuid.toString());
-                    ps.setString(2, key);
-                    ps.setString(3, values.get(key));
-                    ps.executeUpdate();
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
+            ) {
+                conn.setAutoCommit(false);
+                for (UUID uuid : settings.keySet()) {
+                    Map<String, String> values = settings.get(uuid).getPlayerSettings();
+                    for (String key : values.keySet()) {
+                        ps.setString(1, uuid.toString());
+                        ps.setString(2, key);
+                        ps.setString(3, values.get(key));
+                        ps.executeUpdate();
+                    }
                 }
+                conn.commit();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-            conn.commit();
-            conn.close();
-            ps.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 
     @Override
     public void removeSetting(String setting) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE setting = ?");
-                ps.setString(1, setting);
-                ps.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE setting = ?");
+                ) {
+                    ps.setString(1, setting);
+                    ps.executeUpdate();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 
     @Override
     public void removeSetting(Player player, String setting) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE player_uuid = ? AND setting = ?");
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, setting);
-                ps.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE player_uuid = ? AND setting = ?");
+                ) {
+                    ps.setString(1, player.getUniqueId().toString());
+                    ps.setString(2, setting);
+                    ps.executeUpdate();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 
     @Override
     public String getSetting(Player player, String setting) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM player_settings WHERE player_uuid = ? AND setting = ?");
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM player_settings WHERE player_uuid = ? AND setting = ?");
+        ) {
             ps.setString(1, player.getUniqueId().toString());
             ps.setString(2, setting);
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
+            if (rs.next()) {
                 return rs.getString("value");
             }
+
+            rs.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -126,18 +133,20 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void setSetting(Player player, String setting, String value) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try {
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, setting);
-                ps.setString(3, value);
-                ps.executeUpdate();
-                conn.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
+                ) {
+                    ps.setString(1, player.getUniqueId().toString());
+                    ps.setString(2, setting);
+                    ps.setString(3, value);
+                    ps.executeUpdate();
+                    conn.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 

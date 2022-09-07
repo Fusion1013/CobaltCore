@@ -51,63 +51,65 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
     @Override
     public void removeParticleGroup(UUID uuid) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try (
-                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                    PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
-                    PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE group_uuid = ?")
-            ) {
-                conn.setAutoCommit(false);
-                ps.setString(1, uuid.toString());
-                ps2.setString(1, uuid.toString());
-                ps.executeUpdate();
-                ps2.executeUpdate();
-                conn.commit();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
+                        PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE group_uuid = ?")
+                ) {
+                    conn.setAutoCommit(false);
+                    ps.setString(1, uuid.toString());
+                    ps2.setString(1, uuid.toString());
+                    ps.executeUpdate();
+                    ps2.executeUpdate();
+                    conn.commit();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 
     @Override
     public void insertParticleGroups(List<ParticleGroup> groups) {
-        try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name, integrity) VALUES(?,?, ?)");
-                PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
-        ) {
-            conn.setAutoCommit(false);
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name, integrity) VALUES(?,?, ?)");
+                    PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+            ) {
+                conn.setAutoCommit(false);
 
-            for (ParticleGroup group : groups) {
-                ps.setString(1, group.getUuid().toString());
-                ps.setString(2, group.getName());
-                ps.setDouble(3, group.getIntegrity());
+                for (ParticleGroup group : groups) {
+                    ps.setString(1, group.getUuid().toString());
+                    ps.setString(2, group.getName());
+                    ps.setDouble(3, group.getIntegrity());
 
-                // Insert style holders
-                for (ParticleGroup.ParticleStyleHolder holder : group.getParticleStyleList()) {
-                    ps2.setString(1, group.getUuid().toString());
-                    ps2.setString(2, holder.style.getName());
-                    ps2.setDouble(3, holder.offset.getX());
-                    ps2.setDouble(4, holder.offset.getY());
-                    ps2.setDouble(5, holder.offset.getZ());
-                    ps2.setDouble(6, holder.rotation.getX());
-                    ps2.setDouble(7, holder.rotation.getY());
-                    ps2.setDouble(8, holder.rotation.getZ());
-                    ps2.setDouble(9, holder.rotationSpeed.getX());
-                    ps2.setDouble(10, holder.rotationSpeed.getY());
-                    ps2.setDouble(11, holder.rotationSpeed.getZ());
+                    // Insert style holders
+                    for (ParticleGroup.ParticleStyleHolder holder : group.getParticleStyleList()) {
+                        ps2.setString(1, group.getUuid().toString());
+                        ps2.setString(2, holder.style.getName());
+                        ps2.setDouble(3, holder.offset.getX());
+                        ps2.setDouble(4, holder.offset.getY());
+                        ps2.setDouble(5, holder.offset.getZ());
+                        ps2.setDouble(6, holder.rotation.getX());
+                        ps2.setDouble(7, holder.rotation.getY());
+                        ps2.setDouble(8, holder.rotation.getZ());
+                        ps2.setDouble(9, holder.rotationSpeed.getX());
+                        ps2.setDouble(10, holder.rotationSpeed.getY());
+                        ps2.setDouble(11, holder.rotationSpeed.getZ());
 
-                    ps2.executeUpdate();
+                        ps2.executeUpdate();
+                    }
+
+                    ps.executeUpdate();
                 }
 
-                ps.executeUpdate();
+                conn.commit();
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-
-            conn.commit();
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 
     @Override

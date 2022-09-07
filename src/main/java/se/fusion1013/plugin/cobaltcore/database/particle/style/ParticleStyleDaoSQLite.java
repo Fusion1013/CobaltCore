@@ -64,35 +64,36 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
 
     @Override
     public void insertParticleStyles(List<ParticleStyle> styles) {
-        try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, data, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-        ) {
-            conn.setAutoCommit(false);
-            Gson gson = new Gson();
-            for (ParticleStyle style : styles) {
-                ps.setString(1, style.getName());
-                ps.setString(2, style.getParticle().name());
-                ps.setDouble(3, style.getOffset().getX());
-                ps.setDouble(4, style.getOffset().getY());
-                ps.setDouble(5, style.getOffset().getZ());
-                ps.setDouble(6, style.getCount());
-                ps.setDouble(7, style.getSpeed());
-                ps.setDouble(8, style.getRotation().getX());
-                ps.setDouble(9, style.getRotation().getY());
-                ps.setDouble(10, style.getRotation().getZ());
-                ps.setDouble(11, style.getAngularVelocityX());
-                ps.setDouble(12, style.getAngularVelocityY());
-                ps.setDouble(13, style.getAngularVelocityZ());
-                ps.setString(14, style.getInternalName());
-                ps.setString(15, gson.toJson(style.getData()));
-                ps.setString(16, style.getExtraSettings());
-                ps.executeUpdate();
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, data, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            ) {
+                conn.setAutoCommit(false);
+                Gson gson = new Gson();
+                for (ParticleStyle style : styles) {
+                    ps.setString(1, style.getName());
+                    ps.setString(2, style.getParticle().name());
+                    ps.setDouble(3, style.getOffset().getX());
+                    ps.setDouble(4, style.getOffset().getY());
+                    ps.setDouble(5, style.getOffset().getZ());
+                    ps.setDouble(6, style.getCount());
+                    ps.setDouble(7, style.getSpeed());
+                    ps.setDouble(8, style.getRotation().getX());
+                    ps.setDouble(9, style.getRotation().getY());
+                    ps.setDouble(10, style.getRotation().getZ());
+                    ps.setDouble(11, style.getAngularVelocityX());
+                    ps.setDouble(12, style.getAngularVelocityY());
+                    ps.setDouble(13, style.getAngularVelocityZ());
+                    ps.setString(14, style.getInternalName());
+                    ps.setString(15, gson.toJson(style.getData()));
+                    ps.setString(16, style.getExtraSettings());
+                    ps.executeUpdate();
+                }
+                conn.commit();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-            conn.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 
     @Override

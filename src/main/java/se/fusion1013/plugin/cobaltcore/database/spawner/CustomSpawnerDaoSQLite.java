@@ -99,74 +99,76 @@ public class CustomSpawnerDaoSQLite extends Dao implements ICustomSpawnerDao {
 
     @Override
     public void saveCustomSpawners(Map<Long, Map<Location, CustomSpawner>> spawners) {
-        try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO custom_spawners(custom_spawner_uuid, entity, spawner_type, spawn_count, activation_range, spawn_radius, cooldown, delay_summon, play_sound, play_sound_delayed) VALUES(?,?,?,?,?,?,?,?,?,?)");
-                PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
-        ) {
-            conn.setAutoCommit(false);
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO custom_spawners(custom_spawner_uuid, entity, spawner_type, spawn_count, activation_range, spawn_radius, cooldown, delay_summon, play_sound, play_sound_delayed) VALUES(?,?,?,?,?,?,?,?,?,?)");
+                    PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+            ) {
+                conn.setAutoCommit(false);
 
-            for (Map<Location, CustomSpawner> spawnerMap : spawners.values()) {
-                for (CustomSpawner spawner : spawnerMap.values()) {
-                    UUID uuid = spawner.getUuid();
-                    String entity = spawner.getEntityName();
-                    SpawnerType spawnerType = spawner.getType();
-                    int spawnCount = spawner.getSpawnCount();
-                    double activationRange = spawner.getActivationRange();
-                    int spawnRadius = spawner.getSpawnRadius();
-                    int cooldown = spawner.getCooldown();
-                    Location location = spawner.getLocation();
-                    int delaySummon = spawner.getDelaySummon();
-                    String playSound = spawner.getPlaySound();
-                    String playSoundDelayed = spawner.getPlaySoundDelayed();
+                for (Map<Location, CustomSpawner> spawnerMap : spawners.values()) {
+                    for (CustomSpawner spawner : spawnerMap.values()) {
+                        UUID uuid = spawner.getUuid();
+                        String entity = spawner.getEntityName();
+                        SpawnerType spawnerType = spawner.getType();
+                        int spawnCount = spawner.getSpawnCount();
+                        double activationRange = spawner.getActivationRange();
+                        int spawnRadius = spawner.getSpawnRadius();
+                        int cooldown = spawner.getCooldown();
+                        Location location = spawner.getLocation();
+                        int delaySummon = spawner.getDelaySummon();
+                        String playSound = spawner.getPlaySound();
+                        String playSoundDelayed = spawner.getPlaySoundDelayed();
 
-                    // Insert location
-                    psLocation.setString(1, uuid.toString());
-                    psLocation.setString(2, location.getWorld().getName());
-                    psLocation.setDouble(3, location.getX());
-                    psLocation.setDouble(4, location.getY());
-                    psLocation.setDouble(5, location.getZ());
-                    psLocation.setDouble(6, location.getYaw());
-                    psLocation.setDouble(7, location.getPitch());
-                    psLocation.execute();
+                        // Insert location
+                        psLocation.setString(1, uuid.toString());
+                        psLocation.setString(2, location.getWorld().getName());
+                        psLocation.setDouble(3, location.getX());
+                        psLocation.setDouble(4, location.getY());
+                        psLocation.setDouble(5, location.getZ());
+                        psLocation.setDouble(6, location.getYaw());
+                        psLocation.setDouble(7, location.getPitch());
+                        psLocation.execute();
 
-                    ps.setString(1, uuid.toString());
-                    ps.setString(2, entity);
-                    ps.setString(3, spawnerType.name());
-                    ps.setInt(4, spawnCount);
-                    ps.setDouble(5, activationRange);
-                    ps.setInt(6, spawnRadius);
-                    ps.setInt(7, cooldown);
-                    ps.setInt(8, delaySummon);
-                    ps.setString(9, playSound);
-                    ps.setString(10, playSoundDelayed);
+                        ps.setString(1, uuid.toString());
+                        ps.setString(2, entity);
+                        ps.setString(3, spawnerType.name());
+                        ps.setInt(4, spawnCount);
+                        ps.setDouble(5, activationRange);
+                        ps.setInt(6, spawnRadius);
+                        ps.setInt(7, cooldown);
+                        ps.setInt(8, delaySummon);
+                        ps.setString(9, playSound);
+                        ps.setString(10, playSoundDelayed);
 
-                    ps.executeUpdate();
+                        ps.executeUpdate();
+                    }
                 }
+
+                conn.commit();
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-
-            conn.commit();
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 
     @Override
     public void removeCustomSpawner(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try (
-                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                    PreparedStatement ps = conn.prepareStatement("DELETE FROM custom_spawners WHERE custom_spawner_uuid = ?")
-            ) {
-                ps.setString(1, uuid.toString());
-                ps.executeUpdate();
+            getDataManager().performThreadSafeSQLiteOperations(conn -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM custom_spawners WHERE custom_spawner_uuid = ?")
+                ) {
+                    ps.setString(1, uuid.toString());
+                    ps.executeUpdate();
 
-                // Remove Location
-                DataManager.getInstance().getDao(ILocationDao.class).removeLocation(uuid);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+                    // Remove Location
+                    DataManager.getInstance().getDao(ILocationDao.class).removeLocation(uuid);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 
