@@ -127,7 +127,7 @@ public class StructureManager extends Manager implements CommandExecutor, Listen
         if (loadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) return false;
         if (unloadedStructures.computeIfAbsent(location.getChunk().getChunkKey(), k -> new HashMap<>()).get(location) != null) return false;
 
-        boolean generated = structure.attemptGenerate(location, 1);
+        boolean generated = structure.attemptGenerate(location.clone(), 1);
 
         if (generated) {
             TwoDPoint point = new TwoDPoint(location.getChunk().getX() * 16, location.getChunk().getZ() * 16);
