@@ -35,15 +35,16 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
     @Override
     @Deprecated
     public void removeLocationSync(UUID uuid) {
-        try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM locations WHERE uuid = ?")
-        ) {
-            ps.setString(1, uuid.toString());
-            ps.execute();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM locations WHERE uuid = ?")
+            ) {
+                ps.setString(1, uuid.toString());
+                ps.execute();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -57,21 +58,22 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
     @Override
     @Deprecated
     public void insertLocationSync(UUID uuid, Location location) {
-        try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
-        ) {
-            ps.setString(1, uuid.toString());
-            ps.setString(2, location.getWorld().getName());
-            ps.setDouble(3, location.getX());
-            ps.setDouble(4, location.getY());
-            ps.setDouble(5, location.getZ());
-            ps.setDouble(6, location.getYaw());
-            ps.setDouble(7, location.getPitch());
-            ps.execute();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
+            ) {
+                ps.setString(1, uuid.toString());
+                ps.setString(2, location.getWorld().getName());
+                ps.setDouble(3, location.getX());
+                ps.setDouble(4, location.getY());
+                ps.setDouble(5, location.getZ());
+                ps.setDouble(6, location.getYaw());
+                ps.setDouble(7, location.getPitch());
+                ps.execute();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Override
