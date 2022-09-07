@@ -19,18 +19,19 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
 
     @Override
     public int getVersion(String id, int internalVersion) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+        try (
+                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                PreparedStatement ps1 = conn.prepareStatement("INSERT OR IGNORE INTO versions(identifier, version) VALUES(?, ?)");
+                PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM versions WHERE identifier = ?");
+        ) {
             conn.setAutoCommit(false);
 
             // Inserts the internal version if the database was just created
-            PreparedStatement ps1 = conn.prepareStatement("INSERT OR IGNORE INTO versions(identifier, version) VALUES(?, ?)");
             ps1.setString(1, id);
             ps1.setInt(2, internalVersion);
             ps1.execute();
 
             // Get the version from the database
-            PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM versions WHERE identifier = ?");
             ps2.setString(1, id);
 
             ResultSet result = ps2.executeQuery();
@@ -40,7 +41,9 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
                 if (result.getInt("version") > currentVersion) currentVersion = result.getInt("version");
             }
             conn.commit();
-            conn.close();
+
+            result.close();
+
             return currentVersion;
 
         } catch (SQLException ex) {
@@ -51,17 +54,18 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
 
     @Override
     public void setVersion(String id, int version) {
-        try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO versions(identifier, version) VALUES(?, ?)");
-            ps.setString(1, id);
-            ps.setInt(2, version);
-            ps.executeUpdate();
-            conn.close();
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO versions(identifier, version) VALUES(?, ?)");
+            ) {
+                ps.setString(1, id);
+                ps.setInt(2, version);
+                ps.executeUpdate();
 
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     // ----- SYSTEM -----

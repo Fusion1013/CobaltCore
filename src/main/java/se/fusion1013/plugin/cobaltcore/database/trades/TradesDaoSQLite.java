@@ -38,17 +38,18 @@ public class TradesDaoSQLite extends Dao implements ITradesDao {
 
     @Override
     public void removeMerchantTrade(String costItem, String resultItem) {
-        Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            try (
-                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                    PreparedStatement ps = conn.prepareStatement("DELETE FROM merchant_trades WHERE cost_item = ? AND result_item = ?")
-            ) {
-                ps.setString(1, costItem);
-                ps.setString(2, resultItem);
-                ps.execute();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
+                try (
+                        PreparedStatement ps = conn.prepareStatement("DELETE FROM merchant_trades WHERE cost_item = ? AND result_item = ?")
+                ) {
+                    ps.setString(1, costItem);
+                    ps.setString(2, resultItem);
+                    ps.execute();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
         });
     }
 
@@ -84,24 +85,25 @@ public class TradesDaoSQLite extends Dao implements ITradesDao {
 
     @Override
     public void saveMerchantTrades(List<CustomTradesManager.MerchantRecipePlaceholder> trades, Double[] weights) {
-        try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO merchant_trades(cost_item, cost_count, result_item, result_count, max_uses, weight) VALUES(?, ?, ?, ?, ?, ?)")
-        ) {
-            conn.setAutoCommit(false);
-            for (int i = 0; i < trades.size(); i++) {
-                CustomTradesManager.MerchantRecipePlaceholder mr = trades.get(i);
-                ps.setString(1, mr.getCostItemName());
-                ps.setInt(2, mr.getCostAmount());
-                ps.setString(3, mr.getResultItemName());
-                ps.setInt(4, mr.getResultAmount());
-                ps.setInt(5, mr.getMaxUses());
-                ps.setDouble(6, weights[i]);
-                ps.execute();
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO merchant_trades(cost_item, cost_count, result_item, result_count, max_uses, weight) VALUES(?, ?, ?, ?, ?, ?)")
+            ) {
+                conn.setAutoCommit(false);
+                for (int i = 0; i < trades.size(); i++) {
+                    CustomTradesManager.MerchantRecipePlaceholder mr = trades.get(i);
+                    ps.setString(1, mr.getCostItemName());
+                    ps.setInt(2, mr.getCostAmount());
+                    ps.setString(3, mr.getResultItemName());
+                    ps.setInt(4, mr.getResultAmount());
+                    ps.setInt(5, mr.getMaxUses());
+                    ps.setDouble(6, weights[i]);
+                    ps.execute();
+                }
+                conn.commit();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-            conn.commit();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 }
