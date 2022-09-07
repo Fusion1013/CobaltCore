@@ -4,18 +4,20 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
 import se.fusion1013.plugin.cobaltcore.world.structure.modules.IStructureModule;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BlockPlacementManager extends Manager implements Runnable {
 
     // ----- VARIABLES -----
 
-    private static final Queue<IBlockQueueWrapper> QUEUE = new LinkedList<>();
+    private static final Queue<IBlockQueueWrapper> QUEUE = new ConcurrentLinkedQueue<>();
 
     int blockPlacementLimit = 5000; // TODO: Load from config
     int ticksWithExceedingTasks = 0; // The number of consecutive tasks where the number of blocks to place have exceeded the limit.
@@ -85,11 +87,13 @@ public class BlockPlacementManager extends Manager implements Runnable {
         if (QUEUE.size() > blockPlacementLimit) ticksWithExceedingTasks += 1;
 
         for (int i = 0; i < blockPlacementLimit; i++) {
-            IBlockQueueWrapper wrapper = QUEUE.poll(); // TODO: Check size of task and increase i by that amount
-            if (wrapper == null) return;
+            IBlockQueueWrapper wrapper = QUEUE.poll();
+            if (wrapper == null) continue;
             wrapper.execute();
             i += Math.max(0, wrapper.getTaskSize() - 1);
         }
+
+        if (ticksWithExceedingTasks % 40 == 20) CobaltCore.getInstance().getLogger().warning("Block queue has not been empty for " + ticksWithExceedingTasks + " ticks. Items remaining: " + QUEUE.size());
     }
 
 
@@ -97,6 +101,9 @@ public class BlockPlacementManager extends Manager implements Runnable {
 
     @Override
     public void reload() {
+        // Load block placement speed from config
+        blockPlacementLimit = (int) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "block-placement-speed");
+
         // Schedule the block placing task
         CobaltCore.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(CobaltCore.getInstance(), this, 1, 1);
     }
