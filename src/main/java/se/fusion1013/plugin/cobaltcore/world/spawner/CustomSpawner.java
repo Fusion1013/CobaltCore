@@ -168,6 +168,9 @@ public class CustomSpawner {
 
         CobaltCore.getInstance().getLogger().info("Executing spawner");
 
+        // Check number of nearby mobs, return if greater than 10
+        if (location.getNearbyLivingEntities(8).size() > 10 && type == SpawnerType.CONTINUOUS) return;
+
         // Play sound
         location.getWorld().playSound(location, playSound, 10, 1);
 
@@ -176,6 +179,8 @@ public class CustomSpawner {
             // Spawn entities
             for (int i = 0; i < spawnCount; i++) {
                 Vector offset;
+                Location spawnLocation;
+
                 if (spawnRadius > 0) offset = new Vector(r.nextInt(-spawnRadius, spawnRadius) + .5, .5, r.nextInt(-spawnRadius, spawnRadius) + .5);
                 else offset = new Vector();
 
