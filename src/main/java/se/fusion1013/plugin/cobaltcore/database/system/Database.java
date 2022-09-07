@@ -30,18 +30,19 @@ public abstract class Database {
     public static String[] getDatabaseTables() {
         List<String> tables = new ArrayList<>();
 
-        try {
-            Connection conn = CobaltCore.getInstance().getSQLDatabase().getSQLConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%'");
-            ResultSet rs = stmt.executeQuery();
+        DataManager.getInstance().performThreadSafeSQLiteOperations(conn -> { // TODO: Verify that this is working as expected
+            try (
+                    PreparedStatement stmt = conn.prepareStatement("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%'");
+                    ResultSet rs = stmt.executeQuery();
+            ) {
+                while (rs.next()) {
+                    tables.add(rs.getString("name"));
+                }
 
-            while (rs.next()) {
-                tables.add(rs.getString("name"));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        });
 
         return tables.toArray(new String[0]);
     }
