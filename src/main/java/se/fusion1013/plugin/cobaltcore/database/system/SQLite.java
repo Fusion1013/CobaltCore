@@ -5,6 +5,8 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 /**
@@ -42,15 +44,18 @@ public class SQLite extends Database {
      * @param string Statement to execute.
      */
     public void executeString(String string){
-        try (
-                Connection conn = getSQLConnection();
-                Statement s = conn.createStatement()
-        ) {
-            s.executeUpdate(string);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        DataManager.getInstance().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    Statement s = conn.createStatement()
+            ) {
+                s.executeUpdate(string);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
+
+    private Lock connectionLock = new ReentrantLock();
 
     public Connection getSQLConnection(){
         File dataFolder = new File(plugin.getDataFolder(), dbname + ".db");
@@ -63,27 +68,28 @@ public class SQLite extends Database {
             }
         }
         try {
-            /*
             // This is a stupid solution
             long startTick = System.currentTimeMillis();
             long lastActivation = System.currentTimeMillis();
             long waitTick;
             while (connection != null && !connection.isClosed()) {
                 waitTick = System.currentTimeMillis();
-                if (lastActivation + 5000 <= waitTick) {
+                if (lastActivation + 20000 <= waitTick) {
                     CobaltCore.getInstance().getLogger().warning("Something has been trying to access the database while it has been busy for " + (waitTick - startTick) + "ms now. The system might be under heavy load or something might not be closing connection objects correctly");
                     lastActivation = System.currentTimeMillis();
                 }
             }
-             */
 
-            if (connection != null && !connection.isClosed()) {
+            try {
+                connectionLock.lock();
+                Class.forName("org.sqlite.JDBC");
+                connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
                 return connection;
+            } finally {
+                connectionLock.unlock();
             }
 
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
-            return connection;
+
         } catch (SQLException ex) {
             System.out.println(dbname);
             plugin.getLogger().log(Level.SEVERE, "SQLite exception on initialize", ex);
