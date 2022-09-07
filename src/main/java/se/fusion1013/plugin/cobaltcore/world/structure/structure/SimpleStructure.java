@@ -41,7 +41,7 @@ public class SimpleStructure extends AbstractStructure implements IStructure {
         super(ownerPlugin, id, structureName, structureFilePath);
 
         if (!structureFilePath.equalsIgnoreCase("")) {
-            structureHolder = StructureUtil.preLoadStructure(ownerPlugin, structureFilePath);
+            this.structureHolder = StructureUtil.preLoadStructure(ownerPlugin, structureFilePath);
             if (structureHolder == null) {
                 ownerPlugin.getLogger().info("Could not create structure " + structureName + ", file " + structureFilePath + " not found");
             }
@@ -68,7 +68,7 @@ public class SimpleStructure extends AbstractStructure implements IStructure {
         }
 
         // Offset
-        location.add(offset);
+        location = location.clone().add(offset);
 
         // Place the structure
         structureHolder.placeStructure(location);
