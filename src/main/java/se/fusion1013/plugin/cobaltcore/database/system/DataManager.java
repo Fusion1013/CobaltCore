@@ -1,5 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
+import org.bukkit.Bukkit;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.location.LocationDaoSQLite;
@@ -16,14 +17,19 @@ import se.fusion1013.plugin.cobaltcore.database.sound.area.ISoundAreaDao;
 import se.fusion1013.plugin.cobaltcore.database.sound.area.SoundAreaDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.spawner.CustomSpawnerDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.spawner.ICustomSpawnerDao;
+import se.fusion1013.plugin.cobaltcore.database.storage.IObjectStorageDao;
+import se.fusion1013.plugin.cobaltcore.database.storage.ObjectStorageDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.structure.IStructureDao;
 import se.fusion1013.plugin.cobaltcore.database.structure.StructureDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.trades.ITradesDao;
 import se.fusion1013.plugin.cobaltcore.database.trades.TradesDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DataManager extends Manager {
 
@@ -32,6 +38,12 @@ public class DataManager extends Manager {
     StorageType storageType;
     StorageType fallbackStorageType = StorageType.SQLITE; // TODO: Make setting
     Map<StorageType, Map<Class<?>, IDao>> daoImplementations = new HashMap<>();
+
+    // Pending Operations
+    private final int operationLimit = 100;
+    private int currentOperations = 0;
+
+    private final Queue<ISQLiteDataAccessor> sqlitePendingOperations = new LinkedList<>();
 
     // Data storage accessors
     private static Database sqliteDb;
@@ -110,6 +122,63 @@ public class DataManager extends Manager {
         MONGODB
     }
 
+    // ----- PENDING OPERATIONS -----
+
+    Lock sqliteOperationLock = new ReentrantLock();
+
+    /**
+     * Performs a thread-safe operation on the SQLite database.
+     *
+     * @param dataAccessor the <code>ISQLiteDataAccessor</code>.
+     */
+    public void performThreadSafeSQLiteOperations(ISQLiteDataAccessor dataAccessor) {
+        try (
+                Connection conn = getSqliteDb().getSQLConnection()
+        ) {
+
+            if (dataAccessor != null) {
+                sqliteOperationLock.lock();
+                dataAccessor.modifyDatabase(conn);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            sqliteOperationLock.unlock();
+        }
+    }
+
+    /**
+     * Adds a new <code>ISQLiteDataAccessor</code> to the pending operations.
+     *
+     * @param dataAccessor the <code>ISQLiteDataAccessor</code>.
+     */
+    public void insertSQLiteOperation(ISQLiteDataAccessor dataAccessor) {
+        sqlitePendingOperations.add(dataAccessor);
+    }
+
+    private void processPendingOperations() {
+
+        while (currentOperations < operationLimit && !sqlitePendingOperations.isEmpty()) {
+            try (
+                    Connection conn = getSqliteDb().getSQLConnection()
+            ) {
+                ISQLiteDataAccessor accessor = sqlitePendingOperations.poll();
+                if (accessor != null) accessor.modifyDatabase(conn);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            currentOperations++;
+        }
+
+        if (currentOperations > 0) {
+            CobaltCore.getInstance().getLogger().info("Performed " + currentOperations + " database operations");
+            CobaltCore.getInstance().getLogger().info("Pending operations left: " + sqlitePendingOperations.size());
+        }
+
+        currentOperations = 0;
+    }
+
     // ----- RELOADING / DISABLING -----
 
     @Override
@@ -123,6 +192,9 @@ public class DataManager extends Manager {
 
         // Initialize all the dao's
         initDao();
+
+        // Initializes the pending operations processor
+        Bukkit.getScheduler().runTaskTimerAsynchronously(CobaltCore.getInstance(), this::processPendingOperations, 0, 20*10); // Run once every 10 seconds
     }
 
     /**
@@ -181,10 +253,15 @@ public class DataManager extends Manager {
         registerDao(new SoundAreaDaoSQLite(), ISoundAreaDao.class);
         registerDao(new CustomSpawnerDaoSQLite(), ICustomSpawnerDao.class);
         registerDao(new StructureDaoSQLite(), IStructureDao.class);
+        registerDao(new ObjectStorageDaoSQLite(), IObjectStorageDao.class);
     }
 
     @Override
-    public void disable() {}
+    public void disable() {
+        while (!sqlitePendingOperations.isEmpty()) {
+            sqlitePendingOperations.poll().modifyDatabase(sqliteDb.getSQLConnection());
+        }
+    }
 
     // ----- GETTERS / SETTERS -----
 
