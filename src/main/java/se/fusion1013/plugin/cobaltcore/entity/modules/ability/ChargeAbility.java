@@ -79,7 +79,8 @@ public class ChargeAbility extends AbilityModule {
                 currentChargeDistance--;
 
                 // Move entity
-                entity.teleport(entityLocation.clone().add(targetDirection));
+                Location teleportLocation = entityLocation.clone().add(targetDirection);
+                if (!teleportLocation.getBlock().isSolid()) entity.teleport(teleportLocation);
 
                 // Damage players
                 Player[] players = PlayerUtil.getNearbyPlayers(entityLocation, 2);
