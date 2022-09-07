@@ -38,6 +38,12 @@ public class ParticleStyleText extends ParticleStyle {
         skipTicks = 2;
     }
 
+    public ParticleStyleText() {
+        super("text", "text_internal");
+
+        skipTicks = 2;
+    }
+
     // ----- INFO -----
 
     @Override
@@ -128,6 +134,74 @@ public class ParticleStyleText extends ParticleStyle {
     @Override
     public ParticleContainer[] getParticleContainers(Location location1, Location location2) {
         return new ParticleContainer[0];
+    }
+
+    // ----- BUILDER -----
+
+    public static class ParticleStyleTextBuilder extends ParticleStyleBuilder<ParticleStyleText, ParticleStyleTextBuilder> {
+
+        // -- VARIABLES
+
+        String text = "";
+        double spacing = 1.7;
+        double compress = .2;
+        ParticleStyleGlyph glyphStyle = new ParticleStyleGalactic();
+
+        // -- CONSTRUCTORS
+
+        public ParticleStyleTextBuilder() {
+            super();
+        }
+
+        public ParticleStyleTextBuilder(String name) {
+            super(name);
+        }
+
+        // -- BUILD
+
+        @Override
+        public ParticleStyleText build() {
+            obj.text = text;
+            obj.spacing = spacing;
+            obj.compress = compress;
+            obj.glyphStyle = glyphStyle;
+
+            return super.build();
+        }
+
+        // -- BUILDER METHODS
+
+        public ParticleStyleTextBuilder setText(String text) {
+            this.text = text;
+            return getThis();
+        }
+
+        public ParticleStyleTextBuilder setSpacing(double spacing) {
+            this.spacing = spacing;
+            return getThis();
+        }
+
+        public ParticleStyleTextBuilder setCompress(double compress) {
+            this.compress = compress;
+            return getThis();
+        }
+
+        public ParticleStyleTextBuilder setGlyphStyle(ParticleStyleGlyph glyphStyle) {
+            this.glyphStyle = glyphStyle;
+            return getThis();
+        }
+
+        // -- GETTERS / SETTERS
+
+        @Override
+        protected ParticleStyleText createObj() {
+            return new ParticleStyleText(name);
+        }
+
+        @Override
+        protected ParticleStyleTextBuilder getThis() {
+            return this;
+        }
     }
 
     // ----- CLONE -----
