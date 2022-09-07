@@ -82,6 +82,14 @@
   "commands.cparticle.group.remove": "&7Removed particle group &3%group_name%",
 
 
+  "commands.object.header.info": "&7Displaying info for Storage Object of type '&3%type%&7'",
+  "commands.object.header.list": "&7Displaying all Storage Objects of type '&3%type%&7'",
+  "commands.object.list_item": "&7- [&3%uuid%&7] Location: &3%location%",
+  "commands.object.create": "&7Created new &3%type%&7 with uuid &3%uuid%",
+  "commands.object.remove": "&7Removed &3%type%&7 with uuid &3%uuid%",
+  "commands.object.set": "&7Set value &3%key%&7 of &3%type%&7 to &3%value%",
+
+
   "particle.style.abstract.info": "&b - Particle&7: &3%particle%&7. Offset: &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7. Count: &3%count%&7. Speed: &3%speed%",
   "particle.style.rotation.info": "&b - Rotation&7: &3%rotation_x%&7, &3%rotation_y%&7, &3%rotation_z%&7. Angular Velocity: &3%angular_velocity_x%&7, &3%angular_velocity_y%&7, &3%angular_velocity_z%",
   "particle.style.point.info": "",
