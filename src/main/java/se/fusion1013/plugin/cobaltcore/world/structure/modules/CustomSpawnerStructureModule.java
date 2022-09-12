@@ -1,11 +1,13 @@
 package se.fusion1013.plugin.cobaltcore.world.structure.modules;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.util.StructureUtil;
 import se.fusion1013.plugin.cobaltcore.world.spawner.CustomSpawner;
 import se.fusion1013.plugin.cobaltcore.world.spawner.SpawnerManager;
@@ -42,11 +44,13 @@ public class CustomSpawnerStructureModule extends StructureModule implements ISt
                         replaceLocation.getBlock().setType(Material.SPAWNER);
                         BlockData block = replaceLocation.getBlock().getBlockData();
 
-                        if (block instanceof CreatureSpawner spawnerBlock) {
-                            spawnerBlock.setSpawnedType(spawner.getEntity().getBaseEntityType());
-                            spawnerBlock.setSpawnCount(0);
-                            spawnerBlock.update(true);
-                        }
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(CobaltCore.getInstance(), () -> {
+                            if (block instanceof CreatureSpawner spawnerBlock) {
+                                spawnerBlock.setSpawnedType(spawner.getEntity().getBaseEntityType());
+                                spawnerBlock.setSpawnCount(0);
+                                spawnerBlock.update(true);
+                            }
+                        }, 1);
 
                         SpawnerManager.getInstance().placeSpawner(spawner, replaceLocation);
                     }
