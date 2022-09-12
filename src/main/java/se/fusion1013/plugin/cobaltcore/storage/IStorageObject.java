@@ -66,6 +66,19 @@ public interface IStorageObject {
 
     Argument<?>[] getCommandArguments();
 
+    /**
+     * Gets commands used for operations on lists.
+     *
+     * @return command arguments.
+     */
+    default Argument<?>[] getListCommandArguments() {
+        return new Argument[0];
+    }
+
+    default void addItem(String key, Object value) {}
+
+    default void removeItem(String key, Object value) {}
+
     void setValue(String key, Object value); // TODO: Add methods for interacting with arrays / lists on objects
 
     // ----- INFO GETTING -----
