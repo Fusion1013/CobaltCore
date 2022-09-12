@@ -2,10 +2,7 @@ package se.fusion1013.plugin.cobaltcore.storage;
 
 import com.google.gson.JsonObject;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.LocationArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -212,6 +209,22 @@ public class ObjectManager extends Manager implements Listener {
         return true;
     }
 
+    private static boolean addStorageObjectListValue(String type, UUID uuid, String key, Object value) {
+        IStorageObject storageObject = getLoadedObject(type, uuid);
+        if (storageObject == null) return false;
+        storageObject.addItem(key, value);
+        updateStorageObject(storageObject);
+        return true;
+    }
+
+    private static boolean removeStorageObjectListValue(String type, UUID uuid, String key, Object value) {
+        IStorageObject storageObject = getLoadedObject(type, uuid);
+        if (storageObject == null) return false;
+        storageObject.addItem(key, value);
+        updateStorageObject(storageObject);
+        return true;
+    }
+
     // ----- COMMAND INTEGRATION -----
 
     private static void updateCommand() {
@@ -238,6 +251,10 @@ public class ObjectManager extends Manager implements Listener {
         objectCommand.withSubcommand(createInfoCommand(object));
         // List command
         objectCommand.withSubcommand(createListCommand(object));
+
+        // List item interaction commands
+        objectCommand.withSubcommand(createListAddItemCommand(object));
+        // TODO: Remove item
 
         // -- Activatable
         if (object instanceof IActivatableStorageObject activatableStorageObject) {
@@ -364,10 +381,8 @@ public class ObjectManager extends Manager implements Listener {
 
     private static CommandAPICommand createCreateCommand(IStorageObject object) {
         return new CommandAPICommand("create")
-                .withArguments(new LocationArgument("location"))
+                .withArguments(new LocationArgument("location", LocationType.BLOCK_POSITION)) // TODO: Possibly create two commands, one that takes block position, one that takes absolute position
                 .executes(((sender, args) -> {
-
-
                     // Get variables
                     Location location = (Location) args[0];
                     IStorageObject newObject = createStorageObject(object.getObjectIdentifier(), location);
@@ -411,6 +426,54 @@ public class ObjectManager extends Manager implements Listener {
                         );
                     }
                 }));
+    }
+
+    private static CommandAPICommand createListAddItemCommand(IStorageObject object) {
+        CommandAPICommand addListItemCommand = new CommandAPICommand("add_list_item");
+
+        for (Argument<?> argument : object.getListCommandArguments()) {
+            CommandAPICommand argumentCommand = new CommandAPICommand(argument.getNodeName());
+            argumentCommand.withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))));
+            argumentCommand.withArguments(argument);
+            argumentCommand.executes(((sender, args) -> {
+                UUID uuid = UUID.fromString((String) args[0]);
+                String key = argument.getNodeName();
+                Object value = args[1];
+
+                // Add the value
+                addStorageObjectListValue(object.getObjectIdentifier(), uuid, key, value);
+
+                // TODO: Send message
+
+            }));
+            addListItemCommand.withSubcommand(argumentCommand);
+        }
+
+        return addListItemCommand;
+    }
+
+    private static CommandAPICommand createListRemoveItemCommand(IStorageObject object) { // TODO
+        CommandAPICommand removeListItemCommand = new CommandAPICommand("remove_list_item");
+
+        for (Argument<?> argument : object.getListCommandArguments()) {
+            CommandAPICommand argumentCommand = new CommandAPICommand(argument.getNodeName());
+            argumentCommand.withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))));
+            argumentCommand.withArguments(argument);
+            argumentCommand.executes(((sender, args) -> {
+                UUID uuid = UUID.fromString((String) args[0]);
+                String key = argument.getNodeName();
+                Object value = args[1];
+
+                // Add the value
+                removeStorageObjectListValue(object.getObjectIdentifier(), uuid, key, value);
+
+                // TODO: Send message
+
+            }));
+            removeListItemCommand.withSubcommand(argumentCommand);
+        }
+
+        return removeListItemCommand;
     }
 
     private static CommandAPICommand createSetCommand(IStorageObject object) {
