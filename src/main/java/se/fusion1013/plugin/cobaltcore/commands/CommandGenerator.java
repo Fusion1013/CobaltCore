@@ -168,7 +168,7 @@ public class CommandGenerator {
 
         if (type.equals(Location.class)) return new LocationArgument(parameterName);
         if (type.equals(String.class)) return new StringArgument(parameterName);
-        if (type.equals(Entity.class)) return new EntitySelectorArgument(parameterName, EntitySelectorArgument.EntitySelector.ONE_ENTITY);
+        if (type.equals(Entity.class)) return new EntitySelectorArgument(parameterName, EntitySelector.ONE_ENTITY);
 
         // Numerics
         if (type.equals(Double.class)) return new DoubleArgument(parameterName);
