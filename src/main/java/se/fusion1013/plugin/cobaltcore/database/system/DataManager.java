@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.location.LocationDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.mappings.IMappingsDao;
+import se.fusion1013.plugin.cobaltcore.database.mappings.MappingsDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.particle.group.IParticleGroupDao;
 import se.fusion1013.plugin.cobaltcore.database.particle.group.ParticleGroupDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.particle.style.IParticleStyleDao;
@@ -244,6 +246,7 @@ public class DataManager extends Manager {
         // SQLITE
         registerDao(new SystemDaoSQLite(), ISystemDao.class);
 
+        registerDao(new MappingsDaoSQLite(), IMappingsDao.class);
         registerDao(new LocationDaoSQLite(), ILocationDao.class);
         registerDao(new ParticleGroupDaoSQLite(), IParticleGroupDao.class);
         registerDao(new ParticleStyleDaoSQLite(), IParticleStyleDao.class);
