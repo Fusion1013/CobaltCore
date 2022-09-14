@@ -88,6 +88,7 @@
   "commands.object.create": "&7Created new &3%type%&7 with uuid &3%uuid%",
   "commands.object.remove": "&7Removed &3%type%&7 with uuid &3%uuid%",
   "commands.object.set": "&7Set value &3%key%&7 of &3%type%&7 to &3%value%",
+  "commands.object.mapping.set": "&7Set mapping of &3%uuid%&7 to &3%mapping%",
 
 
   "particle.style.abstract.info": "&b - Particle&7: &3%particle%&7. Offset: &3%offset_x%&7, &3%offset_y%&7, &3%offset_z%&7. Count: &3%count%&7. Speed: &3%speed%",
