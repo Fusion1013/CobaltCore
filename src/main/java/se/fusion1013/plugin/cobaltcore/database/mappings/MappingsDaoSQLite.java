@@ -7,7 +7,10 @@ import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MappingsDaoSQLite extends Dao implements IMappingsDao {
@@ -59,6 +62,54 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
     @Override
     public void removeMappingAsync(UUID id) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> removeMappingSync(id));
+    }
+
+    @Override
+    public Map<UUID, String> getMappings() {
+        Map<UUID, String> mappings = new HashMap<>();
+
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("SELECT * FROM mappings");
+                    ResultSet rs = ps.executeQuery();
+            ) {
+                while (rs.next()) {
+                    UUID uuid = UUID.fromString(rs.getString("uuid"));
+                    String mapping = rs.getString("mapping");
+                    mappings.put(uuid, mapping);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        return mappings;
+    }
+
+    @Override
+    public Map<UUID, String> getMappingsOfType(String type) {
+        Map<UUID, String> mappings = new HashMap<>();
+
+        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("SELECT * FROM mappings WHERE type = ?");
+            ) {
+                ps.setString(1, type);
+                try (
+                        ResultSet rs = ps.executeQuery()
+                ) {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("uuid"));
+                        String mapping = rs.getString("mapping");
+                        mappings.put(uuid, mapping);
+                    }
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        return mappings;
     }
 
     @Override
