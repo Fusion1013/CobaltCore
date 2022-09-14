@@ -306,6 +306,7 @@ public class ObjectManager extends Manager implements Listener {
     // TODO: Replace suggestions with mappings
     private static CommandAPICommand createMappingCommand(IStorageObject object) {
         return new CommandAPICommand("set_mapping")
+                .withPermission("cobalt.core.command.object." + object.getObjectIdentifier() + ".mapping")
                 .withArguments(new StringArgument("identifier").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .withArguments(new StringArgument("new_mapping"))
                 .executes((sender, args) -> {
