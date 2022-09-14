@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.database.mappings.IMappingsDao;
 import se.fusion1013.plugin.cobaltcore.database.storage.IObjectStorageDao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
@@ -28,10 +29,7 @@ public class ObjectManager extends Manager implements Listener {
     private static final Map<String, IStorageObject> DEFAULT_STORAGES = new HashMap<>();
     // <ChunkWorldKey, <StorageIdentifier, <StorageUUID, StorageObject>>>
     private static final Map<String, Map<String, Map<UUID, IStorageObject>>> LOADED_STORAGES = new HashMap<>();
-
-    // -- Name mappings
-    private static final Map<String, UUID> NAME_UUID_MAPPINGS = new HashMap<>();
-    private static final Map<UUID, String> UUID_NAME_MAPPINGS = new HashMap<>();
+    private static final Map<String, Map<UUID, String>> LOADED_MAPPINGS = new HashMap<>();
 
     // -- Command
     private static final CommandAPICommand rootObjectCommand = new CommandAPICommand("object")
@@ -99,7 +97,12 @@ public class ObjectManager extends Manager implements Listener {
 
             // Call unload method for all removed objects
             for (Map<UUID, IStorageObject> uuidObjectMap : unloadedObjects.values()) {
-                for (IStorageObject object : uuidObjectMap.values()) object.onUnload();
+                for (IStorageObject object : uuidObjectMap.values()) {
+                    object.onUnload();
+
+                    // Unload object mapping
+                    LOADED_MAPPINGS.remove(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()));
+                }
             }
         });
     }
@@ -119,6 +122,10 @@ public class ObjectManager extends Manager implements Listener {
 
         IStorageObject removedObject = objectMap.remove(uuid);
         removedObject.onUnload(); // TODO: Might cause problems, perhaps replace with new onRemove() method?
+
+        // Remove associated mappings
+        LOADED_MAPPINGS.get(getDefaultMapping(chunkWorldKey, type)).remove(uuid);
+        CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IMappingsDao.class).removeMappingAsync(uuid);
     }
 
     // ----- CREATE STORAGE OBJECTS -----
@@ -133,10 +140,19 @@ public class ObjectManager extends Manager implements Listener {
         // Insert into database
         String chunkWorldKey = getChunkWorldKey(chunk);
         CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IObjectStorageDao.class).insertJsonStorageAsync(object.getUniqueIdentifier(), chunkWorldKey, object);
+
+        // Create mapping
+        String mappingType = getDefaultMapping(chunkWorldKey, object.getObjectIdentifier());
+        CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IMappingsDao.class).insertMappingAsync(mappingType, object.getUniqueIdentifier(), mappingType);
+
         // Insert into storage if chunk is loaded
         if (chunk.isLoaded()) {
             insertStorageObject(object, chunkWorldKey);
         }
+    }
+
+    private static String getDefaultMapping(String chunkWorldKey, String objectIdentifier) {
+        return chunkWorldKey + ":" + objectIdentifier;
     }
 
     /**
@@ -152,6 +168,11 @@ public class ObjectManager extends Manager implements Listener {
 
         // Call load method for loaded object
         object.onLoad();
+
+        // Load object mapping
+        Map<UUID, String> newMappings = CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IMappingsDao.class).getMappingsOfType(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()));
+        LOADED_MAPPINGS.computeIfAbsent(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()), k -> new HashMap<>())
+                .putAll(newMappings);
     }
 
     /**
@@ -225,6 +246,16 @@ public class ObjectManager extends Manager implements Listener {
         return true;
     }
 
+    // ----- MAPPINGS INTEGRATION -----
+
+    private static void updateMappings(IStorageObject object, String newMapping) {
+        String chunkWorldKey = getChunkWorldKey(object.getLocation().getChunk());
+        LOADED_MAPPINGS.get(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier())).put(object.getUniqueIdentifier(), newMapping);
+
+        // Update database
+        CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IMappingsDao.class).insertMappingAsync(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()), object.getUniqueIdentifier(), newMapping);
+    }
+
     // ----- COMMAND INTEGRATION -----
 
     private static void updateCommand() {
@@ -251,6 +282,8 @@ public class ObjectManager extends Manager implements Listener {
         objectCommand.withSubcommand(createInfoCommand(object));
         // List command
         objectCommand.withSubcommand(createListCommand(object));
+        // Mapping command
+        objectCommand.withSubcommand(createMappingCommand(object));
 
         // List item interaction commands
         objectCommand.withSubcommand(createListAddItemCommand(object));
@@ -268,9 +301,23 @@ public class ObjectManager extends Manager implements Listener {
         }
 
         return objectCommand;
+    }
 
-        // rootObjectCommand.withSubcommand(objectCommand);
-        // rootObjectCommand.register();
+    // TODO: Replace suggestions with mappings
+    private static CommandAPICommand createMappingCommand(IStorageObject object) {
+        return new CommandAPICommand("set_mapping")
+                .withArguments(new StringArgument("identifier").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
+                .withArguments(new StringArgument("new_mapping"))
+                .executes((sender, args) -> {
+                    UUID uuid = UUID.fromString((String) args[0]);
+                    IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
+                    if (loadedObject == null) return;
+
+                    String newMapping = (String) args[1];
+                    updateMappings(loadedObject, newMapping);
+
+                    // TODO: Command feedback
+                });
     }
 
     private static CommandAPICommand createAddActivatableCommand(IActivatorStorageObject object) {
@@ -517,6 +564,8 @@ public class ObjectManager extends Manager implements Listener {
 
     // ----- GETTERS / SETTERS -----
 
+    // TODO: Implement methods
+    /*
     public static UUID getUUIDFromString(String value) {
         if (NAME_UUID_MAPPINGS.containsKey(value)) return NAME_UUID_MAPPINGS.get(value);
         else return UUID.fromString(value);
@@ -531,6 +580,7 @@ public class ObjectManager extends Manager implements Listener {
         }
         return names.toArray(new String[0]);
     }
+     */
 
     public static String[] getActivatableStorageObjectUUIDs() {
         List<String> uuids = new ArrayList<>();
