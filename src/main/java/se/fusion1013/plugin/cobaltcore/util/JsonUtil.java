@@ -13,6 +13,44 @@ import java.util.UUID;
 public class JsonUtil {
 
     // ----- MATERIALS -----
+    /**
+     * Converts a 3-Dimensional <code>Material</code> array to a <code>JsonArray</code>.
+     *
+     * @param materials the 3D <code>Material</code> array to convert.
+     * @return a <code>JsonArray</code>.
+     */
+    public static JsonArray toJson(Material[][][] materials) {
+        JsonArray materialMaterialMaterialArray = new JsonArray();
+        for (Material[][] matmat : materials) {
+            if (matmat == null) continue;
+            JsonArray materialMaterialArray = new JsonArray();
+            for (Material[] mat : matmat) {
+                if (mat == null) continue;
+                materialMaterialArray.add(toJson(mat));
+            }
+            materialMaterialMaterialArray.add(materialMaterialArray);
+        }
+        return materialMaterialMaterialArray;
+    }
+
+    public static Material[][][] toMaterialArray3D(JsonArray jsonArray) {
+        Material[][][] materials = new Material[jsonArray.size()][][];
+
+        for (int x = 0; x < jsonArray.size(); x++) {
+            JsonArray innerArray = jsonArray.get(x).getAsJsonArray();
+            Material[][] innerMaterial = new Material[innerArray.size()][];
+
+            for (int z = 0; z < innerArray.size(); z++) {
+                JsonArray innerInnerArray = innerArray.get(z).getAsJsonArray();
+                Material[] innerInnerMaterial = toMaterialArray(innerInnerArray);
+                innerMaterial[z] = innerInnerMaterial;
+            }
+
+            materials[x] = innerMaterial;
+        }
+
+        return materials;
+    }
 
     /**
      * Converts a <code>Material</code> array to a <code>JsonArray</code>.
@@ -22,7 +60,7 @@ public class JsonUtil {
      */
     public static JsonArray toJson(Material[] materials) {
         JsonArray jo = new JsonArray();
-        for (Material mat : materials) jo.add(mat.toString());
+        for (Material mat : materials) if (mat != null) jo.add(mat.toString());
         return jo;
     }
 
