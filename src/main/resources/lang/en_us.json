@@ -103,8 +103,13 @@
   "particle.style.glyph.info": "&b - Glyph Extra&7: Letter: &3%letter%&7. Compress: &3%compress%",
   "particle.style.text.info": "&b - Text Extra&7: Text: &3%text%&7. Spacing: &3%spacing%&7 Compress: &3%compress%&7. Style: &3%style%&7",
   "particle.style.tesseract.info": "&b - Tesseract Extra&7: Rotation: &3%rx%&7, &3%ry%&7, &3%rz%&7, &3%rw%&7. Rotation Speed: &3%dx%&7, &3%dy%&7, &3%dz%&7, &3%dw%&7. Density: &3%density%&7. Width: &3%width%",
-  "particle.style.parametric.info.1": "&b - Parametric Extra 1: EqX: &3%ex%&7. EqY: &3%ey%&7. EqZ: &3%ez%&7. Duration: &3%duration%",
-  "particle.style.parametric.info.2": "&b - Parametric Extra 2: EqX: &3%ex2%&7. EqY: &3%ey2%&7. EqZ: &3%ez2%&7. Duration: &3%duration2%",
+  "particle.style.parametric.info.1": "&b - Parametric Extra 1&7: EqX: &3%ex%&7. EqY: &3%ey%&7. EqZ: &3%ez%&7. Duration: &3%duration%",
+  "particle.style.parametric.info.2": "&b - Parametric Extra 2&7: EqX: &3%ex2%&7. EqY: &3%ey2%&7. EqZ: &3%ez2%&7. Duration: &3%duration2%",
+  "particle.style.boids.info.1": "&b - Boids Extra 1&7: Size: &3%width%&7, &3%height%&7, &3%depth%&7, Amount: &3%amount%",
+  "particle.style.boids.info.2": "&b - Boids Extra 2&7: Move Distance: &3%move_distance%",
+  "particle.style.boids.info.3": "&b - Boids Extra 3&7: Cohesion: &3%cohesion%",
+  "particle.style.boids.info.4": "&b - Boids Extra 4&7: Alignment: &3%alignment%",
+  "particle.style.boids.info.5": "&b - Boids Extra 5&7: Separation: &3%separation%",
 
 
   "bossbar.id_already_exists": "&7Bossbar with identifier &3%id% &7already exists",
