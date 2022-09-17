@@ -116,7 +116,7 @@ public abstract class AbstractCustomItem implements ICustomItem {
     }
 
     public void addShapedRecipe(String row1, String row2, String row3, ShapedIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder(namespacedKey.getKey() + ".shapeless.");
+        StringBuilder keyString = new StringBuilder(namespacedKey.getKey() + ".shapeless." + internalName + ".");
         for (ShapedIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
 
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), getItemStack());
@@ -127,7 +127,7 @@ public abstract class AbstractCustomItem implements ICustomItem {
     }
 
     public void addShapelessRecipe(ShapelessIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder(namespacedKey.getKey() + ".shapeless.");
+        StringBuilder keyString = new StringBuilder(namespacedKey.getKey() + ".shapeless." + internalName + ".");
         for (ShapelessIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
 
         ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), getItemStack());
