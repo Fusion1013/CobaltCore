@@ -7,10 +7,7 @@ import se.fusion1013.plugin.cobaltcore.database.particle.style.IParticleStyleDao
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.*;
-import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleAlchemical;
-import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleFinnishGlyph;
-import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleGalactic;
-import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.ParticleStyleText;
+import se.fusion1013.plugin.cobaltcore.particle.styles.glyph.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,8 +146,10 @@ public class ParticleStyleManager extends Manager {
     public static final ParticleStyle PARTICLE_STYLE_TESSERACT = register(new ParticleStyleTesseract("default_tesseract"));
     public static final ParticleStyle PARTICLE_STYLE_PARAMETRIC = register(new ParticleStyleParametric("default_parametric"));
     public static final ParticleStyle PARTICLE_STYLE_BOIDS = register(new ParticleStyleBoids("default_boids"));
+    public static final ParticleStyle PARTICLE_STYLE_SQUARE = register(new ParticleStyleSquare("default_square"));
 
     public static final ParticleStyle PARTICLE_STYLE_TEXT = register(new ParticleStyleText("default_text"));
+    public static final ParticleStyle PARTICLE_STYLE_CIRCLE_TEXT = register(new ParticleStyleCircleText("default_circle_text"));
 
     public static final ParticleStyle PARTICLE_STYLE_GALACTIC = register(new ParticleStyleGalactic("default_galactic"));
     public static final ParticleStyle PARTICLE_STYLE_FINNISH_GLYPH = register(new ParticleStyleFinnishGlyph("default_finnish_glyph"));
