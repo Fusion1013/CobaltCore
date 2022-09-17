@@ -20,6 +20,7 @@ import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ObjectManager extends Manager implements Listener {
 
@@ -28,7 +29,7 @@ public class ObjectManager extends Manager implements Listener {
     // -- Storage
     private static final Map<String, IStorageObject> DEFAULT_STORAGES = new HashMap<>();
     // <ChunkWorldKey, <StorageIdentifier, <StorageUUID, StorageObject>>>
-    private static final Map<String, Map<String, Map<UUID, IStorageObject>>> LOADED_STORAGES = new HashMap<>();
+    private static final Map<String, Map<String, Map<UUID, IStorageObject>>> LOADED_STORAGES = new ConcurrentHashMap<>();
     private static final Map<String, Map<UUID, String>> LOADED_MAPPINGS = new HashMap<>();
 
     // -- Command
@@ -162,8 +163,8 @@ public class ObjectManager extends Manager implements Listener {
      * @param chunkWorldKey the chunk world key.
      */
     private static void insertStorageObject(IStorageObject object, String chunkWorldKey) {
-        LOADED_STORAGES.computeIfAbsent(chunkWorldKey, k -> new HashMap<>())
-                .computeIfAbsent(object.getObjectIdentifier(), k -> new HashMap<>())
+        LOADED_STORAGES.computeIfAbsent(chunkWorldKey, k -> new ConcurrentHashMap<>())
+                .computeIfAbsent(object.getObjectIdentifier(), k -> new ConcurrentHashMap<>())
                 .put(object.getUniqueIdentifier(), object);
 
         // Call load method for loaded object
@@ -171,7 +172,7 @@ public class ObjectManager extends Manager implements Listener {
 
         // Load object mapping
         Map<UUID, String> newMappings = CobaltCore.getInstance().getManager(CobaltCore.getInstance(), DataManager.class).getDao(IMappingsDao.class).getMappingsOfType(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()));
-        LOADED_MAPPINGS.computeIfAbsent(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()), k -> new HashMap<>())
+        LOADED_MAPPINGS.computeIfAbsent(getDefaultMapping(chunkWorldKey, object.getObjectIdentifier()), k -> new ConcurrentHashMap<>())
                 .putAll(newMappings);
     }
 
