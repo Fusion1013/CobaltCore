@@ -70,6 +70,10 @@ public class CustomItemManager extends Manager implements Listener {
         return recipe;
     }
 
+    public static ShapedRecipe addShapedRecipe(ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
+        return addShapedRecipe("internal", result, row1, row2, row3, ingredients);
+    }
+
     /**
      * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
      * @param result the <code>ItemStack</code> to add a recipe for.
@@ -79,8 +83,8 @@ public class CustomItemManager extends Manager implements Listener {
      * @param ingredients recipe ingredients.
      * @return the recipe.
      */
-    public static ShapedRecipe addShapedRecipe(ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder("custom.shapeless.");
+    public static ShapedRecipe addShapedRecipe(String recipeName, ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
+        StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
         for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
 
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
@@ -91,14 +95,18 @@ public class CustomItemManager extends Manager implements Listener {
         return recipe;
     }
 
+    public static ShapelessRecipe addShapelessRecipe(ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
+        return addShapelessRecipe("internal", result, ingredients);
+    }
+
     /**
      * Registers a new <code>ShapelessRecipe</code> for the given <code>ItemStack</code>.
      * @param result the <code>ItemStack</code> to add a recipe for.
      * @param ingredients recipe ingredients.
      * @return the recipe.
      */
-    public static ShapelessRecipe addShapelessRecipe(ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder("custom.shapeless.");
+    public static ShapelessRecipe addShapelessRecipe(String recipeName, ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
+        StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
         for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
 
         ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
