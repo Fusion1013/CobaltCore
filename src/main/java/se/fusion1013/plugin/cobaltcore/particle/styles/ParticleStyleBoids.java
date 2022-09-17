@@ -90,7 +90,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
 
         LocaleManager locale = LocaleManager.getInstance();
         StringPlaceholders placeholders = StringPlaceholders.builder()
-                .addPlaceholder("move_distance", moveDistance/100)
+                .addPlaceholder("move_distance", moveDistance/100.0)
                 .addPlaceholder("cohesion", cohesionCoefficient)
                 .addPlaceholder("alignment", alignmentCoefficient)
                 .addPlaceholder("separation", separationCoefficient)
@@ -194,6 +194,171 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         depth = jsonObject.get("depth").getAsInt();
 
         boids = new Boids(amount, width, height, depth);
+    }
+
+    // ----- BUILDER -----
+
+    public static class Builder extends ParticleStyleBuilder<ParticleStyleBoids, ParticleStyleBoids.Builder> {
+
+        private int amount = 10;
+        private int width = 1000;
+        private int height = 1000;
+        private int depth = 1000;
+
+        private int moveDistance = 50;
+        private double cohesionCoefficient = 100.0;
+        private int alignmentCoefficient = 8;
+        private double separationCoefficient = 10.0;
+
+        public Builder() {
+            super();
+        }
+
+        public Builder(String name) {
+            super(name);
+        }
+
+        @Override
+        public ParticleStyleBoids build() {
+            super.build();
+
+            obj.amount = amount;
+            obj.width = width;
+            obj.height = height;
+            obj.depth = depth;
+            obj.moveDistance = moveDistance;
+            obj.cohesionCoefficient = cohesionCoefficient;
+            obj.alignmentCoefficient = alignmentCoefficient;
+            obj.separationCoefficient = separationCoefficient;
+
+            obj.createBoids();
+
+            return obj;
+        }
+
+        @Override
+        protected ParticleStyleBoids createObj() {
+            return new ParticleStyleBoids(name);
+        }
+
+        @Override
+        protected Builder getThis() {
+            return this;
+        }
+
+        public Builder setAmount(int amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        public Builder setWidth(int width) {
+            this.width = width;
+            return this;
+        }
+
+        public Builder setHeight(int height) {
+            this.height = height;
+            return this;
+        }
+
+        public Builder setDepth(int depth) {
+            this.depth = depth;
+            return this;
+        }
+
+        public Builder setMoveDistance(int moveDistance) {
+            this.moveDistance = moveDistance;
+            return this;
+        }
+
+        public Builder setCohesion(double cohesion) {
+            this.cohesionCoefficient = cohesion;
+            return this;
+        }
+
+        public Builder setAlignment(int alignment) {
+            this.alignmentCoefficient = alignment;
+            return this;
+        }
+
+        public Builder setSeparation(double separation) {
+            this.separationCoefficient = separation;
+            return this;
+        }
+    }
+
+    // ----- GETTERS / SETTERS -----
+
+    public void createBoids() {
+        this.boids = new Boids(amount, width, height, depth);
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public int getMoveDistance() {
+        return moveDistance;
+    }
+
+    public double getCohesionCoefficient() {
+        return cohesionCoefficient;
+    }
+
+    public int getAlignmentCoefficient() {
+        return alignmentCoefficient;
+    }
+
+    public double getSeparationCoefficient() {
+        return separationCoefficient;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+        boids = new Boids(amount, width, height, depth);
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+        boids.xRes = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+        boids.yRes = height;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+        boids.zRes = depth;
+    }
+
+    public void setMoveDistance(int moveDistance) {
+        this.moveDistance = moveDistance;
+    }
+
+    public void setCohesionCoefficient(double cohesionCoefficient) {
+        this.cohesionCoefficient = cohesionCoefficient;
+    }
+
+    public void setAlignmentCoefficient(int alignmentCoefficient) {
+        this.alignmentCoefficient = alignmentCoefficient;
+    }
+
+    public void setSeparationCoefficient(double separationCoefficient) {
+        this.separationCoefficient = separationCoefficient;
     }
 
     // ----- CLONE -----
