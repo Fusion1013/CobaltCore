@@ -135,7 +135,7 @@ The above code creates a new `ICustomEntity` with the zombie as a base, 100 heal
 * **RageAbility**: Increases the speed and strength of the entity for a few seconds.
 
 ### Custom Items
-The Custom Item System contains methods for creating custom items. For full documentation, see [[Custom Items]]
+The Custom Item System contains methods for creating custom items.
 
 ### Custom Trades
 The Custom Trades System contains methods for creating custom Wandering Trader trades. Trades can be created with the /trades command, or using the `CustomTradesManager`.
