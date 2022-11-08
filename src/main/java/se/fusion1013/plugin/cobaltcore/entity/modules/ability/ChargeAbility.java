@@ -12,8 +12,12 @@ import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
+import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
+import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyleLine;
 import se.fusion1013.plugin.cobaltcore.util.PlayerUtil;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
+
+import java.util.Collection;
 
 public class ChargeAbility extends AbilityModule {
 
@@ -27,9 +31,21 @@ public class ChargeAbility extends AbilityModule {
     final double chargeDistance;
     double currentChargeDistance = 0;
 
+    double damage = 10;
+
     // Target
     Player target = null;
     Vector targetDirection = null;
+
+    // Particles
+    private static final ParticleGroup LINE_GROUP = new ParticleGroup.ParticleGroupBuilder()
+            .addStyle(new ParticleStyleLine.ParticleStyleLineBuilder()
+                    .setParticle(Particle.CRIT)
+                    .setCount(2)
+                    .setOffset(new Vector(.2, .2, .2))
+                    .setDensity(5)
+                    .build())
+            .build();
 
     // ----- CONSTRUCTORS -----
 
@@ -43,6 +59,13 @@ public class ChargeAbility extends AbilityModule {
         super(chargeCooldown);
         this.chargeCharge = chargeCharge;
         this.chargeDistance = chargeDistance;
+    }
+
+    // ----- BUILDER METHODS -----
+
+    public ChargeAbility damage(double damage) {
+        this.damage = damage;
+        return this;
     }
 
     // ----- EXECUTE METHODS -----
@@ -68,6 +91,8 @@ public class ChargeAbility extends AbilityModule {
             entityLocation.getWorld().spawnParticle(Particle.CRIT, entityLocation, 10, 1, 1, 1, 0);
             if (entity instanceof LivingEntity living) living.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 6));
 
+            LINE_GROUP.display(entityLocation.clone().add(0, 1, 0), entityLocation.clone().add(targetDirection.clone().multiply(chargeDistance)).add(0, 1, 0));
+
             currentChargeDistance = chargeDistance;
 
             // Reset cooldown // TODO: Replace with bukkit task
@@ -83,8 +108,11 @@ public class ChargeAbility extends AbilityModule {
                 if (!teleportLocation.getBlock().isSolid()) entity.teleport(teleportLocation);
 
                 // Damage players
-                Player[] players = PlayerUtil.getNearbyPlayers(entityLocation, 2);
-                for (Player p : players) p.damage(10); // TODO: Editable value
+                Collection<Player> players = entityLocation.getNearbyPlayers(2);
+                for (Player p : players) {
+                    p.setNoDamageTicks(0);
+                    p.damage(damage); // TODO: Editable value
+                }
 
                 // Reset Cooldown // TODO: Replace with bukkit task
                 resetCooldown();
