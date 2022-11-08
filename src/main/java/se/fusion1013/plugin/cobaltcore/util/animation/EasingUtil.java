@@ -43,8 +43,12 @@ public class EasingUtil {
         return c * (float)Math.sin(t/d * (Math.PI/2)) + b;
     }
 
-    public static float  easeInOutSine(float t,float b , float c, float d) {
-        return -c/2 * ((float)Math.cos(Math.PI*t/d) - 1) + b;
+    public static float  easeInOutSine(float tick, float start , float difference, float duration) {
+        return -difference/2 * ((float)Math.cos(Math.PI*tick/duration) - 1) + start;
+    }
+
+    public static double  easeInOutSine(double tick, double start , double difference, double duration) {
+        return -difference/2 * (Math.cos(Math.PI*tick/duration) - 1) + start;
     }
 
 
