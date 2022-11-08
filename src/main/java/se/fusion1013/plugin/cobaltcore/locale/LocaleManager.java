@@ -16,16 +16,13 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LocaleManager extends Manager {
 
     // ----- VARIABLES -----
 
-    private static final String[] localeStrings = new String[]{ "en_us", "sv_se" };
-
+    // private static final List<String> localeStrings = new ArrayList<>();
     private static final Map<String, Map<String, String>> localeMessages = new HashMap<>(); // <locale, <code, message>>
 
     // ----- CONSTRUCTORS -----
@@ -36,6 +33,15 @@ public class LocaleManager extends Manager {
     }
 
     // ----- LOGIC -----
+
+    private static String[] getLocaleStrings(Plugin plugin) {
+        String[] fileNames = FileUtil.getResources(plugin.getClass(), "lang");
+        List<String> foundLocales = new ArrayList<>();
+        for (String s : fileNames) {
+            if (s.endsWith(".json")) foundLocales.add(s.substring(0, s.length() - 5));
+        }
+        return foundLocales.toArray(new String[0]);
+    }
 
     /**
      * Gets the total number of locale files.
@@ -48,6 +54,8 @@ public class LocaleManager extends Manager {
         int localeCount = 0;
 
         for (CobaltPlugin plugin : cobaltPlugins) {
+            String[] localeStrings = getLocaleStrings(plugin);
+
             for (String locale : localeStrings) {
                 File file = new File(plugin.getDataFolder(), "lang/" + locale + ".json");
                 if (file.exists()) localeCount++;
@@ -71,6 +79,8 @@ public class LocaleManager extends Manager {
     }
 
     private static void resetLocale(Plugin plugin) {
+        String[] localeStrings = getLocaleStrings(plugin);
+
         for (String locale : localeStrings) {
             File file = new File(plugin.getDataFolder(), "lang/" + locale + ".json");
             if (file.exists()) file.delete();
@@ -86,6 +96,8 @@ public class LocaleManager extends Manager {
      * @param plugin the plugin to get the locale files from.
      */
     public static void loadLocale(Plugin plugin) {
+        String[] localeStrings = getLocaleStrings(plugin);
+
         for (String s : localeStrings) {
             String filePath = "lang/" + s + ".json";
 
