@@ -21,6 +21,8 @@ import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.item.crafting.RecipeManager;
+import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.*;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
@@ -109,13 +111,13 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         try {
             long time = System.currentTimeMillis();
 
-            plugin.getLogger().info("Reloading manager " + managerClass.getName());
+            // plugin.getLogger().info("Reloading manager " + managerClass.getName());
 
             T manager = managerClass.getConstructor(this.getClass()).newInstance(this);
             this.managers.get(plugin).put(managerClass, manager);
             manager.reload();
 
-            plugin.getLogger().info("Reloaded manager " + managerClass.getName() + " in " + (System.currentTimeMillis() - time) + "ms");
+            // plugin.getLogger().info("Reloaded manager " + managerClass.getName() + " in " + (System.currentTimeMillis() - time) + "ms");
 
             return manager;
         } catch (ReflectiveOperationException ex) {
@@ -140,8 +142,12 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
         // Internal Managers
         this.getManager(this, LocaleManager.class);
-        this.getManager(this, CustomItemManager.class);
         this.getManager(this, SettingsManager.class);
+
+        // Item managers
+        this.getManager(this, CustomItemManager.class);
+        this.getManager(this, EnchantmentManager.class);
+        this.getManager(this, RecipeManager.class);
 
         this.getManager(this, ChunkBoundObjectManager.class);
 
@@ -246,6 +252,9 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             time = System.currentTimeMillis();
             plugin.registerListeners();
             plugin.getLogger().info("Registered Listeners in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Load custom items
+            CustomItemManager.loadItemFiles(plugin, false);
 
             // Post Init
             plugin.postInit();
