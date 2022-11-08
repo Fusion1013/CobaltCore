@@ -3,6 +3,7 @@ package se.fusion1013.plugin.cobaltcore.commands.cgive;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,11 +55,9 @@ public class CGiveCommand {
 
             String[] items = CustomItemManager.getItemNamesInCategory(category);
             for (String item : items) {
-                CustomItem customItem = CustomItemManager.getCustomItem(item);
+                ICustomItem customItem = CustomItemManager.getCustomItem(item);
                 if (customItem == null) continue;
-
-                // Get all sub-categories of the custom item // TODO
-                List<IItemCategory> subCategories = customItem.getItemSubCategories();
+                // TODO: Subcategories
             }
         }
     }
@@ -72,7 +71,7 @@ public class CGiveCommand {
             ItemStack item = CustomItemManager.getCustomItemStack(s);
             if (item != null) itemStacks.add(item);
         }
-        ItemUtil.giveShulkerBox(player, itemStacks.toArray(new ItemStack[0]), category.getBoxMaterial(), category.getName());
+        ItemUtil.giveShulkerBox(player, itemStacks.toArray(new ItemStack[0]), category.getBoxMaterial(), category.getFormattedName());
     }
 
     /**
