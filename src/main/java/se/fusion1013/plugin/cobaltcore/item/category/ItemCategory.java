@@ -5,8 +5,13 @@ import se.fusion1013.plugin.cobaltcore.util.HexUtils;
 
 public enum ItemCategory implements IItemCategory {
 
-    TESTING("testing", "&fTesting", "Items used only for testing", Material.WHITE_SHULKER_BOX),
-    OTHER("other", "&fOther", "Other items", Material.WHITE_SHULKER_BOX);
+    NONE("none", "None", "If this shows up on an item, something has gone wrong", NamedTextColor.WHITE),
+
+    WEAPON("weapon", "Weapon", "Weapon items", NamedTextColor.DARK_GRAY),
+    ARMOR("armor", "Armor", "Armor items", NamedTextColor.GOLD),
+
+    TESTING("testing", "Testing","Items used only for testing", NamedTextColor.WHITE),
+    OTHER("other", "Other", "Other items", "&f");
 
     final String internalName;
     final String name;
