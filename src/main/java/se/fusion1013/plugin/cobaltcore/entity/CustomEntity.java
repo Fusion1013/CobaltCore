@@ -17,6 +17,7 @@ import se.fusion1013.plugin.cobaltcore.entity.modules.IDeathExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ISpawnExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ITickExecutable;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ability.AbilityModule;
+import se.fusion1013.plugin.cobaltcore.entity.modules.ability.IAbilityModule;
 import se.fusion1013.plugin.cobaltcore.util.constants.EntityConstants;
 
 import java.util.ArrayList;
@@ -166,10 +167,15 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
     }
 
     @Override
-    public void onDeath() {
+    public void onDeath(Location location, Entity dyingEntity) {
         // Execute all OnDeath Modules.
         for (IDeathExecutable module : executeModuleOnDeath) {
             module.execute(this, spawnParameters);
+        }
+
+        // Execute all onDeath ability modules
+        for (IAbilityModule module : abilityModules) {
+            module.onEntityDeath(this, spawnParameters, location, dyingEntity);
         }
 
         // Execute everything that would happen if it were to despawn
@@ -421,6 +427,7 @@ public class CustomEntity implements ICustomEntity, Cloneable, Runnable {
         return summonedEntity;
     }
 
+    @Override
     public UUID getEntityUuid() {
         return entityUuid;
     }
