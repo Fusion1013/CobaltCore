@@ -1,5 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -278,6 +279,30 @@ public class BlockUtil {
             Vector pos = GeometryUtil.getPointInSphere(explosionRadius).add(location.toVector());
             if (world != null) world.createExplosion(new Location(world, pos.getX(), pos.getY(), pos.getZ()), (float)Math.min(7, explosionRadius), fire, destroyBlocks);
         }
+    }
+
+    // ----- COLOR RELATED BLOCK METHODS -----
+
+    public static Material getColoredShulkerBox(NamedTextColor color) {
+        return switch (color.toString()) {
+            case "white" -> Material.WHITE_SHULKER_BOX;
+            case "orange" -> Material.ORANGE_SHULKER_BOX;
+            case "magenta" -> Material.MAGENTA_SHULKER_BOX;
+            case "aqua" -> Material.LIGHT_BLUE_SHULKER_BOX;
+            case "yellow" -> Material.YELLOW_SHULKER_BOX;
+            case "lime" -> Material.LIME_SHULKER_BOX;
+            case "pink" -> Material.PINK_SHULKER_BOX;
+            case "gray" -> Material.GRAY_SHULKER_BOX;
+            case "light_gray" -> Material.LIGHT_GRAY_SHULKER_BOX;
+            case "cyan" -> Material.CYAN_SHULKER_BOX;
+            case "purple" -> Material.PURPLE_SHULKER_BOX;
+            case "blue" -> Material.BLUE_SHULKER_BOX;
+            case "brown" -> Material.BROWN_SHULKER_BOX;
+            case "green" -> Material.GREEN_SHULKER_BOX;
+            case "red" -> Material.RED_SHULKER_BOX;
+            case "black" -> Material.BLACK_SHULKER_BOX;
+            default -> Material.SHULKER_BOX;
+        };
     }
 
     public static Color getBlockColor(Material material) {
