@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 import org.kitteh.vanish.VanishPlugin;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
+import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 
 import java.time.Duration;
@@ -19,6 +20,13 @@ import java.util.*;
  * Contains various methods for working with players.
  */
 public class PlayerUtil {
+
+    // ----- PLAYER NAME MATCHING -----
+
+    public static boolean isMatch(Player player, String str, int minimum) {
+        if (str.length() < minimum) return false;
+        return player.getName().toLowerCase().contains(str.toLowerCase());
+    }
 
     // ----- COMMAND ARGUMENTS -----
 
@@ -270,6 +278,40 @@ public class PlayerUtil {
     }
 
     // ----- INVENTORY MANAGEMENT -----
+
+    public static boolean reduceItemExact(Player player, String item, int count) {
+        PlayerInventory inventory = player.getInventory();
+        if (countItems(player, item) < count) return false;
+
+        int left = count;
+
+        for (ItemStack itemStack : inventory) {
+            if (itemStack == null) continue;
+            if (CustomItemManager.getItemName(itemStack).equalsIgnoreCase(item)) {
+                int ca = itemStack.getAmount();
+                itemStack.setAmount(ca - left);
+                left -= ca;
+
+                if (left <= 0) return true;
+            }
+        }
+
+        return false; // Should never happen
+    }
+
+    public static int countItems(Player player, String item) {
+        PlayerInventory inventory = player.getInventory();
+        int foundItemCount = 0;
+
+        for (ItemStack itemStack : inventory) {
+            if (itemStack == null) continue;
+            if (CustomItemManager.getItemName(itemStack).equalsIgnoreCase(item)) {
+                foundItemCount += itemStack.getAmount();
+            }
+        }
+
+        return foundItemCount;
+    }
 
     /**
      * Reduces the amount of items in the <code>Player</code>'s hand by the specified amount.
