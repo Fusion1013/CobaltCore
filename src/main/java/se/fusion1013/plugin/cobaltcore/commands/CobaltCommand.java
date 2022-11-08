@@ -2,24 +2,28 @@ package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.executors.PlayerCommandExecutor;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.bar.BossBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.cgive.CGiveCommand;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
-import se.fusion1013.plugin.cobaltcore.item.CustomItem;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
-import se.fusion1013.plugin.cobaltcore.storage.ObjectManager;
-import se.fusion1013.plugin.cobaltcore.storage.StorageTestObject;
 import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
@@ -27,6 +31,7 @@ import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class CobaltCommand {
 
@@ -41,22 +46,33 @@ public class CobaltCommand {
                 .withSubcommand(createVersionCommand())
                 .withSubcommand(createConfigCommand())
                 .withSubcommand(createDatabaseCommand())
-                .withSubcommand(createUpdateCommand())
+                // .withSubcommand(createUpdateCommand())
                 .withSubcommand(createLocaleCommand())
                 .withSubcommand(CGiveCommand.createCgiveCommand())
-                //.withSubcommand(createCategoriesCommand())
-                //.withSubcommand(createAllItemsCommand())
-                //.withSubcommand(createNpcCommand())
-                .withSubcommand(createFixItemCommand())
-                .withSubcommand(createDebugCommand())
                 .withSubcommand(createStructureCommand())
+                .withSubcommand(createReloadCommand())
                 .register();
+    }
+
+    // ----- RELOAD COMMAND -----
+
+    private static CommandAPICommand createReloadCommand() {
+        return new CommandAPICommand("reload")
+                .withPermission("commands.core.reload")
+                .withSubcommand(new CommandAPICommand("items")
+                        .executes(CobaltCommand::reloadItems));
+    }
+
+    private static void reloadItems(CommandSender sender, Object[] args) {
+        CustomItemManager.reloadItems();
+        if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.items");
     }
 
     // ----- STRUCTURE COMMAND -----
 
     private static CommandAPICommand createStructureCommand() {
         return new CommandAPICommand("structure")
+                .withPermission("commands.core.structure")
                 .withSubcommand(new CommandAPICommand("place")
                         .withArguments(new StringArgument("structure").replaceSuggestions(ArgumentSuggestions.strings(info -> StructureManager.getRegisteredStructureNames())))
                         .withArguments(new LocationArgument("location", LocationType.BLOCK_POSITION))
@@ -65,85 +81,6 @@ public class CobaltCommand {
                             Location location = (Location) args[1];
                             StructureManager.placeStructure(structureName, location);
                         })));
-    }
-
-    // ----- FIX ITEM COMMAND -----
-
-    private static CommandAPICommand createFixItemCommand() {
-        return new CommandAPICommand("fixitem")
-                .executesPlayer(((player, args) -> {
-                    ItemStack heldItem = player.getInventory().getItemInMainHand();
-                    ICustomItem customItem = CustomItemManager.getCustomItem(heldItem);
-                    if (customItem == null) return; // TODO: Display error message
-
-                    ItemStack customItemStack = customItem.getItemStack();
-                    customItemStack.setAmount(heldItem.getAmount());
-                    player.getInventory().setItemInMainHand(customItemStack);
-                }));
-    }
-
-    // ----- DEBUG COMMAND -----
-
-    private static CommandAPICommand createDebugCommand() {
-        return new CommandAPICommand("debug")
-                .withPermission("commands.core.debug")
-                .withArguments(new StringArgument("event"))
-                .executesPlayer(((sender, args) -> {
-                    DebugManager.getInstance().subscribe(sender, (String) args[0]);
-                }));
-    }
-
-    // ----- CGIVE COMMAND -----
-
-    private static CommandAPICommand createCategoriesCommand() {
-        CommandAPICommand categoriesCommand = new CommandAPICommand("item")
-                .withPermission("commands.core.item");
-
-        IItemCategory[] categories = CustomItemManager.getCustomItemCategories();
-
-        // Loop through all categories and create a subcommand for each
-        for (IItemCategory category : categories) {
-            categoriesCommand.withSubcommand(
-                    new CommandAPICommand(category.getInternalName())
-                            .executesPlayer(((sender, args) -> {
-                                giveAllInCategory(sender, category);
-                            })
-                            )
-                            //.withArguments(new StringArgument("item_name").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getItemNamesInCategory(category))))
-                            //.executesPlayer(CobaltCommand::giveItem)
-            );
-        }
-
-        return categoriesCommand;
-    }
-
-    private static void giveAllInCategory(Player player, IItemCategory category) {
-        String[] items = CustomItemManager.getItemNamesInCategory(category);
-        List<ItemStack> itemStacks = new ArrayList<>();
-        for (String s : items) {
-            ItemStack item = CustomItemManager.getCustomItemStack(s);
-            if (item != null) itemStacks.add(item);
-        }
-        ItemUtil.giveShulkerBox(player, itemStacks.toArray(new ItemStack[0]), Material.WHITE_SHULKER_BOX, category.getName());
-    }
-
-    private static CommandAPICommand createAllItemsCommand() {
-        return new CommandAPICommand("item")
-                .withPermission("commands.core.item")
-                .withArguments(new StringArgument("item_name").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
-                .executesPlayer(CobaltCommand::giveItem);
-    }
-
-    /**
-     * Gives a specific magick item to the player.
-     *
-     * @param player the player to give the item to.
-     * @param args the item to give the player.
-     */
-    private static void giveItem(Player player, Object[] args){
-        String itemName = (String)args[0];
-        ItemStack is = CustomItemManager.getCustomItemStack(itemName);
-        if (is != null) player.getInventory().addItem(is);
     }
 
     // ----- LOCALE COMMAND -----
