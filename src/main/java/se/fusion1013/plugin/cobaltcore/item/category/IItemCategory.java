@@ -1,15 +1,24 @@
 package se.fusion1013.plugin.cobaltcore.item.category;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 
 public interface IItemCategory {
 
     /**
-     * Formatted name of the <code>IItemCategory</code>. Should only be used for user display purposes.
+     * Get the formatted name of this <code>IItemCategory</code>.
      *
-     * @return the formatted name.
+     * @return the formatted name <code>Component</code>.
      */
-    String getName();
+    Component getFormattedName();
+
+    /**
+     * Gets the <code>NamespacedKey</code> of this <code>IItemCategory</code>.
+     *
+     * @return a <code>NamespacedKey</code>.
+     */
+    NamespacedKey getNamespacedKey();
 
     /**
      * The internal name of the <code>IItemCategory</code>. Should be used when referring to it in code.
