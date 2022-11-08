@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.bar.CustomBossBar;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
@@ -20,7 +21,7 @@ public class EntityBossBarModule extends EntityModule implements ITickExecutable
     // ----- VARIABLES -----
 
     NamespacedKey key;
-    BossBar bossBar;
+    CustomBossBar bossBar;
     final String bossBarTitle;
     double bossBarActivationRange = -1;
     BarColor bossBarColor = BarColor.WHITE;
@@ -59,8 +60,7 @@ public class EntityBossBarModule extends EntityModule implements ITickExecutable
 
         // If the entity is not alive, remove the bossbar.
         if (!customEntity.isAlive()) {
-            bossBar.removeAll();
-            Bukkit.removeBossBar(key);
+            bossBar.remove();
             return;
         }
 
@@ -71,35 +71,17 @@ public class EntityBossBarModule extends EntityModule implements ITickExecutable
             // If bossbar has not been created yet, create it.
             if (bossBar == null) {
                 key = new NamespacedKey(CobaltCore.getInstance(), customEntity.getEntityUuid().toString() + ".bossBar");
-                bossBar = Bukkit.createBossBar(key, bossBarTitle, bossBarColor, bossBarStyle);
+                bossBar = new CustomBossBar(entity, bossBarTitle, net.kyori.adventure.bossbar.BossBar.Color.valueOf(bossBarColor.toString()), net.kyori.adventure.bossbar.BossBar.Overlay.valueOf(bossBarStyle.toString().replace("SEGMENTED", "NOTCHED")), .4);
             }
 
-            // Set bossbar value
-            double currentHealth = living.getHealth();
-            AttributeInstance attribute = living.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-            if (attribute == null) return;
-            double maxHealth = attribute.getBaseValue();
-            bossBar.setProgress(currentHealth / maxHealth);
-
-            // Add players to the bossbar.
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                // Get distance to player.
-                double distanceSquared = player.getLocation().distanceSquared(living.getLocation());
-
-                // If the distance to the player is less than the activation range of the bossbar, show the player the bossbar.
-                // Otherwise remove the player.
-                if (distanceSquared < bossBarActivationRange * bossBarActivationRange) {
-                    bossBar.addPlayer(player);
-                } else {
-                    bossBar.removePlayer(player);
-                }
-            }
+            // Update bossbar
+            bossBar.update();
         }
     }
 
     // ----- GETTERS / SETTERS -----
 
-    public BossBar getBossBar() {
+    public CustomBossBar getBossBar() {
         return bossBar;
     }
 
