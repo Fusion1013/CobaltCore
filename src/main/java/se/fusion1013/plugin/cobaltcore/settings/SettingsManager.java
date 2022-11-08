@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.setting.ISettingDao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
-import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 
 import java.util.HashMap;
@@ -97,7 +96,7 @@ public class SettingsManager extends Manager {
         return holder.setPlayerSetting(setting, value);
     }
 
-    public static String[] getSettingSuggestions() {
+    public static String[] getSettingNames() {
         return registeredSettings.keySet().toArray(new String[0]);
     }
 
