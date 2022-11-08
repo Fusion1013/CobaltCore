@@ -35,6 +35,67 @@ import java.util.Random;
  */
 public class ItemUtil {
 
+    // ----- ANVIL -----
+
+    public static ItemStack mergeAnvilItems(ItemStack firstItem, ItemStack secondItem, ItemStack resultItem) {
+        ItemMeta resultMeta = resultItem.getItemMeta();
+
+        ItemMeta firstMeta = firstItem.getItemMeta();
+        ItemMeta secondMeta = secondItem.getItemMeta();
+        PersistentDataContainer firstContainer = firstMeta.getPersistentDataContainer();
+        PersistentDataContainer secondContainer = secondMeta.getPersistentDataContainer();
+
+        // Clear custom enchantment lore
+        List<String> lore = resultMeta.getLore();
+        if (lore != null) {
+            for (int i = lore.size() - 1; i >= 0 ; i--) {
+                String loreText = lore.get(i).split(" ")[0].toLowerCase();
+                if (loreText.length() < 5) continue;
+                if (
+                        EnchantmentManager.getEnchantment(loreText.substring(2, loreText.length()-2)) != null
+                        || EnchantmentManager.getEnchantment(loreText.substring(2)) != null
+                ) {
+                    lore.remove(i);
+                }
+            }
+        }
+        resultMeta.setLore(lore);
+
+        // Merge all the keys
+        List<NamespacedKey> keys = new ArrayList<>();
+        keys.addAll(firstContainer.getKeys());
+        keys.addAll(secondContainer.getKeys());
+        List<NamespacedKey> addedKeys = new ArrayList<>();
+
+        for (NamespacedKey key : keys) {
+
+            if (addedKeys.contains(key)) continue;
+            else addedKeys.add(key);
+
+            Integer firstValue = 0;
+            Integer secondValue = 0;
+
+            if (firstContainer.has(key, PersistentDataType.INTEGER)) firstValue = firstContainer.get(key, PersistentDataType.INTEGER);
+            if (secondContainer.has(key, PersistentDataType.INTEGER)) secondValue = secondContainer.get(key, PersistentDataType.INTEGER);
+
+            int total = 0;
+
+            if (firstValue != null) total += firstValue;
+            if (secondValue != null) {
+                if (total == secondValue) total += 1;
+                else if (total > 0) total = Math.max(total, secondValue);
+                else total += secondValue;
+            }
+
+            resultMeta.getPersistentDataContainer().remove(key);
+            resultItem.setItemMeta(resultMeta);
+            EnchantmentWrapper wrapper = EnchantmentManager.getEnchantment(key.getKey().substring(12), total, false);
+            if (wrapper != null) resultItem = wrapper.add(resultItem);
+            resultMeta = resultItem.getItemMeta();
+        }
+
+        return resultItem;
+    }
 
     // ----- CUSTOM ITEMS -----
 
