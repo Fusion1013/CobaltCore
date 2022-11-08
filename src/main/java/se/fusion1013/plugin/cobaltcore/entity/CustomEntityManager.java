@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -25,6 +26,9 @@ import se.fusion1013.plugin.cobaltcore.commands.system.CommandHandler;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
 import se.fusion1013.plugin.cobaltcore.entity.modules.*;
 import se.fusion1013.plugin.cobaltcore.entity.modules.ability.ChargeAbility;
+import se.fusion1013.plugin.cobaltcore.item.loot.CustomLootTable;
+import se.fusion1013.plugin.cobaltcore.item.loot.LootEntry;
+import se.fusion1013.plugin.cobaltcore.item.loot.LootPool;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.constants.EntityConstants;
 
@@ -49,7 +53,7 @@ public class CustomEntityManager extends Manager implements Listener {
                 if (entity instanceof Zombie zombie) zombie.setAdult();
             })))
             .addExecuteOnTickModule(new EntityBossBarModule("Test Entity", 10, BarColor.BLUE, BarStyle.SEGMENTED_6))
-            .addExecuteOnDeathModule(new EntityDropModule(100, 2, new ItemStack(Material.DIAMOND), 0.2))
+            .addExecuteOnDeathModule(new EntityDropModule(100, 2, new LootPool(1, new LootEntry(new ItemStack(Material.DIAMOND), 0, 1))))
             .addAbilityModule(new ChargeAbility(8, 1, 5))
             .setCustomName("Test Entity")
             .build());
@@ -81,15 +85,15 @@ public class CustomEntityManager extends Manager implements Listener {
      * @param location the location to summon the entity.
      * @return true if the entity was summoned.
      */
-    public static boolean forceSummonEntity(String entityName, Location location) {
+    public static CustomEntity forceSummonEntity(String entityName, Location location) {
         ICustomEntity entityToSummon = getCustomEntity(entityName);
-        if (entityToSummon == null) return false;
+        if (entityToSummon == null) return null;
 
         CustomEntity summoned = entityToSummon.forceSpawn(location, null);
-        if (summoned == null) return false;
+        if (summoned == null) return null;
 
         summonedCustomEntities.put(summoned.getEntityUuid(), summoned);
-        return true;
+        return summoned;
     }
 
     /**
@@ -148,7 +152,10 @@ public class CustomEntityManager extends Manager implements Listener {
             ICustomEntity customEntity = summonedCustomEntities.get(uuid);
 
             if (customEntity != null) {
-                customEntity.onDeath();
+                se.fusion1013.plugin.cobaltcore.entity.EntityDeathEvent calledEvent = new se.fusion1013.plugin.cobaltcore.entity.EntityDeathEvent(customEntity, event.getEntity().getLocation());
+                Bukkit.getPluginManager().callEvent(calledEvent);
+                if (calledEvent.isCancelled()) return;
+                customEntity.onDeath(event.getEntity().getLocation(), event.getEntity());
                 CobaltCore.getInstance().getLogger().info("On death for entity " + customEntity.getInternalName());
             }
         }
