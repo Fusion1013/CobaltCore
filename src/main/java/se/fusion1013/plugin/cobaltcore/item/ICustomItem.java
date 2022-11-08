@@ -4,6 +4,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 
 public interface ICustomItem {
 
@@ -12,7 +13,9 @@ public interface ICustomItem {
     NamespacedKey getNamespacedKey();
     String getInternalName();
     ItemStack getItemStack();
+    IItemCategory getItemCategory();
     String[] getTags();
+    default void onDisable() {};
 
     // ----- ITEM COMPARISON -----
 
