@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -178,6 +179,9 @@ public class CommandGenerator {
 
         if (type.equals(BarColor.class)) return new StringArgument("color").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> Stream.of(BarColor.values()).map(BarColor::toString).map(String::toLowerCase).toArray(String[]::new)));
         if (type.equals(BarStyle.class)) return new StringArgument("style").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> Stream.of(BarStyle.values()).map(BarStyle::toString).map(String::toLowerCase).toArray(String[]::new)));
+
+        if (type.equals(BossBar.Color.class)) return new StringArgument("color").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> Stream.of(BossBar.Color.values()).map(BossBar.Color::toString).map(String::toLowerCase).toArray(String[]::new)));
+        if (type.equals(BossBar.Overlay.class)) return new StringArgument("overlay").replaceSuggestions(ArgumentSuggestions.strings(suggestionInfo -> Stream.of(BossBar.Overlay.values()).map(BossBar.Overlay::toString).map(String::toLowerCase).toArray(String[]::new)));
 
         return null;
     }
