@@ -220,6 +220,7 @@ public enum ItemActivator {
      */
     HANGING_PLACE,
 
-    LOOP // Activates on repeat as long as the item is in the players inventory // TODO
+    HELD_TICK, // Activates on repeat as long as the item is held
+    TICK // Activates on repeat as long as the item is in the players inventory // TODO
 
 }
