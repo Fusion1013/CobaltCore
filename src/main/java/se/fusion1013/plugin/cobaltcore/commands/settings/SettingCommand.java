@@ -5,6 +5,7 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
+import se.fusion1013.plugin.cobaltcore.settings.Setting;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
@@ -35,36 +36,42 @@ public class SettingCommand {
      * @return the set command.
      */
     private static CommandAPICommand createSetCommand() { // TODO: Replace with subcommands that generate tab-completion
-        return new CommandAPICommand("set")
-                .withPermission("commands.core.setting.set")
-                .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingSuggestions())))
-                .withArguments(new StringArgument("value"))
-                .executesPlayer(((sender, args) -> {
+        CommandAPICommand command = new CommandAPICommand("set")
+                .withPermission("commands.core.setting.set");
+        for (String settingKey : SettingsManager.getSettingNames()) command.withSubcommand(createSetSubCommand(settingKey));
+        return command;
+    }
 
-                    // Attempt to set the new value
-                    String oldValue = SettingsManager.getPlayerSetting(sender, (String)args[0]);
-                    boolean success = SettingsManager.setPlayerSetting(sender, (String)args[0], (String)args[1]);
+    private static CommandAPICommand createSetSubCommand(String settingKey) {
+        CommandAPICommand command = new CommandAPICommand(settingKey);
+        Setting<?> setting = SettingsManager.getSetting(settingKey);
+        command.withArguments(new StringArgument("value").replaceSuggestions(ArgumentSuggestions.strings(info -> setting.getValidOptions())));
+        command.executesPlayer(((sender, args) -> {
+            // Attempt to set the new value
+            String oldValue = SettingsManager.getPlayerSetting(sender, settingKey);
+            boolean success = SettingsManager.setPlayerSetting(sender, settingKey, (String)args[0]);
 
-                    // Create placeholder with variables
-                    StringPlaceholders placeholders = StringPlaceholders.builder()
-                            .addPlaceholder("key", args[0])
-                            .addPlaceholder("old_value", oldValue)
-                            .addPlaceholder("value", args[1])
-                            .build();
+            // Create placeholder with variables
+            StringPlaceholders placeholders = StringPlaceholders.builder()
+                    .addPlaceholder("key", settingKey)
+                    .addPlaceholder("old_value", oldValue)
+                    .addPlaceholder("value", args[0])
+                    .build();
 
-                    // Depending on if the setting change was a success or not, give appropriate feedback
-                    if (success) {
-                        LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.setting.set.success", placeholders);
-                    } else {
-                        LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.setting.set.fail", placeholders);
-                    }
-                }));
+            // Depending on if the setting change was a success or not, give appropriate feedback
+            if (success) {
+                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.setting.set.success", placeholders);
+            } else {
+                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.setting.set.fail", placeholders);
+            }
+        }));
+        return command;
     }
 
     private static CommandAPICommand createGetCommand() {
         return new CommandAPICommand("get")
                 .withPermission("commands.core.setting.get")
-                .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingSuggestions())))
+                .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingNames())))
                 .executesPlayer(((sender, args) -> {
                     String value = SettingsManager.getPlayerSetting(sender, (String)args[0]);
                     StringPlaceholders placeholders = StringPlaceholders.builder()
