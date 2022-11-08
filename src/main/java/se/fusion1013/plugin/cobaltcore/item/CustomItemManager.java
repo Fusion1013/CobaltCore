@@ -403,17 +403,268 @@ public class CustomItemManager extends Manager implements Listener {
         return null;
     }
 
+    // ----- ITEM FILE LOADING -----
+
+    public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
+        File dataFolder = plugin.getDataFolder();
+        File itemFolder = new File(dataFolder, "items/");
+        loadItemsFromFolders(plugin, itemFolder, overwrite);
+
+        loadItemsFromResources();
+
+        CobaltCore.getInstance().getManager(CobaltCore.getInstance(), RecipeManager.class).registerRecipes();
+    }
+
+    private static void loadItemsFromResources() {
+        // Load from resources
+        String[] itemFileNames = FileUtil.getResources(CobaltCore.class, "items");
+        for (String s : itemFileNames) {
+            File file = FileUtil.getOrCreateFileFromResource(CobaltCore.getInstance(), "items/" + s);
+            if (file.exists()) CobaltCore.getInstance().getLogger().info("Found item file: " + file.getAbsolutePath());
+
+            loadItem(CobaltCore.getInstance(), file, false);
+        }
+    }
+
+    private static void loadItemsFromFolders(CobaltPlugin plugin, File rootFolder, boolean overwrite) {
+        // Load from item files folder
+        if (!rootFolder.exists()) {
+            rootFolder.mkdirs();
+            return;
+        }
+
+        plugin.getLogger().info("Loading items from folder '" + rootFolder.getName() + "'...");
+
+        int itemsLoaded = 0;
+        File[] files = rootFolder.listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (file.isDirectory()) loadItemsFromFolders(plugin, file, overwrite);
+            else {
+                loadItem(plugin, file, overwrite);
+                itemsLoaded ++;
+            }
+        }
+
+        plugin.getLogger().info("Loaded " + itemsLoaded + " items from folder " + rootFolder.getName());
+    }
+
+    private static void loadItem(CobaltPlugin plugin, File file, boolean overwrite) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        try {
+            yaml.load(file);
+        } catch (IOException | InvalidConfigurationException ex) {
+            ex.printStackTrace();
+        }
+
+        String internalName = yaml.getString("internal_name");
+        if (internalName == null) return;
+        ICustomItem loaded = getCustomItem(internalName);
+        if (loaded != null) {
+            if (overwrite) {
+                loaded.onDisable();
+            } else {
+                plugin.getLogger().warning("An item with the name '" + internalName + "' has already been registered, skipping");
+                return;
+            }
+        }
+        CobaltItem.Builder itemBuilder = new CobaltItem.Builder(internalName);
+
+        // Load item values
+
+        // Material
+        if (yaml.contains("material")) {
+            Material material = EnumUtils.findEnumInsensitiveCase(Material.class, yaml.getString("material"));
+            if (material != null) itemBuilder.material(material);
+        }
+
+        // Model data
+        if (yaml.contains("model_data")) itemBuilder.modelData(yaml.getInt("model_data"));
+
+        // Display name
+        if (yaml.contains("display_name")) itemBuilder.itemName(HexUtils.colorify(yaml.getString("display_name")));
+
+        // Rarity
+        if (yaml.contains("rarity")) { // TODO: Load from all plugins
+            IItemRarity rarity = getRarity(yaml.getString("rarity"));
+            if (rarity != null) itemBuilder.rarity(rarity);
+
+            // Rarity lore
+            if (yaml.contains("rarity_lore")) {
+                List<String> rarityLore = yaml.getStringList("rarity_lore");
+                List<Component> rarityLoreComponents = new ArrayList<>();
+                for (String s : rarityLore) rarityLoreComponents.add(Component.text(s).color(NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
+                itemBuilder.rarityLore(rarityLoreComponents.toArray(new Component[0]));
+            }
+        }
+
+        // Item category
+        if (yaml.contains("category")) { // TODO: Load from all plugins
+            IItemCategory category = getCategory(yaml.getString("category"));
+            if (category != null) itemBuilder.category(category);
+        }
+
+        // Enchantments
+        if (yaml.contains("enchantments")) {
+            List<Map<?, ?>> mapList = yaml.getMapList("enchantments");
+
+            List<EnchantmentWrapper> enchantments = new ArrayList<>();
+
+            for (Map<?, ?> map : mapList) {
+                map.keySet().forEach(k -> {
+                    Map<?, ?> values = (Map<?, ?>) map.get(k);
+
+                    String name = (String) k;
+                    int level = (int) values.get("level");
+                    boolean ignoreLevelRestriction = false;
+                    if (values.get("ignore_level_restrictions") != null) ignoreLevelRestriction = (boolean) values.get("ignore_level_restrictions");
+
+                    EnchantmentWrapper wrapper = EnchantmentManager.getEnchantment(name, level, ignoreLevelRestriction);
+                    if (wrapper != null) enchantments.add(wrapper);
+                });
+            }
+
+            itemBuilder.enchantments(enchantments.toArray(new EnchantmentWrapper[0]));
+        }
+
+        // Extra lore
+        if (yaml.contains("extra_lore")) {
+            List<String> extraLore = yaml.getStringList("extra_lore");
+            itemBuilder.extraLore(extraLore.toArray(new String[0]));
+        }
+
+        // Attributes
+        if (yaml.contains("attributes")) {
+            List<Map<?, ?>> mapList = yaml.getMapList("attributes");
+
+            for (Map<?, ?> map : mapList) {
+                map.keySet().forEach(k -> {
+                    Map<?, ?> values = (Map<?, ?>) map.get(k);
+
+                    Attribute attribute = EnumUtils.findEnumInsensitiveCase(Attribute.class, (String) k);
+                    double amount = (double) values.get("amount");
+                    AttributeModifier.Operation operation = EnumUtils.findEnumInsensitiveCase(AttributeModifier.Operation.class, (String) values.get("operation"));
+                    List<String> equipmentSlots = (List<String>) values.get("equipment_slots");
+
+                    for (String s : equipmentSlots) {
+                        itemBuilder.attribute(attribute, new AttributeModifier(UUID.randomUUID(), internalName + "_modifier", amount, operation, EnumUtils.findEnumInsensitiveCase(EquipmentSlot.class, s)));
+                    }
+                });
+            }
+        }
+
+        // Tags // TODO
+
+        // Extra meta editors
+        itemBuilder.editMeta(meta -> {
+
+            // Repairable
+            if (meta instanceof Repairable repairable) {
+                if (yaml.contains("repair_cost")) repairable.setRepairCost(yaml.getInt("repair_cost"));
+            }
+
+            // Book
+            if (meta instanceof BookMeta bookMeta) {
+                if (yaml.contains("book_author")) bookMeta.setAuthor(yaml.getString("book_author"));
+                if (yaml.contains("book_generation")) bookMeta.setGeneration(EnumUtils.findEnumInsensitiveCase(BookMeta.Generation.class, yaml.getString("book_generation")));
+                if (yaml.contains("book_title")) bookMeta.setTitle(yaml.getString("book_title"));
+                if (yaml.contains("book_text")) {
+                    List<String> text = yaml.getStringList("book_text");
+                    for (String s : text) bookMeta.addPage(HexUtils.colorify(s));
+                }
+            }
+
+            // Leather Armor
+            if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
+                if (yaml.contains("leather_armor_color")) {
+                    leatherArmorMeta.setColor(ColorUtil.hex2Rgb(yaml.getString("leather_armor_color")));
+                    leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
+                }
+            }
+
+            // Item Flags
+            if (yaml.contains("flags")) {
+                List<?> flags = yaml.getList("flags");
+                if (flags != null) {
+                    flags.forEach(f -> {
+                        meta.addItemFlags(EnumUtils.findEnumInsensitiveCase(ItemFlag.class, (String) f));
+                    });
+                }
+            }
+
+            // Misc
+            if (yaml.contains("unbreakable")) meta.setUnbreakable(yaml.getBoolean("unbreakable"));
+
+            return meta;
+        });
+
+        // Item Components
+        if (yaml.contains("components")) {
+            List<Map<?, ?>> mapList = yaml.getMapList("components");
+
+            for (Map<?, ?> map : mapList) {
+                map.keySet().forEach(k -> {
+                    String internalComponentName = (String) k;
+                    // IItemComponent component = getComponent(internalComponentName, (Map<?, ?>) map.get(k));
+                    IItemComponent component = ComponentManager.getComponent(internalComponentName, (Map<?, ?>) map.get(k), internalName);
+                    if (component != null) itemBuilder.component(component);
+                });
+            }
+        }
+
+        // Register item
+        register(itemBuilder.build());
+
+        RecipeManager.loadRecipesFromFile(file, internalName);
+
+        // plugin.getLogger().info("Loaded item from file '" + file.getName() + "'");
+    }
+
     // ----- RELOADING / DISABLING -----
+
+    public static void reloadItems() {
+        for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) loadItemFiles(plugin, true);
+    }
 
     @Override
     public void reload() {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
+
+        loadItemFiles(CobaltCore.getInstance(), false);
+
+        // Runnable
+        Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                ICustomItem[] items = getPlayerHeldCustomItem(p);
+                if (items[0] != null) items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND);
+                if (items[1] != null) items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND);
+
+                for (ICustomItem item : getPlayerCustomItems(p))
+                    if (item != null)
+                        item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
+            }
+        }, 0, 1);
     }
 
     @Override
     public void disable() {
 
+    }
+
+    // ----- EVENTS -----
+
+    @EventHandler
+    public void inventoryEvent(PlayerItemHeldEvent event) {
+        ItemUtil.fixItems(event.getPlayer().getInventory());
+    }
+
+    @EventHandler
+    public void chestOpenEvent(PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Block block = event.getClickedBlock();
+            if (block.getState() instanceof Container container) ItemUtil.fixItems(container);
+        }
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----
