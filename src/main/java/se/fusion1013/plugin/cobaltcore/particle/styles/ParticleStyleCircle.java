@@ -8,6 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.animated.AnimatedDouble;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -19,8 +20,8 @@ public class ParticleStyleCircle extends ParticleStyle {
 
     // ----- VARIABLES -----
 
-    double radius;
-    int iterations;
+    private AnimatedDouble radius;
+    private int iterations;
 
     // ----- CONSTRUCTORS -----
 
@@ -54,7 +55,7 @@ public class ParticleStyleCircle extends ParticleStyle {
     @Override
     public void setExtraSetting(String key, Object value) {
         switch (key) {
-            case "radius" -> radius = (double) value;
+            case "radius" -> radius = new AnimatedDouble((double) value, (double) value, 0, false);
             case "iterations" -> iterations = (int) value;
         }
     }
@@ -73,14 +74,14 @@ public class ParticleStyleCircle extends ParticleStyle {
     public void setExtraSettings(Object[] args) {
         super.setExtraSettings(args);
 
-        radius = (double) args[0];
+        radius = new AnimatedDouble((double) args[0], (double) args[0], 0, false);
         iterations = (int) args[1];
     }
 
     @Override
     public String getExtraSettings() {
         JsonObject jo = new JsonObject();
-        jo.addProperty("radius", radius);
+        jo.addProperty("radius", radius.getStartValue());
         jo.addProperty("iterations", iterations);
         return jo.toString();
     }
@@ -88,7 +89,7 @@ public class ParticleStyleCircle extends ParticleStyle {
     @Override
     public void setExtraSettings(String extra) {
         JsonObject jo = new Gson().fromJson(extra, JsonObject.class);
-        radius = jo.get("radius").getAsDouble();
+        radius = new AnimatedDouble(jo.get("radius").getAsDouble(), jo.get("radius").getAsDouble(), 0, false);
         iterations = jo.get("iterations").getAsInt();
     }
 
@@ -100,8 +101,8 @@ public class ParticleStyleCircle extends ParticleStyle {
 
         for (int i = 0; i < iterations; i++) {
             double angle = ((Math.PI * 2) / iterations) * i;
-            double x = Math.cos(angle)*radius;
-            double z = Math.sin(angle)*radius;
+            double x = Math.cos(angle)*radius.getValue();
+            double z = Math.sin(angle)*radius.getValue();
 
             particleContainers.add(new ParticleContainer(location.clone().add(x, 0, z), offset.getX(), offset.getY(), offset.getZ(), speed, count));
         }
@@ -118,7 +119,7 @@ public class ParticleStyleCircle extends ParticleStyle {
 
     public static class ParticleStyleCircleBuilder extends ParticleStyleBuilder<ParticleStyleCircle, ParticleStyleCircle.ParticleStyleCircleBuilder> {
 
-        double radius = 1;
+        AnimatedDouble radius = new AnimatedDouble(1, 1, 0, false);
         int iterations = 16;
 
         public ParticleStyleCircleBuilder() {
@@ -142,6 +143,11 @@ public class ParticleStyleCircle extends ParticleStyle {
         protected ParticleStyleCircle.ParticleStyleCircleBuilder getThis() { return this; }
 
         public ParticleStyleCircleBuilder setRadius(double radius) {
+            this.radius = new AnimatedDouble(radius, radius, 0, false);
+            return getThis();
+        }
+
+        public ParticleStyleCircleBuilder setRadius(AnimatedDouble radius) {
             this.radius = radius;
             return getThis();
         }
@@ -156,7 +162,7 @@ public class ParticleStyleCircle extends ParticleStyle {
     // ----- GETTERS / SETTERS -----
 
     public void setRadius(double radius) {
-        this.radius = radius;
+        this.radius = new AnimatedDouble(radius, radius, 0, false);
     }
 
     public void setIterations(int iterations) {
@@ -164,7 +170,7 @@ public class ParticleStyleCircle extends ParticleStyle {
     }
 
     public double getRadius() {
-        return radius;
+        return radius.getValue();
     }
 
     public int getIterations() {
