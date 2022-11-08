@@ -28,7 +28,7 @@
   <p align="center">
     The core plugin for all Cobalt plugins!
     <br />
-    <a href="https://github.com/Fusion1013/CobaltCore"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/Fusion1013/CobaltCore/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/Fusion1013/CobaltCore/wiki">Wiki</a>
