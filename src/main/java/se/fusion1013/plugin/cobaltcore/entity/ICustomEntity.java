@@ -31,7 +31,7 @@ public interface ICustomEntity {
 
     Location getLocation();
 
-    void onDeath();
+    void onDeath(Location location, Entity dyingEntity);
 
     void despawn();
 
