@@ -1,5 +1,8 @@
 package se.fusion1013.plugin.cobaltcore.item;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
@@ -11,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -186,7 +190,18 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
             // Metadata
             meta.setDisplayName(customName);
-            meta.setLore(lore);
+
+            // Append lore
+            List<Component> loreComponents = new ArrayList<>();
+            for (String loreLine : lore) {
+                loreComponents.add(Component.text(loreLine));
+            }
+            if (itemCategory != null) {
+                loreComponents.add(Component.text(""));
+                loreComponents.add(itemCategory.getFormattedName().color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false));
+            }
+            meta.lore(loreComponents);
+            // meta.setLore(lore);
             meta.setCustomModelData(customModel);
 
             // Persistent Data
@@ -195,6 +210,10 @@ public abstract class AbstractCustomItem implements ICustomItem {
 
             // Custom Item Editor Function
             if (metaEditor != null) meta = metaEditor.editMeta(meta);
+
+            // TODO: ONLY FOR TESTING :: WILL OVERRIDE ALL ITEM TEXTURES
+            // is.setType(Material.CLOCK);
+            // meta.setCustomModelData(1);
 
             is.setItemMeta(meta);
         }
