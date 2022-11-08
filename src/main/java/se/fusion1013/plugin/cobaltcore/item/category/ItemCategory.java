@@ -1,6 +1,12 @@
 package se.fusion1013.plugin.cobaltcore.item.category;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.util.BlockUtil;
 import se.fusion1013.plugin.cobaltcore.util.HexUtils;
 
 public enum ItemCategory implements IItemCategory {
@@ -16,18 +22,34 @@ public enum ItemCategory implements IItemCategory {
     final String internalName;
     final String name;
     final String description;
-    final Material boxMaterial;
 
-    ItemCategory(String internalName, String name, String description, Material boxMaterial) {
+    // -- COLOR
+    NamedTextColor color;
+    String colorFormatString;
+
+    ItemCategory(String internalName, String name, String description, NamedTextColor color) {
         this.internalName = internalName;
         this.name = name;
         this.description = description;
-        this.boxMaterial = boxMaterial;
+        this.color = color;
+    }
+
+    ItemCategory(String internalName, String name, String description, String colorFormatString) {
+        this.internalName = internalName;
+        this.name = name;
+        this.description = description;
+        this.colorFormatString = colorFormatString;
     }
 
     @Override
-    public String getName() {
-        return HexUtils.colorify(name);
+    public Component getFormattedName() {
+        if (color != null) return Component.text(name).color(color).decoration(TextDecoration.ITALIC, false);
+        else return Component.text(HexUtils.colorify(colorFormatString + name)).decoration(TextDecoration.ITALIC, false);
+    }
+
+    @Override
+    public NamespacedKey getNamespacedKey() {
+        return new NamespacedKey(CobaltCore.getInstance(), "item_category." + internalName);
     }
 
     @Override
@@ -42,8 +64,6 @@ public enum ItemCategory implements IItemCategory {
 
     @Override
     public Material getBoxMaterial() {
-        return boxMaterial;
+        return BlockUtil.getColoredShulkerBox(color);
     }
-
-
 }
