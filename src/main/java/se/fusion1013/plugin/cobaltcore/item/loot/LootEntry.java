@@ -39,7 +39,9 @@ public class LootEntry { // TODO: Incorporate Loot Functions
         if (countMin == countMax || countMax < countMin) {
             stack.setAmount(countMin);
         } else {
-            stack.setAmount(r.nextInt(countMin, countMax));
+            int count = r.nextInt(countMin, countMax);
+            if (count <= 0) return null;
+            stack.setAmount(count);
         }
 
         // Enchantment
