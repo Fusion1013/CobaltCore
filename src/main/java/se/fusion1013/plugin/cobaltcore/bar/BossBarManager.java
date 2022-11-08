@@ -1,5 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.bar;
 
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -23,7 +24,7 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
 
     // ----- VARIABLES -----
 
-    private static Map<String, CustomBossBar> bossBarMap = new HashMap<>(); // Stores custom boss bars.
+    private static final Map<String, CustomBossBar> BOSS_BAR_MAP = new HashMap<>(); // Stores custom boss bars.
 
     // ----- CONSTRUCTORS -----
     
@@ -35,19 +36,19 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
     // ----- BOSS BAR UPDATING -----
 
     private void updateBossBars() {
-        for (String id : bossBarMap.keySet()) {
-            CustomBossBar bossBar = bossBarMap.get(id);
+        for (String id : BOSS_BAR_MAP.keySet()) {
+            CustomBossBar bossBar = BOSS_BAR_MAP.get(id);
             bossBar.update();
 
-            if (!bossBar.isValid()) bossBarMap.remove(id);
+            if (!bossBar.isValid()) BOSS_BAR_MAP.remove(id);
         }
     }
 
     private void removeBossBars() {
-        for (String id : bossBarMap.keySet()) {
-            CustomBossBar bossBar = bossBarMap.get(id);
+        for (String id : BOSS_BAR_MAP.keySet()) {
+            CustomBossBar bossBar = BOSS_BAR_MAP.get(id);
             bossBar.remove();
-            bossBarMap.remove(id);
+            BOSS_BAR_MAP.remove(id);
         }
     }
 
@@ -79,11 +80,11 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
      * @return the result of the operation.
      */
     @CommandHandler(
-            parameterNames = {"identifier", "owner", "title", "color", "style"},
-            overrideTypes = {CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.TEXT, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE}
+            parameterNames = {"identifier", "owner", "title", "color", "style","animation_speed"},
+            overrideTypes = {CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.TEXT, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE}
     )
-    public static CommandResult create(String identifier, Entity owner, String title, BarColor color, BarStyle style) {
-        return create(identifier, owner, title, color, style, -1);
+    public static CommandResult createBossBar(String identifier, Entity owner, String title, BossBar.Color color, BossBar.Overlay style, double animationSpeed) {
+        return createBossBar(identifier, owner, title, color, style, animationSpeed, -1);
     }
 
     /**
@@ -98,23 +99,24 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
      * @return the result of the operation.
      */
     @CommandHandler(
-            parameterNames = {"identifier", "owner", "title", "color", "style", "activationRange"}
+            parameterNames = {"identifier", "owner", "title", "color", "style", "animation_speed", "activationRange"},
+            overrideTypes = {CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.TEXT, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE, CommandHandler.ParameterType.NONE}
     )
-    public static CommandResult create(String identifier, Entity owner, String title, BarColor color, BarStyle style, double activationRange) {
+    public static CommandResult createBossBar(String identifier, Entity owner, String title, BossBar.Color color, BossBar.Overlay style, double animationSpeed, double activationRange) {
         CommandResult result = CommandResult.CREATED;
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("id", identifier)
                 .build();
 
-        if (bossBarMap.get(identifier) != null) {
+        if (BOSS_BAR_MAP.get(identifier) != null) {
             result = CommandResult.FAILED;
             result.setDescription(LocaleManager.getInstance().getLocaleMessage("bossbar.id_already_exists", placeholders));
             return result;
         }
 
-        CustomBossBar bossBar = new CustomBossBar(owner, title, color, style, activationRange);
-        bossBarMap.put(identifier, bossBar);
+        CustomBossBar bossBar = new CustomBossBar(owner, title, color, style, animationSpeed, activationRange);
+        BOSS_BAR_MAP.put(identifier, bossBar);
 
         result.setDescription(LocaleManager.getInstance().getLocaleMessage("bossbar.create", placeholders));
         return result;
@@ -138,7 +140,7 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
                 .addPlaceholder("id", identifier)
                 .build();
 
-        CustomBossBar bossBar = bossBarMap.get(identifier);
+        CustomBossBar bossBar = BOSS_BAR_MAP.get(identifier);
 
         if (bossBar == null) {
             result = CommandResult.FAILED;
@@ -147,7 +149,7 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
         }
 
         bossBar.remove();
-        bossBarMap.remove(identifier);
+        BOSS_BAR_MAP.remove(identifier);
 
         result = CommandResult.DELETED;
         result.setDescription(LocaleManager.getInstance().getLocaleMessage("bossbar.delete", placeholders));
@@ -157,13 +159,13 @@ public class BossBarManager extends Manager implements Runnable, CommandExecutor
     // ----- GETTERS / SETTERS -----
 
     public static String[] getBossBarNames() {
-        return bossBarMap.keySet().toArray(new String[0]);
+        return BOSS_BAR_MAP.keySet().toArray(new String[0]);
     }
 
     public String[] getListInfo() {
         List<String> info = new ArrayList<>();
-        for (String id : bossBarMap.keySet()) {
-            CustomBossBar bossBar = bossBarMap.get(id);
+        for (String id : BOSS_BAR_MAP.keySet()) {
+            CustomBossBar bossBar = BOSS_BAR_MAP.get(id);
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("id", id)
                     .addPlaceholder("owner", bossBar.getOwner().getName())
