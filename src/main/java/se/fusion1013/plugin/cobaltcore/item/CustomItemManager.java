@@ -1,28 +1,47 @@
 package se.fusion1013.plugin.cobaltcore.item;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.block.Container;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.Vector;
+import org.bukkit.inventory.meta.*;
+import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
+import se.fusion1013.plugin.cobaltcore.event.PlayerHeldItemTickEvent;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.components.ActionbarComponent;
+import se.fusion1013.plugin.cobaltcore.item.components.ChargeComponent;
+import se.fusion1013.plugin.cobaltcore.item.components.ComponentManager;
+import se.fusion1013.plugin.cobaltcore.item.components.IItemComponent;
+import se.fusion1013.plugin.cobaltcore.item.crafting.RecipeManager;
+import se.fusion1013.plugin.cobaltcore.item.enchantment.CobaltEnchantment;
+import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
+import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentWrapper;
+import se.fusion1013.plugin.cobaltcore.item.system.CobaltItem;
+import se.fusion1013.plugin.cobaltcore.item.system.IItemRarity;
+import se.fusion1013.plugin.cobaltcore.item.system.ItemRarity;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
-import se.fusion1013.plugin.cobaltcore.util.Constants;
-import se.fusion1013.plugin.cobaltcore.util.PlayerUtil;
+import se.fusion1013.plugin.cobaltcore.util.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class CustomItemManager extends Manager implements Listener {
@@ -30,8 +49,21 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- VARIABLES -----
 
     private static final Map<String, ItemStack> INBUILT_ITEMS = new HashMap<>(); // Holds all custom items ITEMSTACKS
-    private static final Map<String, CustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
-    private static final Map<IItemCategory, Map<String, CustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
+    private static final Map<String, ICustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
+    private static final Map<IItemCategory, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
+
+    private static final List<IItemCategory[]> REGISTERED_CATEGORIES = new ArrayList<>();
+    private static final List<IItemRarity[]> REGISTERED_RARITIES = new ArrayList<>();
+
+    private static final List<IItemComponent> REGISTERED_COMPONENTS = new ArrayList<>();
+
+    // ----- REGISTER HOLDERS -----
+
+    private static final Class<ItemRarity> ITEM_RARITY = registerRarity(ItemRarity.class);
+    private static final Class<ItemCategory> ITEM_CATEGORY = registerCategory(ItemCategory.class);
+
+    private static final IItemComponent ACTIONBAR_COMPONENT = registerComponent(new ActionbarComponent(""));
+    private static final IItemComponent CHARGE_COMPONENT = registerComponent(new ChargeComponent(""));
 
     // ----- ITEM REGISTERING -----
 
@@ -44,10 +76,13 @@ public class CustomItemManager extends Manager implements Listener {
                 PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
                 sneakEvent.getPlayer().sendMessage("U DO DE SNEAK");
             })
+            // Item Components
+            .component(new ActionbarComponent.Builder()
+                    .setActionbarComponent(Component.text("This is a test ab component")))
             .build());
 
     // Item used for testing the CustomBlock system.
-    public static final CustomItem MIXING_CAULDRON = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
+    public static final ICustomItem MIXING_CAULDRON = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
             .setCustomName(ChatColor.RESET + "Mixing Cauldron")
             .setCustomModel(10005)
             .build());
@@ -124,11 +159,46 @@ public class CustomItemManager extends Manager implements Listener {
      * @param item the <code>CustomItem</code> to register.
      * @return the <code>CustomItem</code>.
      */
-    public static CustomItem register(CustomItem item){
+    public static ICustomItem register(ICustomItem item){
         INBUILT_ITEMS.put(item.getInternalName(), item.getItemStack());
         INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
         ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
         return item;
+    }
+
+    public static IItemComponent registerComponent(IItemComponent component) {
+        REGISTERED_COMPONENTS.add(component);
+        return component;
+    }
+
+    /**
+     * Registers a new <code>IItemCategory</code>.
+     *
+     * @param category the <code>IItemCategory</code> to register.
+     * @return the <code>IItemCategory</code>.
+     */
+    public static <T extends Enum<T>> Class<T> registerCategory(Class<T> category) {
+        IItemCategory[] categories = new IItemCategory[category.getEnumConstants().length];
+        for (int i = 0; i < categories.length; i++) {
+            categories[i] = (IItemCategory) category.getEnumConstants()[i];
+        }
+        REGISTERED_CATEGORIES.add(categories);
+        return category;
+    }
+
+    /**
+     * Registers a new <code>IItemRarity</code>.
+     *
+     * @param rarity the <code>IItemRarity</code> to register.
+     * @return the <code>IItemRarity</code>.
+     */
+    public static <T extends Enum<T>> Class<T> registerRarity(Class<T> rarity) {
+        IItemRarity[] categories = new IItemRarity[rarity.getEnumConstants().length];
+        for (int i = 0; i < categories.length; i++) {
+            categories[i] = (IItemRarity) rarity.getEnumConstants()[i];
+        }
+        REGISTERED_RARITIES.add(categories);
+        return rarity;
     }
 
     // ----- GETTERS / SETTERS -----
