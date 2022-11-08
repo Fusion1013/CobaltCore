@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.world.protection;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.world.gamemode.GameMode;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flag;
@@ -55,7 +56,13 @@ public class WorldGuardManager extends Manager {
     public boolean isBlockBreakAllowed(Location location) {
         Set<ProtectedRegion> regions = getRegionSet(location).getRegions();
         for (ProtectedRegion region : regions) {
-            if (region.getFlag(Flags.BLOCK_BREAK).equals(StateFlag.State.DENY)) return false;
+            StateFlag.State blockBreakAllowed = region.getFlag(Flags.BLOCK_BREAK);
+            if (blockBreakAllowed == null) continue;
+            if (blockBreakAllowed.equals(StateFlag.State.DENY)) return false;
+
+            GameMode gameMode = region.getFlag(Flags.GAME_MODE);
+            if (gameMode == null) continue;
+            if (gameMode.getName().equalsIgnoreCase("adventure")) return false;
         }
         return true;
     }
