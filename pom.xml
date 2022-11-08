@@ -6,7 +6,7 @@
 
     <groupId>se.fusion1013.plugin</groupId>
     <artifactId>cobaltCore</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
     <!--<packaging>jar</packaging>-->
 
     <name>CobaltCore</name>
