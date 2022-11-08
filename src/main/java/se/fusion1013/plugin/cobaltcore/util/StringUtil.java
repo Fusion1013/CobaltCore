@@ -1,9 +1,38 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
+import se.fusion1013.plugin.cobaltcore.util.animation.EasingUtil;
+
 /**
  * Contains various utility methods for working with strings.
  */
 public class StringUtil {
+
+    // ----- ANIMATION -----
+
+    public static String shiftingGradient(String string, String gradientCode, int period, int tick) {
+        int gradientCenter = Math.round(EasingUtil.easeInOutSine(tick, 0, string.length(), period));
+        String shiftedString = HexUtils.colorify(gradientCode + string.substring(gradientCenter) + string.substring(0, gradientCenter));
+        int newGradientCenter = Math.round(EasingUtil.easeInOutSine(tick, 0, shiftedString.length(), period));
+        return shiftedString.substring(shiftedString.length() - newGradientCenter) + shiftedString.substring(0, shiftedString.length() - newGradientCenter);
+    }
+
+    public static String revealStringMiddleOut(String string, int period, int tick) {
+        int middlePoint = string.length() / 2;
+        int i = (int) EasingUtil.easeInOutSine(tick, 0, middlePoint, period);
+        return string.substring(middlePoint-i, middlePoint+i);
+    }
+
+    public static String revealStringRightLeft(String string, int period, int tick) {
+        int i = (int) EasingUtil.easeInOutSine(tick, 0, string.length(), period);
+        return string.substring(string.length() - i);
+    }
+
+    public static String revealStringLeftRight(String string, int period, int tick) {
+        int i = (int) EasingUtil.easeInOutSine(tick, 0, string.length(), period);
+        return string.substring(0, i);
+    }
+
+    // ----- COMPARISON -----
 
     /**
      * Checks whether the provided string is a word or not.
