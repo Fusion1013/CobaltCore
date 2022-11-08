@@ -1,7 +1,10 @@
 package se.fusion1013.plugin.cobaltcore.entity;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+
+import java.util.UUID;
 
 public interface ICustomEntity {
 
@@ -40,5 +43,7 @@ public interface ICustomEntity {
     String getInternalName();
 
     EntityType getBaseEntityType();
+
+    UUID getEntityUuid();
 
 }
