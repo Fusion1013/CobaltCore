@@ -102,7 +102,6 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
     // ----- ROTATING -----
 
-    // TODO: Test with glyphs
     public static ParticleContainer[] rotateParticles(ParticleContainer[] particles, Location center, Vector rotation) {
         for (ParticleContainer particleContainer : particles) {
             Vector current = particleContainer.getLocation().toVector();
