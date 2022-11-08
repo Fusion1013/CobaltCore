@@ -1,5 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.entity.modules.ability;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntity;
 import se.fusion1013.plugin.cobaltcore.entity.ISpawnParameters;
 
@@ -13,5 +15,7 @@ public interface IAbilityModule {
      * @return true if the ability was executed.
      */
     boolean attemptAbility(CustomEntity entity, ISpawnParameters spawnParameters);
+
+    default void onEntityDeath(CustomEntity entity, ISpawnParameters spawnParameters, Location location, Entity dyingEntity) {}
 
 }
