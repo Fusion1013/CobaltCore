@@ -68,11 +68,25 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- ITEM REGISTERING -----
 
     // Item used for testing the CustomItem system.
-    public static final CustomItem TEST_ITEM = register(new CustomItem.CustomItemBuilder("test_item", Material.DIRT, 1)
-            .setCustomName(ChatColor.RESET + "Test Item")
-            .addLoreLine("This item is only used to test the CustomItem system.")
-            .addShapedRecipe("-*-", "*%*", "-*-", new AbstractCustomItem.ShapedIngredient('*', Material.DIAMOND), new AbstractCustomItem.ShapedIngredient('%', Material.NETHER_STAR))
-            .addItemActivator(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event, slot) -> {
+    public static final ICustomItem TEST_ITEM = register(new CobaltItem.Builder("test_item")
+            .material(Material.CLOCK).modelData(10) // Item Visuals
+            .itemName(HexUtils.colorify("<r:0.8:1.0>Test Rainbow Item&3&o Not Rainbow")) // Item name
+            .enchantments(new EnchantmentWrapper(CobaltEnchantment.WITHER, 2, false)) // Enchantment
+            .rarity(ItemRarity.LEGENDARY) // Rarity
+            .rarityLore(HexUtils.colorify("&8This item has a pretty high rarity huh,"), HexUtils.colorify("&8it is almost like you should not have it!")) // Rarity lore
+            .extraLore(
+                    Component.text("This is some extra lore").color(NamedTextColor.DARK_GRAY),
+                    Component.text("This is more extra lore").color(NamedTextColor.DARK_GRAY),
+                    Component.text("[").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
+                            .append(Component.keybind("key.sneak").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
+                            .append(Component.text("]: Do thing").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false))
+            ) // Extra lore
+            .category(ItemCategory.TESTING) // Item category
+            .editMeta(meta -> { // Edit meta
+                meta.addEnchant(Enchantment.MENDING, 1, true);
+                return meta;
+            })
+            .itemActivatorAsync(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event, slot) -> {
                 PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
                 sneakEvent.getPlayer().sendMessage("U DO DE SNEAK");
             })
