@@ -233,7 +233,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @return an array of <code>CustomItem</code> names.
      */
     public static String[] getItemNamesInCategory(IItemCategory category) {
-        Map<String, CustomItem> items = ITEMS_SORTED_CATEGORY.get(category);
+        Map<String, ICustomItem> items = ITEMS_SORTED_CATEGORY.get(category);
         return items.keySet().toArray(new String[0]);
     }
 
@@ -301,7 +301,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @return the internal name of the item.
      */
     public static String getItemName(ItemStack stack) {
-        for (CustomItem i : INBUILT_CUSTOM_ITEMS.values()) {
+        for (ICustomItem i : INBUILT_CUSTOM_ITEMS.values()) {
             if (i.compareTo(stack)) return i.getInternalName();
         }
 
@@ -357,7 +357,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @param name the name of the item to get.
      * @return the <code>CustomItem</code>.
      */
-    public static CustomItem getCustomItem(String name) {
+    public static ICustomItem getCustomItem(String name) {
         return INBUILT_CUSTOM_ITEMS.get(name);
     }
 
@@ -383,6 +383,24 @@ public class CustomItemManager extends Manager implements Listener {
             names[i] = keys.get(i);
         }
         return names;
+    }
+
+    public static IItemRarity getRarity(String name) {
+        for (IItemRarity[] rarityHandlers : REGISTERED_RARITIES) {
+            for (IItemRarity rarity : rarityHandlers) {
+                if (rarity.getInternalName().equalsIgnoreCase(name)) return rarity;
+            }
+        }
+        return null;
+    }
+
+    public static IItemCategory getCategory(String name) {
+        for (IItemCategory[] categoryHandlers : REGISTERED_CATEGORIES) {
+            for (IItemCategory category : categoryHandlers) {
+                if (category.getInternalName().equalsIgnoreCase(name)) return category;
+            }
+        }
+        return null;
     }
 
     // ----- RELOADING / DISABLING -----
