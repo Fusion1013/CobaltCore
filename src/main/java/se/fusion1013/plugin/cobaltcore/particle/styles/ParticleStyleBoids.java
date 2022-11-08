@@ -31,6 +31,8 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
     private int alignmentCoefficient = 8;
     private double separationCoefficient = 10.0;
 
+    private int ignoreCount = 0;
+
     // ----- CONSTRUCTORS -----
 
     public ParticleStyleBoids() {
@@ -55,6 +57,8 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         this.cohesionCoefficient = target.cohesionCoefficient;
         this.alignmentCoefficient = target.alignmentCoefficient;
         this.separationCoefficient = target.separationCoefficient;
+
+        this.ignoreCount = target.ignoreCount;
     }
 
     // ----- PARTIClE GETTING -----
@@ -66,7 +70,11 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         boids.move(moveDistance, cohesionCoefficient, alignmentCoefficient, separationCoefficient);
         List<Vector> positions = boids.getPositions();
 
-        for (Vector position : positions) {
+        for (int i = 0; i < positions.size(); i++) {
+            if (i < ignoreCount) continue;
+
+            Vector position = positions.get(i);
+
             particles.add(new ParticleContainer(location.clone().add(
                     (position.data[0] / 100.0) - (width / 200.0),
                     (position.data[1] / 100.0) - (height / 200.0),
@@ -88,6 +96,8 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
     public List<String> getInfoStrings() {
         List<String> info = super.getInfoStrings();
 
+        // TODO
+
         LocaleManager locale = LocaleManager.getInstance();
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("move_distance", moveDistance/100.0)
@@ -98,6 +108,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
                 .addPlaceholder("width", width/100)
                 .addPlaceholder("height", height/100)
                 .addPlaceholder("depth", depth/100)
+                // TODO: Ignore count
                 .build();
         info.add(locale.getLocaleMessage("particle.style.boids.info.1", placeholders));
         info.add(locale.getLocaleMessage("particle.style.boids.info.2", placeholders));
@@ -134,6 +145,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
                 depth = (int) value * 100;
                 boids.zRes = depth;
             }
+            case "ignore_count" -> this.ignoreCount = (int) value;
         }
     }
 
@@ -147,7 +159,8 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
                 new IntegerArgument("amount"),
                 new IntegerArgument("width"),
                 new IntegerArgument("height"),
-                new IntegerArgument("depth")
+                new IntegerArgument("depth"),
+                new IntegerArgument("ignore_count")
         };
     }
 
@@ -163,6 +176,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         width = (int) args[5];
         height = (int) args[6];
         depth = (int) args[7];
+        ignoreCount = (int) args[8];
 
         boids = new Boids(amount, width, height, depth);
     }
@@ -178,6 +192,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         jo.addProperty("width", width);
         jo.addProperty("height", height);
         jo.addProperty("depth", depth);
+        jo.addProperty("ignore_count", ignoreCount);
         return jo.toString();
     }
 
@@ -192,6 +207,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         width = jsonObject.get("width").getAsInt();
         height = jsonObject.get("height").getAsInt();
         depth = jsonObject.get("depth").getAsInt();
+        if (jsonObject.get("ignore_count") != null) ignoreCount = jsonObject.get("ignore_count").getAsInt();
 
         boids = new Boids(amount, width, height, depth);
     }
@@ -209,6 +225,8 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
         private double cohesionCoefficient = 100.0;
         private int alignmentCoefficient = 8;
         private double separationCoefficient = 10.0;
+
+        private int ignoreCount = 0;
 
         public Builder() {
             super();
@@ -230,6 +248,7 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
             obj.cohesionCoefficient = cohesionCoefficient;
             obj.alignmentCoefficient = alignmentCoefficient;
             obj.separationCoefficient = separationCoefficient;
+            obj.ignoreCount = ignoreCount;
 
             obj.createBoids();
 
@@ -283,6 +302,11 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
 
         public Builder setSeparation(double separation) {
             this.separationCoefficient = separation;
+            return this;
+        }
+
+        public Builder setIgnoreCount(int ignoreCount) {
+            this.ignoreCount = ignoreCount;
             return this;
         }
     }
