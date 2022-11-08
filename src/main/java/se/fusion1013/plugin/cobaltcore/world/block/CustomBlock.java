@@ -10,18 +10,19 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.item.CustomItem;
+import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 
 public class CustomBlock {
 
     // ----- VARIABLES -----
 
     final String internalName;
-    final CustomItem blockItem;
+    final ICustomItem blockItem;
     final Material blockMaterial;
 
     // ----- CONSTRUCTORS -----
 
-    public CustomBlock(CustomItem blockItem, Material blockMaterial) {
+    public CustomBlock(ICustomItem blockItem, Material blockMaterial) {
         this.internalName = blockItem.getInternalName();
         this.blockItem = blockItem;
         this.blockMaterial = blockMaterial;
@@ -43,7 +44,7 @@ public class CustomBlock {
 
         // Place the "fake" block, and play a place sound
         location.getBlock().setType(blockMaterial);
-        world.playSound(location, location.getBlock().getSoundGroup().getPlaceSound(), 1, 1);
+        world.playSound(location, location.getBlock().getBlockSoundGroup().getPlaceSound(), 1, 1);
 
         // Create a new location at the center of the block to make sure the armor stand is centered
         return world.spawn(location.toBlockLocation().add(new Vector(.5, 0, .5)), ArmorStand.class, armorStand -> {
@@ -59,7 +60,7 @@ public class CustomBlock {
         return internalName;
     }
 
-    public CustomItem getBlockItem() {
+    public ICustomItem getBlockItem() {
         return blockItem;
     }
 
