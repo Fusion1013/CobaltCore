@@ -32,9 +32,10 @@
   "commands.cobalt.config.get": "&7Key &3%key% &7has value &3%value%",
   "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
   "commands.cobalt.update": "&7Pushed file &3%file% to the server",
+  "commands.cobalt.reload.items": "&7Reloaded all items",
 
 
-  "commands.setting.get": "&7Key &3%key% &7has value &3%value%",
+  "commands.setting.get": "&7Setting &3%key% &7has value &3%value%",
   "commands.setting.set.success": "&7Changed value of &3%key% &7from &3%old_value% &7to &3%value%",
   "commands.setting.set.fail": "&7Failed to change value of &3%key% &7from &3%old_value% &7to &3%value%",
 
