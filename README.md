@@ -74,7 +74,7 @@ CobaltCore contains a variety of helper methods and classes to aid during plugin
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Installation
-To start using Cobalt, download the jar and import it into your project. Make sure your main plugin class is implementing the `CobaltPlugin` interface.
+To start using Cobalt, download the jar and import it into your project. Make sure your main plugin class is implementing the `CobaltPlugin` interface
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
