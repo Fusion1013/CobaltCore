@@ -8,4 +8,8 @@ public interface IAction {
      * @return the internal name string.
      */
     String getInternalName();
+
+    void setExtraData(String key, Object data);
+
+    boolean isCancelAction();
 }

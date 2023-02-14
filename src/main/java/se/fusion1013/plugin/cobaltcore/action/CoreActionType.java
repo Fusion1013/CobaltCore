@@ -8,6 +8,7 @@ public enum CoreActionType implements IActionType {
     VelocityAction,
     AudioAction,
     ItemConsumeAction,
+    Damage,
 
     // -- Conditional Actions
     IsSneakingAction

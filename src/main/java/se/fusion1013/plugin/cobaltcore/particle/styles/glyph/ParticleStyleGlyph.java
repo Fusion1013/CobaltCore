@@ -37,6 +37,18 @@ public abstract class ParticleStyleGlyph extends ParticleStyle {
         super(internalStyleName, name);
     }
 
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("letter")) letter = data.get("letter").toString().charAt(0);
+        if (data.containsKey("compress")) compress = (double) data.get("compress");
+    }
+
+    //endregion
+
     // ----- INFO -----
 
     @Override

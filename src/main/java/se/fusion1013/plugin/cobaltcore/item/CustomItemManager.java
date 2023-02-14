@@ -96,9 +96,10 @@ public class CustomItemManager extends Manager implements Listener {
             .build());
 
     // Item used for testing the CustomBlock system.
-    public static final ICustomItem MIXING_CAULDRON = register(new CustomItem.CustomItemBuilder("test_block", Material.CLOCK, 1)
-            .setCustomName(ChatColor.RESET + "Mixing Cauldron")
-            .setCustomModel(10005)
+    public static final ICustomItem MIXING_CAULDRON = register(new CobaltItem.Builder("test_block")
+            .material(Material.CLOCK)
+            .itemName(ChatColor.RESET + "Mixing Cauldron")
+            .modelData(10005)
             .build());
 
     // ----- CONSTRUCTORS -----
@@ -114,15 +115,20 @@ public class CustomItemManager extends Manager implements Listener {
     /**
      * WARNING: STONECUTTING RECIPES MUST BE REGISTERED IN ALPHABETICAL ORDER
     */
+    /*
     public static StonecuttingRecipe addStoneCuttingRecipe(StonecuttingRecipe recipe) {
         CobaltCore.getInstance().getServer().addRecipe(recipe);
         return recipe;
     }
+     */
 
+    /*
     public static ShapedRecipe addShapedRecipe(ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
         return addShapedRecipe("internal", result, row1, row2, row3, ingredients);
     }
+    */
 
+    /*
     /**
      * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
      * @param result the <code>ItemStack</code> to add a recipe for.
@@ -132,6 +138,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @param ingredients recipe ingredients.
      * @return the recipe.
      */
+    /*
     public static ShapedRecipe addShapedRecipe(String recipeName, ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
         StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
         for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
@@ -143,17 +150,22 @@ public class CustomItemManager extends Manager implements Listener {
 
         return recipe;
     }
+     */
 
+    /*
     public static ShapelessRecipe addShapelessRecipe(ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
         return addShapelessRecipe("internal", result, ingredients);
     }
+     */
 
+    /*
     /**
      * Registers a new <code>ShapelessRecipe</code> for the given <code>ItemStack</code>.
      * @param result the <code>ItemStack</code> to add a recipe for.
      * @param ingredients recipe ingredients.
      * @return the recipe.
      */
+    /*
     public static ShapelessRecipe addShapelessRecipe(String recipeName, ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
         StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
         for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
@@ -164,6 +176,7 @@ public class CustomItemManager extends Manager implements Listener {
 
         return recipe;
     }
+     */
 
     // ----- REGISTER -----
 
@@ -410,19 +423,19 @@ public class CustomItemManager extends Manager implements Listener {
         File itemFolder = new File(dataFolder, "items/");
         loadItemsFromFolders(plugin, itemFolder, overwrite);
 
-        loadItemsFromResources();
+        loadItemsFromResources(plugin);
 
         CobaltCore.getInstance().getManager(CobaltCore.getInstance(), RecipeManager.class).registerRecipes();
     }
 
-    private static void loadItemsFromResources() {
+    private static void loadItemsFromResources(CobaltPlugin plugin) {
         // Load from resources
-        String[] itemFileNames = FileUtil.getResources(CobaltCore.class, "items");
+        String[] itemFileNames = FileUtil.getResources(plugin.getClass(), "items");
         for (String s : itemFileNames) {
-            File file = FileUtil.getOrCreateFileFromResource(CobaltCore.getInstance(), "items/" + s);
-            if (file.exists()) CobaltCore.getInstance().getLogger().info("Found item file: " + file.getAbsolutePath());
+            File file = FileUtil.getOrCreateFileFromResource(plugin, "items/" + s);
+            if (file.exists()) plugin.getLogger().info("Found item file: " + file.getAbsolutePath());
 
-            loadItem(CobaltCore.getInstance(), file, false);
+            loadItem(plugin, file, false);
         }
     }
 
@@ -631,7 +644,7 @@ public class CustomItemManager extends Manager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
 
-        loadItemFiles(CobaltCore.getInstance(), false);
+        // loadItemFiles(CobaltCore.getInstance(), false);
 
         // Runnable
         Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {

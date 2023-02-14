@@ -26,4 +26,6 @@ public interface CobaltPlugin extends Plugin {
     default void postInit() {}
 
     default String getPrefix() { return "prefix.core"; }
+
+    String getInternalName();
 }

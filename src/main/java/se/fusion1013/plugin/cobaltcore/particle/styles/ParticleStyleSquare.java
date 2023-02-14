@@ -9,12 +9,14 @@ import org.apache.maven.model.Build;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.animated.AnimatedDouble;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleSquare extends ParticleStyle {
 
@@ -36,6 +38,18 @@ public class ParticleStyleSquare extends ParticleStyle {
     public ParticleStyleSquare(String name) {
         super("square", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("radius")) radius = (double) data.get("radius");
+        if (data.containsKey("iterations")) iterations = (int) data.get("iterations");
+    }
+
+    //endregion
 
     // ----- INFO -----
 

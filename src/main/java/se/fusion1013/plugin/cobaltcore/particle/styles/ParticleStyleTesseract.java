@@ -15,6 +15,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleTesseract extends ParticleStyle {
 
@@ -40,6 +41,28 @@ public class ParticleStyleTesseract extends ParticleStyle {
     public ParticleStyleTesseract(String name) {
         super("tesseract", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("rx")) rx = (double) data.get("rx");
+        if (data.containsKey("ry")) ry = (double) data.get("ry");
+        if (data.containsKey("rz")) rz = (double) data.get("rz");
+        if (data.containsKey("rw")) rw = (double) data.get("rw");
+
+        if (data.containsKey("dx")) dx = (double) data.get("dx");
+        if (data.containsKey("dy")) dy = (double) data.get("dy");
+        if (data.containsKey("dz")) dz = (double) data.get("dz");
+        if (data.containsKey("dw")) dw = (double) data.get("dw");
+
+        if (data.containsKey("density")) density = (int) data.get("density");
+        if (data.containsKey("width")) width = (int) data.get("width");
+    }
+
+    //endregion
 
     // ----- INFO -----
 

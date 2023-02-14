@@ -1,9 +1,12 @@
 package se.fusion1013.plugin.cobaltcore.particle.styles;
 
 import dev.jorel.commandapi.arguments.Argument;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import org.yaml.snakeyaml.util.EnumUtils;
+import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -11,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
@@ -99,6 +103,40 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.skipTicks = target.skipTicks;
         this.tick = target.tick;
     }
+
+    //region DATA_LOADING
+
+    public void loadData(Map<?, ?> data) {
+        if (data.containsKey("particle")) particle = EnumUtils.findEnumInsensitiveCase(Particle.class, (String) data.get("particle"));
+
+        if (offset == null) offset = new Vector();
+        if (data.containsKey("offset_x")) offset.setX((double) data.get("offset_x"));
+        if (data.containsKey("offset_y")) offset.setY((double) data.get("offset_y"));
+        if (data.containsKey("offset_z")) offset.setZ((double) data.get("offset_z"));
+
+        if (data.containsKey("count")) count = (int) data.get("count");
+        if (data.containsKey("speed")) speed = (double) data.get("speed");
+
+        if (data.containsKey("skip_ticks")) skipTicks = (int) data.get("skip_ticks");
+
+        // -- Extra particle data
+        if (data.containsKey("dust_transition")) {
+            Map<?, ?> dustData = (Map<?, ?>) data.get("dust_transition");
+
+            int r1 = (int) dustData.get("r1");
+            int g1 = (int) dustData.get("g1");
+            int b1 = (int) dustData.get("b1");
+            int r2 = (int) dustData.get("r2");
+            int g2 = (int) dustData.get("g2");
+            int b2 = (int) dustData.get("b2");
+
+            int size = (int) dustData.get("size");
+
+            extra = new Particle.DustTransition(Color.fromBGR(r1, g1, b1), Color.fromRGB(r2, g2, b2), size);
+        }
+    }
+
+    //endregion
 
     // ----- ROTATING -----
 

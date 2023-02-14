@@ -17,11 +17,22 @@ public class ComponentManager extends Manager {
     private static final List<IComponentFactory> REGISTERED_FACTORIES = new ArrayList<>();
     private static final IComponentFactory CORE_FACTORY = registerFactory(new CoreComponentFactory());
 
+    // -- Registry
+    private static final List<IItemComponent> REGISTERED_COMPONENTS = new ArrayList<>();
+
+    private static final IItemComponent ACTIONBAR_COMPONENT = registerComponent(new ActionbarComponent(""));
+    private static final IItemComponent CHARGE_COMPONENT = registerComponent(new ChargeComponent(""));
+
     // ----- REGISTER -----
 
     public static IComponentFactory registerFactory(IComponentFactory factory) {
         REGISTERED_FACTORIES.add(factory);
         return factory;
+    }
+
+    public static IItemComponent registerComponent(IItemComponent component) {
+        REGISTERED_COMPONENTS.add(component);
+        return component;
     }
 
     // ----- GETTERS / SETTERS -----

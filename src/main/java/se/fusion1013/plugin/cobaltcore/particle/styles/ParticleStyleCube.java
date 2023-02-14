@@ -8,6 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
+import se.fusion1013.plugin.cobaltcore.animated.AnimatedDouble;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
@@ -15,6 +16,7 @@ import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
 
@@ -38,6 +40,18 @@ public class ParticleStyleCube extends ParticleStyle implements IParticleStyle {
     public ParticleStyleCube(String name) {
         super("cube", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("edge_length")) edgeLength = (double) data.get("edge_length");
+        if (data.containsKey("particles_per_edge")) particlesPerEdge = (int) data.get("particles_per_edge");
+    }
+
+    //endregion
 
     // ----- INFO -----
 

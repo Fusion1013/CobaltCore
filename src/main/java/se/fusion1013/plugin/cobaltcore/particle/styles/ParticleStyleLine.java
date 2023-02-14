@@ -14,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleLine extends ParticleStyle {
 
@@ -35,6 +36,19 @@ public class ParticleStyleLine extends ParticleStyle {
     public ParticleStyleLine(String name) {
         super("line", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("density")) density = (int) data.get("density");
+        // TODO: Location 2:
+        // TODO: - Should support both relative & absolute locations
+    }
+
+    //endregion
 
     // ----- INFO -----
 

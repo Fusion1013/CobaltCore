@@ -14,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle, Cloneable {
 
@@ -60,6 +61,27 @@ public class ParticleStyleBoids extends ParticleStyle implements IParticleStyle,
 
         this.ignoreCount = target.ignoreCount;
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("amount")) amount = (int) data.get("amount");
+        if (data.containsKey("width")) width = (int) data.get("width");
+        if (data.containsKey("height")) height = (int) data.get("height");
+        if (data.containsKey("depth")) depth = (int) data.get("depth");
+
+        if (data.containsKey("move_distance")) moveDistance = (int) data.get("move_distance");
+        if (data.containsKey("cohesion")) cohesionCoefficient = (int) data.get("cohesion");
+        if (data.containsKey("alignment")) alignmentCoefficient = (int) data.get("alignment");
+        if (data.containsKey("separation")) separationCoefficient = (int) data.get("separation");
+
+        if (data.containsKey("ignore_count")) ignoreCount = (int) data.get("ignore_count");
+    }
+
+    //endregion
 
     // ----- PARTIClE GETTING -----
 

@@ -11,10 +11,13 @@ import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RecipeManager extends Manager {
+
+    private static final Map<String, Map<String, ICobaltRecipe>> CUSTOM_RECIPES = new HashMap<>();
 
     private static final List<IRecipeWrapper> WRAPPERS_TO_PROCESS = new ArrayList<>();
     private static final List<IRecipeWrapper> REGISTERED_WRAPPERS = new ArrayList<>();
@@ -27,7 +30,7 @@ public class RecipeManager extends Manager {
         WRAPPERS_TO_PROCESS.add(wrapper);
     }
 
-    // ----- REGISTER -----
+    //region REGISTER
 
     private static final IRecipeWrapper SHAPED_WRAPPER = registerWrapper(new ShapedRecipeWrapper(null, null));
     private static final IRecipeWrapper SHAPELESS_WRAPPER = registerWrapper(new ShapelessRecipeWrapper(null, null));
@@ -54,7 +57,13 @@ public class RecipeManager extends Manager {
         return wrapper;
     }
 
-    // ----- RECIPE LOADING -----
+    public static ICobaltRecipe registerCobaltRecipe(ICobaltRecipe recipe) {
+        return CUSTOM_RECIPES.computeIfAbsent(recipe.getRecipeType(), k -> new HashMap<>()).put(recipe.getInternalName(), recipe);
+    }
+
+    //endregion
+
+    //region RECIPE_LOADING
 
     /**
      * Attempts to load all recipes from a <code>File</code>.
@@ -157,6 +166,16 @@ public class RecipeManager extends Manager {
             }
         }
     }
+
+    //endregion
+
+    //region GETTERS/SETTERS
+
+    public static Map<String, ICobaltRecipe> getRecipesOfType(String type) {
+        return CUSTOM_RECIPES.get(type);
+    }
+
+    //endregion
 
     @Override
     public void reload() {

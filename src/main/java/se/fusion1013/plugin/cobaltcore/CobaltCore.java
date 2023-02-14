@@ -8,6 +8,7 @@ import se.fusion1013.plugin.cobaltcore.bar.actionbar.ActionBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CobaltSummonCommand;
 import se.fusion1013.plugin.cobaltcore.commands.CommandGenerator;
+import se.fusion1013.plugin.cobaltcore.commands.advancement.AdvancementCommand;
 import se.fusion1013.plugin.cobaltcore.commands.particle.MainParticleCommand;
 import se.fusion1013.plugin.cobaltcore.commands.settings.SettingCommand;
 import se.fusion1013.plugin.cobaltcore.commands.spawner.SpawnerCommand;
@@ -210,6 +211,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         long time = System.currentTimeMillis();
         if (this.managers.get(plugin) != null) this.managers.get(plugin).values().forEach(Manager::disable);
         plugin.getLogger().info("Disabled managers in " + (System.currentTimeMillis() - time) + "ms");
+        cobaltPlugins.remove(plugin);
     }
 
     public boolean registerCobaltPlugin(CobaltPlugin plugin) {
@@ -243,6 +245,14 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             plugin.reloadManagers();
             plugin.getLogger().info("Reloaded managers in " + (System.currentTimeMillis() - time) + "ms");
 
+            // Load custom items
+            // NOTE: Must be run after manager registration. Otherwise, item components do not work
+            CustomItemManager.loadItemFiles(plugin, false);
+
+            // Load custom advancements
+            CobaltAdvancementManager.loadAdvancementFiles(plugin, false);
+            AdvancementCommand.register();
+
             // Registers all Commands
             time = System.currentTimeMillis();
             plugin.registerCommands();
@@ -252,9 +262,6 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
             time = System.currentTimeMillis();
             plugin.registerListeners();
             plugin.getLogger().info("Registered Listeners in " + (System.currentTimeMillis() - time) + "ms");
-
-            // Load custom items
-            CustomItemManager.loadItemFiles(plugin, false);
 
             // Post Init
             plugin.postInit();
@@ -291,6 +298,11 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     public static CobaltCore getPlugin() {
         return (CobaltCore) getProvidingPlugin(CobaltCore.class);
+    }
+
+    @Override
+    public String getInternalName() {
+        return "cobalt_core";
     }
 
     /**

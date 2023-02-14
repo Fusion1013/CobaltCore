@@ -39,6 +39,9 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     private final String internalName; // Should be unique to every item. Used to generate the NamespacedKey
     private final NamespacedKey key; // Unique for each item. Generated using the internal name
 
+    // -- GENERIC
+    protected int amount = 1;
+
     // -- ITEM VISUALS
     protected Material material = Material.CLOCK;
     protected int modelData = 0;
@@ -109,7 +112,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     @Override
     public ItemStack getItemStack() {
         // TODO: Lore strings should automatically get put into new lines based on the length of the strings
-        ItemStack stack = new ItemStack(material);
+        ItemStack stack = new ItemStack(material, amount);
 
         // -- ENCHANTMENTS // NOTE: Must be set before getting item meta from itemstack
         for (EnchantmentWrapper wrapper : enchantmentWrappers) stack = wrapper.add(stack); // TODO: If there is a high number of enchantments, add them in a compact list in the lore (like hypixel)
@@ -129,7 +132,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // -- ITEM COMPONENT LORE
         itemComponents.values().forEach(k -> lore.addAll(k.getLore()));
-        for (IItemComponent component : itemComponents.values()) component.onItemConstruction(stack, meta);
+        for (IItemComponent component : itemComponents.values()) component.onItemConstruction(stack, meta, persistentDataContainer);
 
         // -- RARITY
         if (rarity != ItemRarity.NONE) {
@@ -273,6 +276,13 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         public B modelData(int modelData) {
             obj.modelData = modelData;
+            return getThis();
+        }
+
+        // -- GENERIC
+
+        public B amount(int amount) {
+            obj.amount = amount;
             return getThis();
         }
 

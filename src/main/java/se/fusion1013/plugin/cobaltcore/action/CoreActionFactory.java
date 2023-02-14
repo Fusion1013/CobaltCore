@@ -14,6 +14,7 @@ public class CoreActionFactory implements IActionFactory {
         else if (actionType == CoreActionType.AudioAction) return new AudioAction(data);
         else if (actionType == CoreActionType.ItemConsumeAction) return new ItemConsumeAction(data);
         else if (actionType == CoreActionType.IsSneakingAction) return new IsSneakingAction();
+        else if (actionType == CoreActionType.Damage) return new DamageAction(data);
         return null;
     }
 
@@ -23,6 +24,7 @@ public class CoreActionFactory implements IActionFactory {
         else if (actionType.equalsIgnoreCase("audio_action")) return new AudioAction(data);
         else if (actionType.equalsIgnoreCase("item_consume_action")) return new ItemConsumeAction(data);
         else if (actionType.equalsIgnoreCase("is_sneaking_action")) return new IsSneakingAction();
+        else if (actionType.equalsIgnoreCase("damage_action")) return new DamageAction(data);
         return null;
     }
 }

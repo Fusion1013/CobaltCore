@@ -15,6 +15,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleCircleText extends ParticleStyle {
 
@@ -45,6 +46,25 @@ public class ParticleStyleCircleText extends ParticleStyle {
 
         skipTicks = 2;
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("text")) text = data.get("text").toString();
+        if (data.containsKey("compress")) compress = (double) data.get("compress");
+        if (data.containsKey("radius")) radius = (double) data.get("radius");
+
+        if (data.containsKey("glyph_style")) {
+            String glyphStyleName = data.get("glyph_style").toString();
+            ParticleStyle style = ParticleStyleManager.getDefaultParticleStyle(glyphStyleName).clone();
+            if (style instanceof ParticleStyleGlyph glyph) glyphStyle = glyph;
+        }
+    }
+
+    //endregion
 
     // ----- INFO -----
 

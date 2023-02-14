@@ -15,6 +15,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleParametric extends ParticleStyle {
 
@@ -42,6 +43,28 @@ public class ParticleStyleParametric extends ParticleStyle {
     public ParticleStyleParametric(String name) {
         super("parametric", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("x_equation")) xEquation = (String) data.get("x_equation");
+        if (data.containsKey("y_equation")) yEquation = (String) data.get("y_equation");
+        if (data.containsKey("z_equation")) zEquation = (String) data.get("z_equation");
+
+        if (data.containsKey("x_equation2")) xEquation2 = (String) data.get("x_equation2");
+        if (data.containsKey("y_equation2")) yEquation2 = (String) data.get("y_equation2");
+        if (data.containsKey("z_equation2")) zEquation2 = (String) data.get("z_equation2");
+
+        if (data.containsKey("duration")) duration = (int) data.get("duration");
+        if (data.containsKey("duration2")) duration2 = (int) data.get("duration2");
+
+        if (data.containsKey("current_tick")) currentTick = (int) data.get("current_tick");
+    }
+
+    //endregion
 
     // ----- INFO -----
 

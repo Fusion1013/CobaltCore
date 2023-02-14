@@ -4,6 +4,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import se.fusion1013.plugin.cobaltcore.item.IItemActivatorExecutor;
 import se.fusion1013.plugin.cobaltcore.item.ItemActivator;
 
@@ -39,8 +40,9 @@ public interface IItemComponent {
      *
      * @param stack the <code>ItemStack</code>.
      * @param meta the <code>ItemMeta</code>.
+     * @param persistentDataContainer the <code>PersistentDataContainer</code> of the item.
      */
-    default void onItemConstruction(ItemStack stack, ItemMeta meta) {}
+    default void onItemConstruction(ItemStack stack, ItemMeta meta, PersistentDataContainer persistentDataContainer) {}
 
     // ----- LOADING / DISABLING -----
 
@@ -56,7 +58,8 @@ public interface IItemComponent {
 
     // ----- VALUE LOADING -----
 
-    void loadValues(Map<?, ?> values);
+    @Deprecated
+    default void loadValues(Map<?, ?> values) {}
 
     // ----- EVENTS -----
 

@@ -6,6 +6,7 @@ import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStylePoint extends ParticleStyle implements IParticleStyle, Cloneable {
 

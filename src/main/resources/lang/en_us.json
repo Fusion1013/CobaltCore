@@ -28,6 +28,19 @@
   "version.website": "&7Website: &3%website%",
 
 
+  "commands.core.advancement.grant_all.success": "&7Granted all advancements to &3%player%",
+  "commands.core.advancement.grant_all.failed": "&7Failed to grant all advancements to &3%player%",
+
+  "commands.core.advancement.grant.success": "&7Granted advancement &3%advancement% to &3%player%",
+  "commands.core.advancement.grant.failed": "&7Failed to grant advancement &3%advancement% &7to &3%player%",
+
+  "commands.core.advancement.revoke_all.success": "&7Revoked all advancements from &3%player%",
+  "commands.core.advancement.revoke_all.failed": "&7Failed to revoke all advancements from &3%player%",
+
+  "commands.core.advancement.revoke.success": "&7Revoked advancement &3%advancement% &7from &3%player%",
+  "commands.core.advancement.revoke.failed": "&7Failed to revoke advancement &3%advancement% &7from &3%player%",
+
+
   "commands.cobalt.config.edit": "&7Changed value of &3%key% &7from &3%old_value% &7to &3%value%",
   "commands.cobalt.config.get": "&7Key &3%key% &7has value &3%value%",
   "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",

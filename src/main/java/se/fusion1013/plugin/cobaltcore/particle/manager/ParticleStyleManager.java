@@ -90,6 +90,16 @@ public class ParticleStyleManager extends Manager {
 
     // ----- STYLE CREATION -----
 
+    public static ParticleStyle createParticleStyleSilent(String internalStyleName, Map<?, ?> data) {
+        ParticleStyle style = getDefaultParticleStyle(internalStyleName);
+        if (style == null) return null;
+
+        style = style.clone();
+        style.loadData(data);
+
+        return style;
+    }
+
     /**
      * Creates a new <code>ParticleStyle</code> and stores it in the map.
      *

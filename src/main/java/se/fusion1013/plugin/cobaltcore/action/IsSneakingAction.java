@@ -29,4 +29,14 @@ public class IsSneakingAction implements IPlayerAction {
     public boolean activate(Player player) {
         return player.isSneaking();
     }
+
+    @Override
+    public void setExtraData(String key, Object data) {
+
+    }
+
+    @Override
+    public boolean isCancelAction() {
+        return false;
+    }
 }

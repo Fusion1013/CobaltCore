@@ -16,6 +16,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleSphere extends ParticleStyle {
 
@@ -53,6 +54,19 @@ public class ParticleStyleSphere extends ParticleStyle {
         info.add(LocaleManager.getInstance().getLocaleMessage("particle.style.sphere.info", placeholders));
         return info;
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("density")) density = (int) data.get("density");
+        if (data.containsKey("radius")) radius = (double) data.get("radius");
+        if (data.containsKey("in_sphere")) inSphere = (boolean) data.get("in_sphere");
+    }
+
+    //endregion
 
     // ----- SET EXTRA SETTINGS -----
 

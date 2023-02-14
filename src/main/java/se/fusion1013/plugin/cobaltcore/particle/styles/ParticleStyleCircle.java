@@ -15,6 +15,7 @@ import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleStyleCircle extends ParticleStyle {
 
@@ -36,6 +37,18 @@ public class ParticleStyleCircle extends ParticleStyle {
     public ParticleStyleCircle(String name) {
         super("circle", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("radius")) radius = new AnimatedDouble((double) data.get("radius"), (double) data.get("radius"), 0, false);
+        if (data.containsKey("iterations")) iterations = (int) data.get("iterations");
+    }
+
+    //endregion
 
     // ----- INFO -----
 

@@ -13,10 +13,7 @@ import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ParticleStyleIcosphere extends ParticleStyle implements IParticleStyle, Cloneable {
 
@@ -41,6 +38,21 @@ public class ParticleStyleIcosphere extends ParticleStyle implements IParticleSt
     public ParticleStyleIcosphere(String name) {
         super("icosphere", name);
     }
+
+    //region DATA_LOADING
+
+    @Override
+    public void loadData(Map<?, ?> data) {
+        super.loadData(data);
+
+        if (data.containsKey("ticks_per_spawn")) ticksPerSpawn = (double) data.get("ticks_per_spawn");
+        if (data.containsKey("radius")) radius = (double) data.get("radius");
+        if (data.containsKey("particles_per_line")) particlesPerLine = (int) data.get("particles_per_line");
+        if (data.containsKey("divisions")) divisions = (int) data.get("divisions");
+        if (data.containsKey("step")) step = (int) data.get("step");
+    }
+
+    //endregion
 
     // ----- INFO -----
 
