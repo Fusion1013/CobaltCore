@@ -14,8 +14,10 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.action.encounter.EncounterManager;
 import se.fusion1013.plugin.cobaltcore.bar.BossBarManager;
 import se.fusion1013.plugin.cobaltcore.commands.cgive.CGiveCommand;
+import se.fusion1013.plugin.cobaltcore.commands.encounter.EncounterCommand;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
@@ -51,6 +53,7 @@ public class CobaltCommand {
                 .withSubcommand(CGiveCommand.createCgiveCommand())
                 .withSubcommand(createStructureCommand())
                 .withSubcommand(createReloadCommand())
+                .withSubcommand(EncounterCommand.createEncounterCommand())
                 .register();
     }
 
@@ -60,12 +63,43 @@ public class CobaltCommand {
         return new CommandAPICommand("reload")
                 .withPermission("commands.core.reload")
                 .withSubcommand(new CommandAPICommand("items")
-                        .executes(CobaltCommand::reloadItems));
+                        .executes(CobaltCommand::reloadItems))
+                .withSubcommand(new CommandAPICommand("encounters")
+                        .executes(CobaltCommand::reloadEncounters));
     }
 
     private static void reloadItems(CommandSender sender, Object[] args) {
-        CustomItemManager.reloadItems();
-        if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.items");
+        try {
+            CustomItemManager.reloadItems();
+            if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.items");
+        } catch (Exception ex) {
+            CobaltCore.getInstance().getLogger().warning("Encountered issue while reloading items: " + ex.getMessage());
+
+            if (sender instanceof Player player) {
+                StringPlaceholders placeholders = StringPlaceholders.builder()
+                        .addPlaceholder("action", "Reloading Items")
+                        .addPlaceholder("stacktrace", ex.getMessage())
+                        .build();
+                LocaleManager.getInstance().sendMessage(player, "commands.error", placeholders);
+            }
+        }
+    }
+
+    private static void reloadEncounters(CommandSender sender, Object[] args) {
+        try {
+            EncounterManager.reloadEncounters();
+            if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.encounters");
+        } catch (Exception ex) {
+            CobaltCore.getInstance().getLogger().warning("Encountered issue while reloading encounters: " + ex.getMessage());
+
+            if (sender instanceof Player player) {
+                StringPlaceholders placeholders = StringPlaceholders.builder()
+                        .addPlaceholder("action", "Reloading Encounters")
+                        .addPlaceholder("stacktrace", ex.getMessage())
+                        .build();
+                LocaleManager.getInstance().sendMessage(player, "commands.error", placeholders);
+            }
+        }
     }
 
     // ----- STRUCTURE COMMAND -----

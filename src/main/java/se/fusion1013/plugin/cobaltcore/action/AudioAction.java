@@ -6,16 +6,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.util.EnumUtils;
-import se.fusion1013.plugin.cobaltcore.action.system.AbstractAction;
-import se.fusion1013.plugin.cobaltcore.action.system.IEntityAction;
-import se.fusion1013.plugin.cobaltcore.action.system.ILivingEntityAction;
-import se.fusion1013.plugin.cobaltcore.action.system.ILocationAction;
+import se.fusion1013.plugin.cobaltcore.action.system.*;
 
 import java.util.Map;
 
 public class AudioAction extends AbstractAction implements IEntityAction, ILivingEntityAction, ILocationAction {
 
-    // ----- VARIABLES -----
+    //region FIELDS
 
     private String sound = "cobalt.poof";
     private SoundCategory category = SoundCategory.MASTER;
@@ -23,6 +20,10 @@ public class AudioAction extends AbstractAction implements IEntityAction, ILivin
     private double pitch = 1;
 
     private SoundTarget soundTarget = SoundTarget.ALL;
+
+    //endregion
+
+    //region CONSTRUCTOR
 
     public AudioAction(Map<?, ?> data) {
         super(data);
@@ -35,33 +36,55 @@ public class AudioAction extends AbstractAction implements IEntityAction, ILivin
         if (data.containsKey("sound_target")) soundTarget = EnumUtils.findEnumInsensitiveCase(SoundTarget.class, (String) data.get("sound_target"));
     }
 
+    //endregion
+
+    //region GETTERS/SETTERS
+
     @Override
     public String getInternalName() {
         return "audio_action";
     }
 
+    //endregion
+
+    //region ACTIVATION
+
     @Override
-    public boolean activate(Entity entity) {
+    public IActionResult activate() {
+        if (extraData.containsKey("entity")) { // Prioritize entity activation
+            Entity entity = (Entity) extraData.get("entity");
+            return activate(entity);
+        } else if (extraData.containsKey("location")) {
+            Location location = (Location) extraData.get("location");
+            return activate(location);
+        }
+
+        return new ActionResult(false);
+    }
+
+    @Override
+    public IActionResult activate(Entity entity) {
         if (entity instanceof Player player && soundTarget == SoundTarget.SELF) {
             player.playSound(entity.getLocation(), sound, category, (float) volume, (float) pitch);
         } else {
             entity.getLocation().getWorld().playSound(entity.getLocation(), sound, category, (float) volume, (float) pitch);
         }
 
-        return true;
+        return new ActionResult(true);
     }
 
     @Override
-    public boolean activate(Location location) {
+    public IActionResult activate(Location location) {
         location.getWorld().playSound(location, sound, category, (float) volume, (float) pitch);
-        return true;
+        return new ActionResult(true);
     }
 
     @Override
-    public boolean activate(LivingEntity entity) {
-        activate((Entity) entity);
-        return true;
+    public IActionResult activate(LivingEntity entity) {
+        return activate((Entity) entity);
     }
+
+    //endregion
 
     public enum SoundTarget {
         ALL,

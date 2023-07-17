@@ -5,6 +5,6 @@ import org.bukkit.entity.Entity;
 
 public interface ILocationAction extends IAction {
 
-    boolean activate(Location location);
+    IActionResult activate(Location location);
 
 }

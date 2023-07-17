@@ -5,6 +5,6 @@ import org.bukkit.entity.Player;
 
 public interface IPlayerAction extends ILivingEntityAction {
 
-    boolean activate(Player player);
+    IActionResult activate(Player player);
 
 }

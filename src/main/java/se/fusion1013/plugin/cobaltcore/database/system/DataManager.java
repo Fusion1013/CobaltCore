@@ -20,7 +20,9 @@ import se.fusion1013.plugin.cobaltcore.database.sound.area.SoundAreaDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.spawner.CustomSpawnerDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.spawner.ICustomSpawnerDao;
 import se.fusion1013.plugin.cobaltcore.database.storage.IObjectStorageDao;
+import se.fusion1013.plugin.cobaltcore.database.storage.IPlayerDataStorageDao;
 import se.fusion1013.plugin.cobaltcore.database.storage.ObjectStorageDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.storage.PlayerDataStorageDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.structure.IStructureDao;
 import se.fusion1013.plugin.cobaltcore.database.structure.StructureDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.trades.ITradesDao;
@@ -257,6 +259,7 @@ public class DataManager extends Manager {
         registerDao(new CustomSpawnerDaoSQLite(), ICustomSpawnerDao.class);
         registerDao(new StructureDaoSQLite(), IStructureDao.class);
         registerDao(new ObjectStorageDaoSQLite(), IObjectStorageDao.class);
+        registerDao(new PlayerDataStorageDaoSQLite(), IPlayerDataStorageDao.class);
     }
 
     @Override

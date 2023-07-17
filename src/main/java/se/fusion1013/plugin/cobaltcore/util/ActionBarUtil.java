@@ -1,5 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
@@ -16,8 +17,8 @@ public class ActionBarUtil {
 
         // VARIABLES
 
-        List<ActionBarComponent> components = new ArrayList<>();
-        int globalWidth = 0;
+        private List<ActionBarComponent> components = new ArrayList<>();
+        private int globalWidth = 0;
 
         // CONSTRUCTORS
 
@@ -46,7 +47,7 @@ public class ActionBarUtil {
 
                 int realOffset = centerOffset + component.xOff;
 
-                comp.append("{\"translate\":\"offset.").append(realOffset).append("\",\"with\":[{\"text\":\"").append(component.unicodeChar).append("\"}]},");
+                comp.append("{\"translate\":\"offset.").append(realOffset).append("\",\"with\":[{\"text\":\"").append(component.unicodeChar).append("\",\"font\":\"").append(component.font).append("\"}]},");
 
                 currentWidth += component.iconWidth;
             }
@@ -70,6 +71,7 @@ public class ActionBarUtil {
         String unicodeChar;
         int iconWidth;
         int xOff;
+        String font = "minecraft:default";
 
         // CONSTRUCTOR
 
@@ -77,6 +79,13 @@ public class ActionBarUtil {
             this.unicodeChar = unicodeChar;
             this.iconWidth = iconWidth+1; // Add 1 pixel because mojang
             this.xOff = xOff;
+        }
+
+        public ActionBarComponent(String unicodeChar, int iconWidth, int xOff, String font) {
+            this.unicodeChar = unicodeChar;
+            this.iconWidth = iconWidth+1; // Add 1 pixel because mojang
+            this.xOff = xOff;
+            this.font = font;
         }
 
     }

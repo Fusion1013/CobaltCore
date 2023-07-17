@@ -4,5 +4,5 @@ import org.bukkit.entity.LivingEntity;
 
 public interface ILivingEntityAction extends IEntityAction {
 
-    boolean activate(LivingEntity entity);
+    IActionResult activate(LivingEntity entity);
 }

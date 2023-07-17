@@ -73,7 +73,7 @@ public class ChargeComponent extends AbstractItemComponent {
     private boolean canCharge(Player player) {
         boolean canCharge = true;
         for (ILivingEntityAction required : chargeRequirements) {
-            if (!required.activate(player)) canCharge = false;
+            if (!required.activate(player).hasActivated()) canCharge = false;
         }
         return canCharge;
     }
@@ -90,7 +90,7 @@ public class ChargeComponent extends AbstractItemComponent {
             currentCharge++;
         } else if (!canCharge && currentCharge >= chargeTime) {
             for (ILivingEntityAction action : actions) {
-                if (!action.activate(p)) break;
+                if (!action.activate(p).hasActivated()) break;
             }
 
             currentCharge = 0;

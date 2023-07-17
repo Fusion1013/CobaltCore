@@ -4,6 +4,6 @@ import org.bukkit.entity.Entity;
 
 public interface IEntityAction extends IAction {
 
-    boolean activate(Entity entity);
+    IActionResult activate(Entity entity);
 
 }

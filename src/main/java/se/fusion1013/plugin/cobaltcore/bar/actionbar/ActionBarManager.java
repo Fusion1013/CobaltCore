@@ -3,6 +3,7 @@ package se.fusion1013.plugin.cobaltcore.bar.actionbar;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.item.components.ActionbarComponent;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.ActionBarUtil;
 
@@ -29,6 +30,8 @@ public class ActionBarManager extends Manager implements Runnable {
 
     @Override
     public void run() {
+        subscribeTests();
+
         for (UUID uuidKey : ACTION_BAR_QUEUE.keySet()) {
             Player player = Bukkit.getPlayer(uuidKey);
             if (player == null) continue;
@@ -48,6 +51,29 @@ public class ActionBarManager extends Manager implements Runnable {
 
             // Display components to player
             if (!builder.getComponents().isEmpty()) player.sendActionBar(builder.getComponent());
+        }
+    }
+
+    private void subscribeTests() {
+        List<ActionBarUtil.ActionBarComponent> bar = new ArrayList<>(
+                new ActionBarUtil.ActionBarBuilder()
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE000", 16, 8-36, "minecraft:effects"))
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE101", 16, 8-36, "minecraft:effects"))
+
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE001", 16, 8-12, "minecraft:effects"))
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE100", 16, 8-12, "minecraft:effects"))
+
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE002", 16, 8+12, "minecraft:effects"))
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE100", 16, 8+8, "minecraft:effects"))
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE101", 16, 8+16, "minecraft:effects"))
+
+                        .addComponent(new ActionBarUtil.ActionBarComponent("\uE003", 16, 8+36, "minecraft:effects"))
+
+                        .getComponents()
+        );
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            // subscribe(p, "test", bar);
         }
     }
 

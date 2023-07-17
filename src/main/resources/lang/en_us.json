@@ -10,6 +10,7 @@
   "connection.join": "&3%player% &7joined the game",
   "connection.quit": "&3%player% &7left the game",
 
+  "commands.error": "&7An error occurred while &3%action%&7: %stacktrace%",
   "commands.error.incorrect_syntax": "&7Incorrect Syntax",
   "command-not-implemented": "&7Command not yet implemented",
   "command-unknown": "&7Unknown command",
@@ -41,11 +42,25 @@
   "commands.core.advancement.revoke.failed": "&7Failed to revoke advancement &3%advancement% &7from &3%player%",
 
 
+  "commands.core.encounter.list.item": "&7- [&3%name%&7] Events: &3%event_count%",
+  "commands.core.encounter.play.success": "&7Played encounter &3%name% &7at &3%location%",
+  "commands.core.encounter.play.failed": "&7Failed to play encounter &3%name% &7at &3%location%",
+  "commands.core.encounter.cancel.success": "&7Canceled encounter with id &3%id%",
+  "commands.core.encounter.cancel.failed": "&7Failed to cancel encounter with id &3%id%",
+
+  "commands.core.encounter.info.events.header": "&7Events:",
+  "commands.core.encounter.info.events.event_header": "&3 - %event_name%&7:",
+  "commands.core.encounter.info.events.time": "&3   - &7Time: &3%start_time%&7s - &3%end_time%&7s",
+  "commands.core.encounter.info.events.action.header": "&3   - &7Actions:",
+  "commands.core.encounter.info.events.action": "&3     - %action%",
+
+
   "commands.cobalt.config.edit": "&7Changed value of &3%key% &7from &3%old_value% &7to &3%value%",
   "commands.cobalt.config.get": "&7Key &3%key% &7has value &3%value%",
   "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
   "commands.cobalt.update": "&7Pushed file &3%file% to the server",
   "commands.cobalt.reload.items": "&7Reloaded all items",
+  "commands.cobalt.reload.encounters": "&7Reloaded all encounters",
 
 
   "commands.setting.get": "&7Setting &3%key% &7has value &3%value%",

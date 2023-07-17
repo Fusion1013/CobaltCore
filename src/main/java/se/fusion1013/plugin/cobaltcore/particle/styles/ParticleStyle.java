@@ -34,6 +34,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
     double speed = 0;
     Object extra = null;
 
+    // Position
+    private Vector positionOffset = new Vector();
+
     // Rotation
     Vector rotation = new Vector(0, 0, 0);
     double angularVelocityX = 0; // Angular velocity is measured in radians/tick
@@ -95,7 +98,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         this.speed = target.speed;
         this.extra = target.extra;
 
-        this.rotation = target.rotation;
+        this.positionOffset = target.positionOffset.clone();
+
+        this.rotation = target.rotation.clone();
         this.angularVelocityX = target.angularVelocityX;
         this.angularVelocityY = target.angularVelocityY;
         this.angularVelocityZ = target.angularVelocityZ;
@@ -116,6 +121,10 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
 
         if (data.containsKey("count")) count = (int) data.get("count");
         if (data.containsKey("speed")) speed = (double) data.get("speed");
+
+        if (data.containsKey("position_offset_x")) positionOffset.setX((double) data.get("position_offset_x"));
+        if (data.containsKey("position_offset_y")) positionOffset.setY((double) data.get("position_offset_y"));
+        if (data.containsKey("position_offset_z")) positionOffset.setZ((double) data.get("position_offset_z"));
 
         if (data.containsKey("skip_ticks")) skipTicks = (int) data.get("skip_ticks");
 
@@ -205,7 +214,8 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
         rotation.setZ((rotation.getZ() + angularVelocityZ) % (Math.PI * 2));
 
-        return rotateParticles(getParticleContainers(location), location, rotation);
+        Location pos = location.clone().add(positionOffset);
+        return rotateParticles(getParticleContainers(pos), pos, rotation);
     }
 
     @Override
@@ -223,7 +233,9 @@ public abstract class ParticleStyle implements IParticleStyle, Cloneable {
         rotation.setY((rotation.getY() + angularVelocityY) % (Math.PI * 2));
         rotation.setZ((rotation.getZ() + angularVelocityZ) % (Math.PI * 2));
 
-        return rotateParticles(getParticleContainers(location1, location2), location1, rotation);
+        Location pos1 = location1.clone().add(positionOffset);
+        Location pos2 = location2.clone().add(positionOffset);
+        return rotateParticles(getParticleContainers(pos1, pos2), pos1, rotation);
     }
 
     public abstract ParticleContainer[] getParticleContainers(Location location);

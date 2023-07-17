@@ -6,9 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.yaml.snakeyaml.util.EnumUtils;
-import se.fusion1013.plugin.cobaltcore.action.system.AbstractAction;
-import se.fusion1013.plugin.cobaltcore.action.system.IEntityAction;
-import se.fusion1013.plugin.cobaltcore.action.system.ILivingEntityAction;
+import se.fusion1013.plugin.cobaltcore.action.system.*;
 import se.fusion1013.plugin.cobaltcore.util.VectorUtil;
 
 import java.util.Map;
@@ -18,14 +16,16 @@ import java.util.Map;
  */
 public class VelocityAction extends AbstractAction implements IEntityAction, ILivingEntityAction {
 
-    // ----- VARIABLES -----
+    //region FIELDS
 
     private double velocity = 1.0;
     private RelativeAxis relativeAxis = RelativeAxis.WORLD;
 
     private final Vector directionModifier = new Vector(0, 0, 0);
 
-    // ----- CONSTRUCTORS -----
+    //endregion
+
+    //region CONSTRUCTORS
 
     protected VelocityAction(Map<?, ?> data) {
         super(data);
@@ -39,16 +39,18 @@ public class VelocityAction extends AbstractAction implements IEntityAction, ILi
         if (data.containsKey("relative_axis")) this.relativeAxis = EnumUtils.findEnumInsensitiveCase(RelativeAxis.class, (String) data.get("relative_axis"));
     }
 
-    // ----- ACTIVATION -----
+    //endregion
+
+    //region ACTIVATION
 
     @Override
-    public boolean activate(Entity entity) {
+    public IActionResult activate(Entity entity) {
         entity.setVelocity(entity.getVelocity().add(directionModifier.clone().multiply(velocity)));
-        return true;
+        return new ActionResult(true);
     }
 
     @Override
-    public boolean activate(LivingEntity entity) {
+    public IActionResult activate(LivingEntity entity) {
         if (relativeAxis == RelativeAxis.HEAD) {
             Vector direction = entity.getEyeLocation().getDirection().clone().multiply(velocity);
 
@@ -66,10 +68,25 @@ public class VelocityAction extends AbstractAction implements IEntityAction, ILi
             entity.setVelocity(entity.getVelocity().add(directionModifier.clone().multiply(velocity)));
         }
 
-        return true;
+        return new ActionResult(true);
     }
 
-    // ----- GETTERS / SETTERS -----
+    @Override
+    public IActionResult activate() {
+        if (extraData.containsKey("living_entity")) { // Prioritize entity activation
+            LivingEntity livingEntity = (LivingEntity) extraData.get("living_entity");
+            return activate(livingEntity);
+        } else if (extraData.containsKey("entity")) {
+            Entity entity = (Entity) extraData.get("entity");
+            return activate(entity);
+        }
+
+        return new ActionResult(false);
+    }
+
+    //endregion
+
+    //region GETTERS/SETTERS
 
     private static Vector getRightVector(Vector vector){
         Vector direction = vector.clone().normalize();
@@ -81,11 +98,15 @@ public class VelocityAction extends AbstractAction implements IEntityAction, ILi
         return "velocity_action";
     }
 
-    // ----- RELATIVITY ENUM -----
+    //endregion
+
+    //region RELATIVITY ENUM
 
     public enum RelativeAxis {
         WORLD,
         HEAD
     }
+
+    //endregion
 
 }

@@ -3,9 +3,7 @@ package se.fusion1013.plugin.cobaltcore.action;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
-import se.fusion1013.plugin.cobaltcore.action.system.AbstractAction;
-import se.fusion1013.plugin.cobaltcore.action.system.IEntityAction;
-import se.fusion1013.plugin.cobaltcore.action.system.ILivingEntityAction;
+import se.fusion1013.plugin.cobaltcore.action.system.*;
 
 import java.util.Map;
 import java.util.Random;
@@ -26,6 +24,8 @@ public class DamageAction extends AbstractAction implements ILivingEntityAction 
 
     //endregion
 
+    //region CONSTRUCTION
+
     protected DamageAction(Map<?, ?> data) {
         super(data);
 
@@ -41,28 +41,13 @@ public class DamageAction extends AbstractAction implements ILivingEntityAction 
         if (data.containsKey("critical_chance")) criticalChance = (double) data.get("critical_chance");
     }
 
+    //endregion
+
+    //region GETTERS/SETTERS
+
     @Override
     public String getInternalName() {
         return "damage_action";
-    }
-
-    @Override
-    public boolean activate(LivingEntity entity) {
-        if (setsFire) entity.setFireTicks(fireTicks);
-        if (knockback && extraData.containsKey("knockback_vector")) {
-            Vector knockbackVector = (Vector) extraData.get("knockback_vector");
-            entity.setVelocity(entity.getVelocity().add(knockbackVector.normalize().multiply(knockbackForce)));
-        }
-
-        entity.damage(getDamageWithCrit());
-
-        return true;
-    }
-
-    @Override
-    public boolean activate(Entity entity) {
-        if (entity instanceof LivingEntity livingEntity) return activate(livingEntity);
-        return false;
     }
 
     private int getDamageWithCrit(){
@@ -76,4 +61,42 @@ public class DamageAction extends AbstractAction implements ILivingEntityAction 
 
         return damage * critIncrease;
     }
+
+    //endregion
+
+    //region ACTIVATION
+
+    @Override
+    public IActionResult activate() {
+        if (extraData.containsKey("living_entity")) {
+            LivingEntity livingEntity = (LivingEntity) extraData.get("living_entity");
+            return activate(livingEntity);
+        } else if (extraData.containsKey("entity")) {
+            Entity entity = (Entity) extraData.get("entity");
+            return activate(entity);
+        }
+
+        return new ActionResult(false);
+    }
+
+    @Override
+    public IActionResult activate(LivingEntity entity) {
+        if (setsFire) entity.setFireTicks(fireTicks);
+        if (knockback && extraData.containsKey("knockback_vector")) {
+            Vector knockbackVector = (Vector) extraData.get("knockback_vector");
+            entity.setVelocity(entity.getVelocity().add(knockbackVector.normalize().multiply(knockbackForce)));
+        }
+
+        entity.damage(getDamageWithCrit());
+
+        return new ActionResult(true);
+    }
+
+    @Override
+    public IActionResult activate(Entity entity) {
+        if (entity instanceof LivingEntity livingEntity) return activate(livingEntity);
+        return new ActionResult(false);
+    }
+
+    //endregion
 }

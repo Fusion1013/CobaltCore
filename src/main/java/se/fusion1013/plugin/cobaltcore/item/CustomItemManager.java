@@ -646,6 +646,8 @@ public class CustomItemManager extends Manager implements Listener {
 
         // loadItemFiles(CobaltCore.getInstance(), false);
 
+        /*
+
         // Runnable
         Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -658,6 +660,7 @@ public class CustomItemManager extends Manager implements Listener {
                         item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
             }
         }, 0, 1);
+         */
     }
 
     @Override

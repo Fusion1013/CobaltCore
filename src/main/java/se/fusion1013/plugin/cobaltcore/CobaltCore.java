@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.fusion1013.plugin.cobaltcore.action.encounter.EncounterManager;
 import se.fusion1013.plugin.cobaltcore.advancement.CobaltAdvancementManager;
 import se.fusion1013.plugin.cobaltcore.bar.BossBarManager;
 import se.fusion1013.plugin.cobaltcore.bar.actionbar.ActionBarManager;
@@ -19,6 +20,7 @@ import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
+import se.fusion1013.plugin.cobaltcore.entity.player.PlayerManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
@@ -145,6 +147,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, LocaleManager.class);
         this.getManager(this, SettingsManager.class);
 
+        this.getManager(this, PlayerManager.class);
+
         // Item managers
         this.getManager(this, CustomItemManager.class);
         this.getManager(this, EnchantmentManager.class);
@@ -251,7 +255,10 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
             // Load custom advancements
             CobaltAdvancementManager.loadAdvancementFiles(plugin, false);
-            AdvancementCommand.register();
+            AdvancementCommand.register(); // Reload command
+
+            // Load encounters
+            EncounterManager.loadEncounterFiles(plugin, false);
 
             // Registers all Commands
             time = System.currentTimeMillis();
