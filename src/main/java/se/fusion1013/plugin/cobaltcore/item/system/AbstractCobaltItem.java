@@ -20,7 +20,7 @@ import se.fusion1013.plugin.cobaltcore.item.IItemActivatorExecutor;
 import se.fusion1013.plugin.cobaltcore.item.IItemMetaEditor;
 import se.fusion1013.plugin.cobaltcore.item.ItemActivator;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
-import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.category.ItemCategoryOld;
 import se.fusion1013.plugin.cobaltcore.item.components.IItemComponent;
 import se.fusion1013.plugin.cobaltcore.item.components.AbstractItemComponent;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentWrapper;
@@ -63,7 +63,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     protected Map<Attribute, AttributeModifier> attributes = new HashMap<>();
 
     // -- ITEM CATEGORIES
-    protected IItemCategory itemCategory = ItemCategory.NONE;
+    protected IItemCategory itemCategory = ItemCategoryOld.NONE;
 
     // -- ITEM ATTRIBUTES
 
@@ -153,7 +153,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         // -- ITEM CATEGORY
-        if (itemCategory != ItemCategory.NONE) {
+        if (itemCategory != ItemCategoryOld.NONE) {
             persistentDataContainer.set(itemCategory.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
 
             // Add item category lore
@@ -164,7 +164,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
                     )
             );
         } else {
-            persistentDataContainer.set(ItemCategory.NONE.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
+            persistentDataContainer.set(ItemCategoryOld.NONE.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
         }
 
         // -- ATTRIBUTES

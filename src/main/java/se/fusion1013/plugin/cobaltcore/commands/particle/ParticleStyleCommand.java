@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.ParticleData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,9 +50,9 @@ public class ParticleStyleCommand {
                 .executes(ParticleStyleCommand::editSkipTicks);
     }
 
-    private static void editSkipTicks(CommandSender sender, Object[] args) {
-        String name = (String) args[0];
-        int skipTicks = (int) args[1];
+    private static void editSkipTicks(CommandSender sender, CommandArguments args) {
+        String name = (String) args.args()[0];
+        int skipTicks = (int) args.args()[1];
 
         ParticleStyle style = ParticleStyleManager.getParticleStyle(name);
         style.setSkipTicks(skipTicks);
@@ -72,15 +73,15 @@ public class ParticleStyleCommand {
                 .executes(ParticleStyleCommand::editParticle);
     }
 
-    private static void editParticle(CommandSender sender, Object[] args) {
-        String styleName = (String) args[0];
-        ParticleData<?> particle = (ParticleData<?>) args[1];
-        double offsetX = (double) args[2];
-        double offsetY = (double) args[3];
-        double offsetZ = (double) args[4];
+    private static void editParticle(CommandSender sender, CommandArguments args) {
+        String styleName = (String) args.args()[0];
+        ParticleData<?> particle = (ParticleData<?>) args.args()[1];
+        double offsetX = (double) args.args()[2];
+        double offsetY = (double) args.args()[3];
+        double offsetZ = (double) args.args()[4];
 
-        int count = (int) args[5];
-        double speed = (double) args[6];
+        int count = (int) args.args()[5];
+        double speed = (double) args.args()[6];
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("style_name", styleName)
@@ -122,16 +123,16 @@ public class ParticleStyleCommand {
                 .executes(ParticleStyleCommand::createParticleStyle);
     }
 
-    private static void createParticleStyle(CommandSender sender, Object[] args) {
+    private static void createParticleStyle(CommandSender sender, CommandArguments args) {
         // Get variables.
-        String name = (String) args[0];
-        String internalStyleName = (String) args[1];
-        ParticleData<?> particle = (ParticleData<?>) args[2];
-        double offsetX = (double) args[3];
-        double offsetY = (double) args[4];
-        double offsetZ = (double) args[5];
-        int count = (Integer) args[6];
-        double speed = (Double) args[7];
+        String name = (String) args.args()[0];
+        String internalStyleName = (String) args.args()[1];
+        ParticleData<?> particle = (ParticleData<?>) args.args()[2];
+        double offsetX = (double) args.args()[3];
+        double offsetY = (double) args.args()[4];
+        double offsetZ = (double) args.args()[5];
+        int count = (Integer) args.args()[6];
+        double speed = (Double) args.args()[7];
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("name", name)
@@ -178,8 +179,8 @@ public class ParticleStyleCommand {
             node.executes((sender, args) -> {
 
                 // Get arguments
-                String styleName = (String) args[0];
-                Object setting = args[1];
+                String styleName = (String) args.args()[0];
+                Object setting = args.args()[1];
                 String commandPath = argument.getNodeName();
                 ParticleStyle particleStyle = ParticleStyleManager.getParticleStyle(styleName);
 
@@ -210,8 +211,8 @@ public class ParticleStyleCommand {
                 .withArguments(new StringArgument("name").replaceSuggestions(ArgumentSuggestions.strings(info -> ParticleStyleManager.getParticleStyleNames(style.getInternalName()))))
                 .withArguments(style.getExtraSettingsArguments())
                 .executes(((sender, args) -> {
-                    String styleName = (String) args[0];
-                    List<Object> settings = new ArrayList<>(Arrays.asList(args).subList(1, args.length));
+                    String styleName = (String) args.args()[0];
+                    List<Object> settings = new ArrayList<>(Arrays.asList(args).subList(1, args.args().length));
                     ParticleStyle particleStyle = ParticleStyleManager.getParticleStyle(styleName);
 
                     particleStyle.setExtraSettings(settings.toArray());
@@ -241,7 +242,7 @@ public class ParticleStyleCommand {
      *
      * @param player the player to send the information to.
      */
-    private static void listStyles(Player player, Object[] args) {
+    private static void listStyles(Player player, CommandArguments args) {
 
         String[] stylesNames = ParticleStyleManager.getParticleStyleNames();
 
@@ -289,12 +290,12 @@ public class ParticleStyleCommand {
      * @param sender the <code>CommandSender</code>.
      * @param args command arguments.
      */
-    private static void rotateStyle(CommandSender sender, Object[] args) {
-        String name = (String)args[0];
-        Vector rotation = new Vector((double)args[1], (double)args[2], (double)args[3]);
-        double angularVelocityX = (double) args[4];
-        double angularVelocityY = (double) args[5];
-        double angularVelocityZ = (double) args[6];
+    private static void rotateStyle(CommandSender sender, CommandArguments args) {
+        String name = (String)args.args()[0];
+        Vector rotation = new Vector((double)args.args()[1], (double)args.args()[2], (double)args.args()[3]);
+        double angularVelocityX = (double) args.args()[4];
+        double angularVelocityY = (double) args.args()[5];
+        double angularVelocityZ = (double) args.args()[6];
 
         // Create Placeholders
         StringPlaceholders placeholders = StringPlaceholders.builder()
@@ -331,8 +332,8 @@ public class ParticleStyleCommand {
      * @param player the player to send the info to.
      * @param args the command arguments.
      */
-    private static void printInfo(Player player, Object[] args) {
-        String name = (String) args[0];
+    private static void printInfo(Player player, CommandArguments args) {
+        String name = (String) args.args()[0];
         ParticleStyle style = ParticleStyleManager.getParticleStyle(name);
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("style_name", name)
@@ -361,8 +362,8 @@ public class ParticleStyleCommand {
      * @param sender the sender that is removing the style.
      * @param args the style to remove.
      */
-    private static void removeStyle(CommandSender sender, Object[] args) {
-        String name = (String) args[0];
+    private static void removeStyle(CommandSender sender, CommandArguments args) {
+        String name = (String) args.args()[0];
         boolean removed = ParticleStyleManager.deleteStyle(name);
 
         // Send message depending on if the style was removed or not.

@@ -26,6 +26,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
 import se.fusion1013.plugin.cobaltcore.event.PlayerHeldItemTickEvent;
 import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.category.ItemCategoryOld;
 import se.fusion1013.plugin.cobaltcore.item.components.ActionbarComponent;
 import se.fusion1013.plugin.cobaltcore.item.components.ChargeComponent;
 import se.fusion1013.plugin.cobaltcore.item.components.ComponentManager;
@@ -52,7 +53,7 @@ public class CustomItemManager extends Manager implements Listener {
     private static final Map<String, ICustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
     private static final Map<IItemCategory, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
 
-    private static final List<IItemCategory[]> REGISTERED_CATEGORIES = new ArrayList<>();
+    private static final List<IItemCategory> REGISTERED_CATEGORIES = new ArrayList<>();
     private static final List<IItemRarity[]> REGISTERED_RARITIES = new ArrayList<>();
 
     private static final List<IItemComponent> REGISTERED_COMPONENTS = new ArrayList<>();
@@ -60,7 +61,9 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- REGISTER HOLDERS -----
 
     private static final Class<ItemRarity> ITEM_RARITY = registerRarity(ItemRarity.class);
-    private static final Class<ItemCategory> ITEM_CATEGORY = registerCategory(ItemCategory.class);
+    // private static final Class<ItemCategoryOld> ITEM_CATEGORY = registerCategory(ItemCategoryOld.class);
+
+    private static final IItemCategory CATEGORY_NONE = registerCategory(new ItemCategory("none", "None", "If this shows up on an item, something has gone wrong", NamedTextColor.WHITE));
 
     private static final IItemComponent ACTIONBAR_COMPONENT = registerComponent(new ActionbarComponent(""));
     private static final IItemComponent CHARGE_COMPONENT = registerComponent(new ChargeComponent(""));
@@ -81,7 +84,7 @@ public class CustomItemManager extends Manager implements Listener {
                             .append(Component.keybind("key.sneak").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
                             .append(Component.text("]: Do thing").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false))
             ) // Extra lore
-            .category(ItemCategory.TESTING) // Item category
+            .category(ItemCategoryOld.TESTING) // Item category
             .editMeta(meta -> { // Edit meta
                 meta.addEnchant(Enchantment.MENDING, 1, true);
                 return meta;
@@ -198,18 +201,23 @@ public class CustomItemManager extends Manager implements Listener {
         return component;
     }
 
+    public static IItemCategory registerCategory(IItemCategory category) {
+        REGISTERED_CATEGORIES.add(category);
+        return category;
+    }
+
     /**
      * Registers a new <code>IItemCategory</code>.
      *
      * @param category the <code>IItemCategory</code> to register.
      * @return the <code>IItemCategory</code>.
      */
+    @Deprecated
     public static <T extends Enum<T>> Class<T> registerCategory(Class<T> category) {
-        IItemCategory[] categories = new IItemCategory[category.getEnumConstants().length];
-        for (int i = 0; i < categories.length; i++) {
-            categories[i] = (IItemCategory) category.getEnumConstants()[i];
+        for (int i = 0; i < category.getEnumConstants().length; i++) {
+            var c = (IItemCategory) category.getEnumConstants()[i];
+            REGISTERED_CATEGORIES.add(c);
         }
-        REGISTERED_CATEGORIES.add(categories);
         return category;
     }
 
@@ -408,12 +416,62 @@ public class CustomItemManager extends Manager implements Listener {
     }
 
     public static IItemCategory getCategory(String name) {
-        for (IItemCategory[] categoryHandlers : REGISTERED_CATEGORIES) {
-            for (IItemCategory category : categoryHandlers) {
-                if (category.getInternalName().equalsIgnoreCase(name)) return category;
-            }
+        for (IItemCategory category : REGISTERED_CATEGORIES) {
+            if (category.getInternalName().equalsIgnoreCase(name)) return category;
         }
         return null;
+    }
+
+    // ----- ITEM CATEGORY LOADING -----
+
+    public static void loadItemCategoryFiles(CobaltPlugin plugin, boolean overwrite) {
+        File dataFolder = plugin.getDataFolder();
+        File itemFolder = new File(dataFolder, "item_categories");
+        loadItemCategoriesFromFolders(plugin, itemFolder, overwrite);
+    }
+
+    private static void loadItemCategoriesFromFolders(CobaltPlugin plugin, File rootFolder, boolean overwrite) {
+        // Load from item categories files folder
+        if (!rootFolder.exists()) {
+            rootFolder.mkdirs();
+            return;
+        }
+
+        plugin.getLogger().info("Loading item categories from folder '" + rootFolder.getName() + "'...");
+
+        int itemsLoaded = 0;
+        File[] files = rootFolder.listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (file.isDirectory()) loadItemCategoriesFromFolders(plugin, file, overwrite);
+            else {
+                loadCategory(plugin, file, overwrite);
+                itemsLoaded++;
+            }
+        }
+
+        plugin.getLogger().info("Loaded " + itemsLoaded + " item categories from folder " + rootFolder.getName());
+    }
+
+    private static void loadCategory(CobaltPlugin plugin, File file, boolean overwrite) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        try {
+            yaml.load(file);
+        } catch (IOException | InvalidConfigurationException ex) {
+            ex.printStackTrace();
+        }
+
+        String internalName = yaml.getString("internal_name");
+        if (internalName == null) return;
+
+        String name = yaml.getString("name");
+        String description = yaml.getString("description");
+        String colorFormatString = yaml.getString("color_format_string");
+        String colorString = yaml.getString("color");
+        if (colorString == null) return;
+        NamedTextColor color = NamedTextColor.NAMES.value(colorString);
+
+        registerCategory(new ItemCategory(internalName, name, description, colorFormatString, color));
     }
 
     // ----- ITEM FILE LOADING -----
@@ -636,7 +694,10 @@ public class CustomItemManager extends Manager implements Listener {
     // ----- RELOADING / DISABLING -----
 
     public static void reloadItems() {
-        for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) loadItemFiles(plugin, true);
+        for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) {
+            loadItemCategoryFiles(plugin, true);
+            loadItemFiles(plugin, true);
+        }
     }
 
     @Override
@@ -645,8 +706,6 @@ public class CustomItemManager extends Manager implements Listener {
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
 
         // loadItemFiles(CobaltCore.getInstance(), false);
-
-        /*
 
         // Runnable
         Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {
@@ -660,7 +719,6 @@ public class CustomItemManager extends Manager implements Listener {
                         item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
             }
         }, 0, 1);
-         */
     }
 
     @Override

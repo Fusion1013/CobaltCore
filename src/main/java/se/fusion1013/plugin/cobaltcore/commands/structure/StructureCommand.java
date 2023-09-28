@@ -4,6 +4,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LocationType;
 import dev.jorel.commandapi.arguments.TextArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -39,9 +40,9 @@ public class StructureCommand {
                 .executes(StructureCommand::executePaste);
     }
 
-    private static void executePaste(CommandSender sender, Object[] args) {
-        String structure = (String) args[0];
-        Location location = (Location) args[1];
+    private static void executePaste(CommandSender sender, CommandArguments args) {
+        String structure = (String) args.args()[0];
+        Location location = (Location) args.args()[1];
 
         IStructure structure1 = StructureManager.getRegisteredStructure(structure);
         structure1.forceGenerate(location);
@@ -59,10 +60,10 @@ public class StructureCommand {
     }
 
     @SuppressWarnings("unchecked")
-    private static void executeSave(CommandSender sender, Object[] args) {
-        Location corner1 = (Location) args[0];
-        Location corner2 = (Location) args[1];
-        String name = (String) args[2];
+    private static void executeSave(CommandSender sender, CommandArguments args) {
+        Location corner1 = (Location) args.args()[0];
+        Location corner2 = (Location) args.args()[1];
+        String name = (String) args.args()[2];
 
         // Get structure location info
         int cornerX = Math.min(corner1.getBlockX(), corner2.getBlockX());

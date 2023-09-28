@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.commands.advancement;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.executors.CommandArguments;
 import eu.endercentral.crazy_advancements.advancement.Advancement;
 import eu.endercentral.crazy_advancements.advancement.progress.GenericResult;
 import eu.endercentral.crazy_advancements.manager.AdvancementManager;
@@ -47,7 +48,7 @@ public class AdvancementCommand {
                 .executesPlayer(AdvancementCommand::revokeAllAdvancement);
     }
 
-    private static void revokeAllAdvancement(Player player, Object[] args) {
+    private static void revokeAllAdvancement(Player player, CommandArguments args) {
         for (AdvancementManager manager : CobaltAdvancementManager.ADVANCEMENT_MANAGERS.values()) {
             for (Advancement advancement : manager.getAdvancements()) {
                 manager.revokeAdvancement(player, advancement);
@@ -113,7 +114,7 @@ public class AdvancementCommand {
                 .executesPlayer(AdvancementCommand::grantAllAdvancement);
     }
 
-    private static void grantAllAdvancement(Player player, Object[] args) {
+    private static void grantAllAdvancement(Player player, CommandArguments args) {
         for (AdvancementManager manager : CobaltAdvancementManager.ADVANCEMENT_MANAGERS.values()) {
             for (Advancement advancement : manager.getAdvancements()) {
                 manager.grantAdvancement(player, advancement);

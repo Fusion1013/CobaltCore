@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.commands.encounter;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.executors.CommandExecutor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -37,9 +38,9 @@ public class EncounterCommand {
                 .executes(EncounterCommand::playEncounter);
     }
 
-    private static void playEncounter(CommandSender sender, Object[] args) {
-        String name = (String) args[0];
-        Location location = (Location) args[1];
+    private static void playEncounter(CommandSender sender, CommandArguments args) {
+        String name = (String) args.args()[0];
+        Location location = (Location) args.args()[1];
 
         boolean executed = EncounterManager.playEncounter(name, location);
 
@@ -64,8 +65,8 @@ public class EncounterCommand {
                 .executes(EncounterCommand::cancelEncounter);
     }
 
-    private static void cancelEncounter(CommandSender sender, Object[] args) {
-        String encounterName = (String) args[0];
+    private static void cancelEncounter(CommandSender sender, CommandArguments args) {
+        String encounterName = (String) args.args()[0];
         boolean canceled = EncounterManager.cancelEncounter(encounterName);
 
         if (sender instanceof Player player) {
@@ -88,8 +89,8 @@ public class EncounterCommand {
                 .executesPlayer(EncounterCommand::displayInfo);
     }
 
-    private static void displayInfo(Player player, Object[] args) {
-        String encounterName = (String) args[0];
+    private static void displayInfo(Player player, CommandArguments args) {
+        String encounterName = (String) args.args()[0];
         Encounter encounter = EncounterManager.getEncounter(encounterName);
 
         StringPlaceholders headerPlaceholder = StringPlaceholders.builder()
@@ -129,7 +130,7 @@ public class EncounterCommand {
                 .executesPlayer(EncounterCommand::listEncounters);
     }
 
-    private static void listEncounters(Player player, Object[] args) {
+    private static void listEncounters(Player player, CommandArguments args) {
 
         StringPlaceholders headerPlaceholder = StringPlaceholders.builder()
                 .addPlaceholder("header", "Encounters")

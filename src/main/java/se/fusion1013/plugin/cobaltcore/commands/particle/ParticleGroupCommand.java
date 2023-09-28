@@ -6,6 +6,7 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,9 +50,9 @@ public class ParticleGroupCommand {
                 .executes(ParticleGroupCommand::editIntegrity);
     }
 
-    private static void editIntegrity(CommandSender sender, Object[] args) {
-        String name = (String) args[0];
-        double integrity = (double) args[1];
+    private static void editIntegrity(CommandSender sender, CommandArguments args) {
+        String name = (String) args.args()[0];
+        double integrity = (double) args.args()[1];
 
         ParticleGroup group = ParticleGroupManager.getParticleGroup(name);
         if (group != null) group.setIntegrity(integrity);
@@ -66,8 +67,8 @@ public class ParticleGroupCommand {
                 .executes(ParticleGroupCommand::createParticleGroup);
     }
 
-    private static void createParticleGroup(CommandSender sender, Object[] args) {
-        String name = (String)args[0];
+    private static void createParticleGroup(CommandSender sender, CommandArguments args) {
+        String name = (String)args.args()[0];
         boolean created = ParticleGroupManager.createParticleGroup(name);
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
@@ -90,9 +91,9 @@ public class ParticleGroupCommand {
                 .executes(ParticleGroupCommand::addStyle);
     }
 
-    private static void addStyle(CommandSender sender, Object[] args) {
-        String groupName = (String) args[0];
-        String styleName = (String) args[1];
+    private static void addStyle(CommandSender sender, CommandArguments args) {
+        String groupName = (String) args.args()[0];
+        String styleName = (String) args.args()[1];
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("group_name", groupName)
@@ -127,9 +128,9 @@ public class ParticleGroupCommand {
                 .executes(ParticleGroupCommand::displayGroup);
     }
 
-    private static void displayGroup(CommandSender sender, Object[] args) {
-        String name = (String)args[0];
-        Location location = (Location)args[1];
+    private static void displayGroup(CommandSender sender, CommandArguments args) {
+        String name = (String)args.args()[0];
+        Location location = (Location)args.args()[1];
         ParticleGroup group = ParticleGroupManager.getParticleGroup(name);
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
@@ -155,7 +156,7 @@ public class ParticleGroupCommand {
                 .executesPlayer(ParticleGroupCommand::listGroups);
     }
 
-    private static void listGroups(Player player, Object[] args) {
+    private static void listGroups(Player player, CommandArguments args) {
         String[] groupNames = ParticleGroupManager.getParticleGroupNames();
 
         // If there are more than 0 styles, send a header. Else send error.
@@ -189,8 +190,8 @@ public class ParticleGroupCommand {
                 .executes(ParticleGroupCommand::removeGroup);
     }
 
-    private static void removeGroup(CommandSender sender, Object[] args) {
-        String groupName = (String) args[0];
+    private static void removeGroup(CommandSender sender, CommandArguments args) {
+        String groupName = (String) args.args()[0];
         StringPlaceholders placeholders = StringPlaceholders.builder()
                 .addPlaceholder("group_name", groupName)
                 .build();
@@ -228,28 +229,28 @@ public class ParticleGroupCommand {
     }
 
     private static String[] getStyleNames(SuggestionInfo info) {
-        ParticleGroup currentGroup = ParticleGroupManager.getParticleGroup((String)info.previousArgs()[info.previousArgs().length-1]);
+        ParticleGroup currentGroup = ParticleGroupManager.getParticleGroup((String)info.previousArgs().args()[info.previousArgs().args().length-1]);
         if (currentGroup == null) return new String[0];
         return currentGroup.getParticleStyleNames();
     }
 
-    private static void editOffset(CommandSender sender, Object[] args) {
-        String groupName = (String)args[0];
-        String styleName = (String)args[1];
+    private static void editOffset(CommandSender sender, CommandArguments args) {
+        String groupName = (String)args.args()[0];
+        String styleName = (String)args.args()[1];
 
         ParticleGroup group = ParticleGroupManager.getParticleGroup(groupName);
         if (group == null) return;
-        group.setStyleOffset(styleName, new Vector((double)args[2], (double)args[3], (double)args[4]));
+        group.setStyleOffset(styleName, new Vector((double)args.args()[2], (double)args.args()[3], (double)args.args()[4]));
     }
 
-    private static void editRotation(CommandSender sender, Object[] args) {
-        String groupName = (String)args[0];
-        String styleName = (String)args[1];
+    private static void editRotation(CommandSender sender, CommandArguments args) {
+        String groupName = (String)args.args()[0];
+        String styleName = (String)args.args()[1];
 
         ParticleGroup group = ParticleGroupManager.getParticleGroup(groupName);
         if (group == null) return;
-        Vector rotation = new Vector(Math.toRadians((double)args[2]), Math.toRadians((double)args[3]), Math.toRadians((double)args[4]));
-        Vector velocity = new Vector(Math.toRadians((double)args[5]), Math.toRadians((double)args[6]), Math.toRadians((double)args[7]));
+        Vector rotation = new Vector(Math.toRadians((double)args.args()[2]), Math.toRadians((double)args.args()[3]), Math.toRadians((double)args.args()[4]));
+        Vector velocity = new Vector(Math.toRadians((double)args.args()[5]), Math.toRadians((double)args.args()[6]), Math.toRadians((double)args.args()[7]));
 
         group.setStyleRotation(styleName, rotation, velocity);
     }

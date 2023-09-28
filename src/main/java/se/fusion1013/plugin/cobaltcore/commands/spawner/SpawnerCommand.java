@@ -26,12 +26,12 @@ public class SpawnerCommand {
                 .withArguments(new IntegerArgument("spawn_radius"))
                 .withArguments(new IntegerArgument("cooldown"))
                 .executesPlayer(((sender, args) -> {
-                    Location location = (Location) args[0];
-                    String entity = (String) args[1];
-                    int spawnCount = (int) args[2];
-                    double activationRange = (double) args[3];
-                    int spawnRadius = (int) args[4];
-                    int cooldown = (int) args[5];
+                    Location location = (Location) args.args()[0];
+                    String entity = (String) args.args()[1];
+                    int spawnCount = (int) args.args()[2];
+                    double activationRange = (double) args.args()[3];
+                    int spawnRadius = (int) args.args()[4];
+                    int cooldown = (int) args.args()[5];
                     SpawnerManager.getInstance().placeSpawner(location, entity, spawnCount, activationRange, spawnRadius, cooldown);
                 }));
     }
@@ -44,11 +44,11 @@ public class SpawnerCommand {
                 .withArguments(new DoubleArgument("activation_range"))
                 .withArguments(new IntegerArgument("spawn_radius"))
                 .executesPlayer(((sender, args) -> {
-                    Location location = (Location) args[0];
-                    String entity = (String) args[1];
-                    int spawnCount = (int) args[2];
-                    double activationRange = (double) args[3];
-                    int spawnRadius = (int) args[4];
+                    Location location = (Location) args.args()[0];
+                    String entity = (String) args.args()[1];
+                    int spawnCount = (int) args.args()[2];
+                    double activationRange = (double) args.args()[3];
+                    int spawnRadius = (int) args.args()[4];
                     SpawnerManager.getInstance().placeSpawner(location, entity, spawnCount, activationRange, spawnRadius);
                 }));
     }

@@ -3,6 +3,7 @@ package se.fusion1013.plugin.cobaltcore.commands.cgive;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
@@ -77,8 +78,8 @@ public class CGiveCommand {
      * @param player the player to give the item to.
      * @param args the item to give the player.
      */
-    private static void giveItem(Player player, Object[] args){
-        String itemName = (String)args[0];
+    private static void giveItem(Player player, CommandArguments args){
+        String itemName = (String)args.args()[0];
         ItemStack is = CustomItemManager.getCustomItemStack(itemName);
         if (is != null) player.getInventory().addItem(is);
     }

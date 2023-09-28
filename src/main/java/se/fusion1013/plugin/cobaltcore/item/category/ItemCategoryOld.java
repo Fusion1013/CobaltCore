@@ -9,36 +9,36 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.util.BlockUtil;
 import se.fusion1013.plugin.cobaltcore.util.HexUtils;
 
-public class ItemCategory implements IItemCategory {
+public enum ItemCategoryOld implements IItemCategory {
 
-    private final String internalName;
-    private final String name;
-    private final String description;
+    NONE("none", "None", "If this shows up on an item, something has gone wrong", NamedTextColor.WHITE),
 
-    // -- Color
-    private NamedTextColor color;
-    private String colorFormatString;
+    WEAPON("weapon", "Weapon", "Weapon items", NamedTextColor.DARK_GRAY),
+    ARMOR("armor", "Armor", "Armor items", NamedTextColor.GOLD),
 
-    public ItemCategory(String internalName, String name, String description, NamedTextColor color) {
+    TESTING("testing", "Testing","Items used only for testing", NamedTextColor.WHITE),
+    OTHER("other", "Other", "Other items", "&f");
+
+    final String internalName;
+    final String name;
+    final String description;
+
+    // -- COLOR
+    NamedTextColor color;
+    String colorFormatString;
+
+    ItemCategoryOld(String internalName, String name, String description, NamedTextColor color) {
         this.internalName = internalName;
         this.name = name;
         this.description = description;
         this.color = color;
     }
 
-    public ItemCategory(String internalName, String name, String description, String colorFormatString) {
+    ItemCategoryOld(String internalName, String name, String description, String colorFormatString) {
         this.internalName = internalName;
         this.name = name;
         this.description = description;
         this.colorFormatString = colorFormatString;
-    }
-
-    public ItemCategory(String internalName, String name, String description, String colorFormatString, NamedTextColor color) {
-        this.internalName = internalName;
-        this.name = name;
-        this.description = description;
-        this.colorFormatString = colorFormatString;
-        this.color = color;
     }
 
     @Override

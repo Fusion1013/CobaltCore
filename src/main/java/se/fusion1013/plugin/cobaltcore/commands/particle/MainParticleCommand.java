@@ -15,7 +15,7 @@ public class MainParticleCommand {
                 .withPermission("cobalt.core.command.dparticle")
                 .withArguments(new ParticleArgument("particle"))
                 .executesPlayer(((sender, args) -> {
-                    Particle particle = (Particle) args[0];
+                    Particle particle = (Particle) args.args()[0];
                     sender.getWorld().spawnParticle(particle, sender.getLocation(), 1);
                 }))
                 .register();

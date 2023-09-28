@@ -1,14 +1,11 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -19,7 +16,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
@@ -184,6 +180,7 @@ public class ItemUtil {
     }
 
     public static ItemStack addEnchantmentGlint(ItemStack stack) {
+        /*
         CraftItemStack craftStack = CraftItemStack.asCraftCopy(stack);
         net.minecraft.world.item.ItemStack nmsStack = (net.minecraft.world.item.ItemStack) getField(craftStack, "handle");
         CompoundTag compound = nmsStack.tag;
@@ -200,6 +197,9 @@ public class ItemUtil {
         compound.put("Enchantments", listTag);
 
         return craftStack;
+
+         */
+        return stack;
     }
 
     private static Object getField(Object obj, String name) {

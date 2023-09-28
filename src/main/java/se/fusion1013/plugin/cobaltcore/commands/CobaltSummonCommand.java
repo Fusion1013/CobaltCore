@@ -36,7 +36,7 @@ public class CobaltSummonCommand {
                 .withArguments(new LocationArgument("location"))
                 .withArguments(new IntegerArgument("count"))
                 .executes(((sender, args) -> {
-                    summonManyAtLocation(sender, (String)args[0], (Location)args[1], (int)args[2]);
+                    summonManyAtLocation(sender, (String)args.args()[0], (Location)args.args()[1], (int)args.args()[2]);
                 }));
     }
 
@@ -53,7 +53,7 @@ public class CobaltSummonCommand {
                 .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .withArguments(new IntegerArgument("count"))
                 .executesPlayer(((sender, args) -> {
-                    summonManyAtLocation(sender, (String)args[0], sender.getLocation(), (int)args[1]);
+                    summonManyAtLocation(sender, (String)args.args()[0], sender.getLocation(), (int)args.args()[1]);
                 }));
     }
 
@@ -70,7 +70,7 @@ public class CobaltSummonCommand {
                 .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .withArguments(new LocationArgument("location"))
                 .executes((sender, args) -> {
-                    summonManyAtLocation(sender, (String)args[0], (Location)args[1], 1);
+                    summonManyAtLocation(sender, (String)args.args()[0], (Location)args.args()[1], 1);
                 });
     }
 
@@ -86,7 +86,7 @@ public class CobaltSummonCommand {
                 .withPermission("cobalt.core.command.csummon")
                 .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomEntityManager.getInternalEntityNames())))
                 .executesPlayer(((sender, args) -> {
-                    summonManyAtLocation(sender, (String)args[0], sender.getLocation(), 1);
+                    summonManyAtLocation(sender, (String)args.args()[0], sender.getLocation(), 1);
                 }));
     }
 

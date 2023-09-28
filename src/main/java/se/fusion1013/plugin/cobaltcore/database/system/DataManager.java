@@ -97,6 +97,8 @@ public class DataManager extends Manager {
     @SuppressWarnings("unchecked")
     public <T extends IDao> T getDao(Class<T> dao) {
 
+        CobaltCore.getInstance().getLogger().info("Searching for dao " + dao.getName() + "...");
+
         // Find the correct storage pair
         Map<Class<?>, IDao> storage = daoImplementations.get(storageType);
         if (storage == null) {

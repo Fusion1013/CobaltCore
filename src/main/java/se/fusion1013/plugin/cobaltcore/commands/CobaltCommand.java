@@ -2,6 +2,7 @@ package se.fusion1013.plugin.cobaltcore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -68,7 +69,7 @@ public class CobaltCommand {
                         .executes(CobaltCommand::reloadEncounters));
     }
 
-    private static void reloadItems(CommandSender sender, Object[] args) {
+    private static void reloadItems(CommandSender sender, CommandArguments args) {
         try {
             CustomItemManager.reloadItems();
             if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.items");
@@ -85,7 +86,7 @@ public class CobaltCommand {
         }
     }
 
-    private static void reloadEncounters(CommandSender sender, Object[] args) {
+    private static void reloadEncounters(CommandSender sender, CommandArguments args) {
         try {
             EncounterManager.reloadEncounters();
             if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.encounters");
@@ -111,8 +112,8 @@ public class CobaltCommand {
                         .withArguments(new StringArgument("structure").replaceSuggestions(ArgumentSuggestions.strings(info -> StructureManager.getRegisteredStructureNames())))
                         .withArguments(new LocationArgument("location", LocationType.BLOCK_POSITION))
                         .executes(((sender, args) -> {
-                            String structureName = (String) args[0];
-                            Location location = (Location) args[1];
+                            String structureName = (String) args.args()[0];
+                            Location location = (Location) args.args()[1];
                             StructureManager.placeStructure(structureName, location);
                         })));
     }
@@ -189,9 +190,9 @@ public class CobaltCommand {
                 .withPermission("cobalt.core.commands.cobalt.database.reset")
                 .withArguments(new StringArgument("table").replaceSuggestions(ArgumentSuggestions.strings(info -> Database.getDatabaseTables())))
                 .executes(((sender, args) -> {
-                    SQLite.dropTable((String)args[0]);
+                    SQLite.dropTable((String)args.args()[0]);
                     CobaltCore.getInstance().getSQLDatabase().load();
-                    StringPlaceholders placeholders = StringPlaceholders.builder().addPlaceholder("table", (String)args[0]).build();
+                    StringPlaceholders placeholders = StringPlaceholders.builder().addPlaceholder("table", (String)args.args()[0]).build();
                     if (sender instanceof Player p) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), p, "database.reset_table", placeholders);
                 }));
     }
@@ -215,7 +216,7 @@ public class CobaltCommand {
      * @param p the player that is executing the command.
      * @param args the command arguments.
      */
-    private static void executeTablesCommand(Player p, Object[] args) {
+    private static void executeTablesCommand(Player p, CommandArguments args) {
         String[] tables = Database.getDatabaseTables();
 
         StringBuilder tablesBuilder = new StringBuilder();
@@ -285,7 +286,7 @@ public class CobaltCommand {
                 .withPermission("cobalt.core.commands.cobalt.config.get")
                 .withArguments(new StringArgument("key").replaceSuggestions(ArgumentSuggestions.strings(info -> configKeys)))
                 .executesPlayer((sender, args) -> {
-                    executeGetConfigValueCommand(sender, args, configKey);
+                    executeGetConfigValueCommand(sender, args.args(), configKey);
                 });
 
         // Command to edit values in the config file
@@ -294,7 +295,7 @@ public class CobaltCommand {
                 .withArguments(new StringArgument("key").replaceSuggestions(ArgumentSuggestions.strings(info -> configKeys)))
                 .withArguments(new BooleanArgument("value"))
                 .executesPlayer(((sender, args) -> {
-                    executeEditBooleanConfigKeyCommand(sender, args, configKey);
+                    executeEditBooleanConfigKeyCommand(sender, args.args(), configKey);
                 }));
 
         // Command to edit values in the config file
@@ -306,7 +307,7 @@ public class CobaltCommand {
             editStringCommand.withSubcommand(new CommandAPICommand(key)
                     .withArguments(new GreedyStringArgument("value"))
                     .executesPlayer(((sender, args) -> {
-                        executeEditStringConfigKeyCommand(sender, key, (String)args[0], configKey);
+                        executeEditStringConfigKeyCommand(sender, key, (String)args.args()[0], configKey);
                     })));
         }
 

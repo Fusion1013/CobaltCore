@@ -49,13 +49,13 @@ public class SettingCommand {
         command.executesPlayer(((sender, args) -> {
             // Attempt to set the new value
             String oldValue = SettingsManager.getPlayerSetting(sender, settingKey);
-            boolean success = SettingsManager.setPlayerSetting(sender, settingKey, (String)args[0]);
+            boolean success = SettingsManager.setPlayerSetting(sender, settingKey, (String)args.args()[0]);
 
             // Create placeholder with variables
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("key", settingKey)
                     .addPlaceholder("old_value", oldValue)
-                    .addPlaceholder("value", args[0])
+                    .addPlaceholder("value", args.args()[0])
                     .build();
 
             // Depending on if the setting change was a success or not, give appropriate feedback
@@ -73,9 +73,9 @@ public class SettingCommand {
                 .withPermission("commands.core.setting.get")
                 .withArguments(new StringArgument("setting").replaceSuggestions(ArgumentSuggestions.strings(info -> SettingsManager.getSettingNames())))
                 .executesPlayer(((sender, args) -> {
-                    String value = SettingsManager.getPlayerSetting(sender, (String)args[0]);
+                    String value = SettingsManager.getPlayerSetting(sender, (String)args.args()[0]);
                     StringPlaceholders placeholders = StringPlaceholders.builder()
-                            .addPlaceholder("key", args[0])
+                            .addPlaceholder("key", args.args()[0])
                             .addPlaceholder("value", value)
                             .build();
                     LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.setting.get", placeholders);

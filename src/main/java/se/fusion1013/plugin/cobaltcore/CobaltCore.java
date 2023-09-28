@@ -175,7 +175,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
         this.getManager(this, DebugManager.class);
 
-        this.getManager(this, ObjectManager.class);
+        // this.getManager(this, ObjectManager.class);
 
         this.getManager(this, ActionBarManager.class);
     }
@@ -251,6 +251,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
             // Load custom items
             // NOTE: Must be run after manager registration. Otherwise, item components do not work
+            CustomItemManager.loadItemCategoryFiles(plugin, false);
             CustomItemManager.loadItemFiles(plugin, false);
 
             // Load custom advancements

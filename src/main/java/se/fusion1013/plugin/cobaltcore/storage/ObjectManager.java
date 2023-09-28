@@ -311,11 +311,11 @@ public class ObjectManager extends Manager implements Listener {
                 .withArguments(new StringArgument("identifier").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .withArguments(new StringArgument("new_mapping"))
                 .executes((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     if (loadedObject == null) return;
 
-                    String newMapping = (String) args[1];
+                    String newMapping = (String) args.args()[1];
                     updateMappings(loadedObject, newMapping);
 
                     // TODO: Command feedback
@@ -327,11 +327,11 @@ public class ObjectManager extends Manager implements Listener {
                 .withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .withArguments(new StringArgument("activatable_uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getActivatableStorageObjectUUIDs())))
                 .executes(((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     if (loadedObject == null) return; // TODO: Feedback
 
-                    UUID activatableUUID = UUID.fromString((String) args[1]);
+                    UUID activatableUUID = UUID.fromString((String) args.args()[1]);
                     if (loadedObject instanceof IActivatorStorageObject activatorStorageObject) {
                         activatorStorageObject.addActivatable(activatableUUID);
                         updateStorageObject(activatorStorageObject);
@@ -344,11 +344,11 @@ public class ObjectManager extends Manager implements Listener {
                 .withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .withArguments(new StringArgument("activatable_uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getActivatableStorageObjectUUIDs())))
                 .executes(((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     if (loadedObject == null) return; // TODO: Feedback
 
-                    UUID activatableUUID = UUID.fromString((String) args[1]);
+                    UUID activatableUUID = UUID.fromString((String) args.args()[1]);
                     if (loadedObject instanceof IActivatorStorageObject activatorStorageObject) {
                         activatorStorageObject.removeActivatable(activatableUUID);
                         updateStorageObject(activatorStorageObject);
@@ -360,7 +360,7 @@ public class ObjectManager extends Manager implements Listener {
         return new CommandAPICommand("toggle")
                 .withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .executes((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     if (loadedObject == null) return; // TODO: Feedback
 
@@ -377,7 +377,7 @@ public class ObjectManager extends Manager implements Listener {
         return new CommandAPICommand("info")
                 .withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .executesPlayer(((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     if (loadedObject == null) return; // TODO: Feedback
 
@@ -433,7 +433,7 @@ public class ObjectManager extends Manager implements Listener {
                 .withArguments(new LocationArgument("location", LocationType.BLOCK_POSITION)) // TODO: Possibly create two commands, one that takes block position, one that takes absolute position
                 .executes(((sender, args) -> {
                     // Get variables
-                    Location location = (Location) args[0];
+                    Location location = (Location) args.args()[0];
                     IStorageObject newObject = createStorageObject(object.getObjectIdentifier(), location);
                     if (newObject == null) return;
 
@@ -457,7 +457,7 @@ public class ObjectManager extends Manager implements Listener {
         return new CommandAPICommand("remove")
                 .withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))))
                 .executes(((sender, args) -> {
-                    UUID uuid = UUID.fromString((String) args[0]);
+                    UUID uuid = UUID.fromString((String) args.args()[0]);
                     IStorageObject loadedObject = getLoadedObject(object.getObjectIdentifier(), uuid);
                     removeStorageObject(uuid, object.getObjectIdentifier(), loadedObject.getLocation().getChunk());
 
@@ -485,9 +485,9 @@ public class ObjectManager extends Manager implements Listener {
             argumentCommand.withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))));
             argumentCommand.withArguments(argument);
             argumentCommand.executes(((sender, args) -> {
-                UUID uuid = UUID.fromString((String) args[0]);
+                UUID uuid = UUID.fromString((String) args.args()[0]);
                 String key = argument.getNodeName();
-                Object value = args[1];
+                Object value = args.args()[1];
 
                 // Add the value
                 addStorageObjectListValue(object.getObjectIdentifier(), uuid, key, value);
@@ -509,9 +509,9 @@ public class ObjectManager extends Manager implements Listener {
             argumentCommand.withArguments(new StringArgument("uuid").replaceSuggestions(ArgumentSuggestions.strings(info -> getLoadedObjectsOfTypeStringIds(object.getObjectIdentifier()))));
             argumentCommand.withArguments(argument);
             argumentCommand.executes(((sender, args) -> {
-                UUID uuid = UUID.fromString((String) args[0]);
+                UUID uuid = UUID.fromString((String) args.args()[0]);
                 String key = argument.getNodeName();
-                Object value = args[1];
+                Object value = args.args()[1];
 
                 // Add the value
                 removeStorageObjectListValue(object.getObjectIdentifier(), uuid, key, value);
@@ -535,9 +535,9 @@ public class ObjectManager extends Manager implements Listener {
             argumentCommand.executes(((sender, args) -> {
 
                 // Get arguments
-                UUID objectUUID = UUID.fromString((String) args[0]);
+                UUID objectUUID = UUID.fromString((String) args.args()[0]);
                 String key = argument.getNodeName();
-                Object value = args[1];
+                Object value = args.args()[1];
 
                 // Set the value
                 setStorageObjectValue(object.getObjectIdentifier(), objectUUID, key, value);
