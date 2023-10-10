@@ -12,6 +12,7 @@ public enum CoreActionType implements IActionType {
     Particle,
     Summon,
     Encounter,
+    Effect,
 
     // -- Conditional Actions
     IsSneakingAction
