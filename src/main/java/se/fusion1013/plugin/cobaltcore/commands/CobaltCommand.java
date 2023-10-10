@@ -22,19 +22,11 @@ import se.fusion1013.plugin.cobaltcore.commands.encounter.EncounterCommand;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
 import se.fusion1013.plugin.cobaltcore.database.system.SQLite;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
-import se.fusion1013.plugin.cobaltcore.debug.DebugManager;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
-import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
-import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
-import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 import se.fusion1013.plugin.cobaltcore.util.StringPlaceholders;
 import se.fusion1013.plugin.cobaltcore.util.VersionUtil;
 import se.fusion1013.plugin.cobaltcore.world.structure.StructureManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
 public class CobaltCommand {
 
