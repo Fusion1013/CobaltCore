@@ -1,9 +1,11 @@
 package se.fusion1013.plugin.cobaltcore.util;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
-import se.fusion1013.plugin.cobaltcore.commands.system.CommandResult;
+import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -105,6 +107,97 @@ public class FileUtil {
         // return the array of strings of filenames inside path.
         return result.toArray(new String[result.size()]);
 
+    }
+
+    public static void loadFilesInto(CobaltPlugin plugin, String folderName, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
+        File dataFolder = plugin.getDataFolder();
+        File fileFolder = new File(dataFolder, folderName);
+        plugin.getLogger().info("Loading files from folder '" + folderName + "'...");
+        int files = loadFromFolders(plugin, fileFolder, providerStorage, constructor, overwrite);
+        files += loadFromResources(plugin, folderName, providerStorage, constructor, overwrite);
+        plugin.getLogger().info("Loaded " + files + " files from folder '" + folderName + "'");
+    }
+
+    private static int loadFromFolders(CobaltPlugin plugin, File rootFolder, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
+        // If folder does not exist, create it and return
+        if (!rootFolder.exists()) {
+            rootFolder.mkdirs();
+            return 0;
+        }
+
+        int filesLoaded = 0;
+        File[] files = rootFolder.listFiles();
+        if (files == null) return filesLoaded;
+        for (File file : files) {
+            if (file.isDirectory()) filesLoaded += loadFromFolders(plugin, file, providerStorage, constructor, overwrite);
+            else {
+                if (tryLoadFile(plugin, file, providerStorage, constructor, overwrite)) filesLoaded++;
+            }
+        }
+
+        return filesLoaded;
+    }
+
+    private static int loadFromResources(CobaltPlugin plugin, String folderName, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
+        int filesLoaded = 0;
+        String[] fileNames = getResources(plugin.getClass(), folderName);
+        for (String s : fileNames) {
+            File file = getOrCreateFileFromResource(plugin, folderName + s);
+            if (file.exists()) if (tryLoadFile(plugin, file, providerStorage, constructor, overwrite)) filesLoaded++;
+        }
+        return filesLoaded;
+    }
+
+    private static boolean tryLoadFile(CobaltPlugin plugin, File file, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
+        var provider = loadFile(file, constructor);
+        if (provider == null) return false;
+
+        // Check if the provider is already in the map
+        var oldProvider = providerStorage.get(provider.getInternalName());
+        if (oldProvider != null) {
+            if (overwrite) {
+                oldProvider.onDisabled();
+            } else {
+                plugin.getLogger().warning("A provider with the name '" + provider.getInternalName() + "' has already been registered, skipping");
+                return false;
+            }
+        }
+
+        providerStorage.put(provider.getInternalName(), provider);
+        provider.onEnabled();
+
+        return true;
+    }
+
+    private static INameProvider loadFile(File file, IFileConstructor constructor) {
+        if (fileEnding(file).equalsIgnoreCase("yml")) return loadFileYml(file, constructor);
+        if (fileEnding(file).equalsIgnoreCase("json")) return loadFileJson(file, constructor);
+        return null;
+    }
+
+    private static INameProvider loadFileYml(File file, IFileConstructor constructor) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        try {
+            yaml.load(file);
+        } catch (IOException | InvalidConfigurationException ex) {
+            ex.printStackTrace();
+        }
+
+        return constructor.createFrom(yaml);
+    }
+
+    private static INameProvider loadFileJson(File file, IFileConstructor constructor) {
+        return null; // TODO
+    }
+
+    public static String fileEnding(File file) {
+        if (file.isDirectory()) return "";
+        String extension = "";
+        int i = file.getName().lastIndexOf('.');
+        if (i >= 0) {
+            extension = file.getName().substring(i+1);
+        }
+        return extension;
     }
 
 }
