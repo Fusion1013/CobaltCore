@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
 import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
-import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSection;
 import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 
 import java.util.ArrayList;
@@ -32,10 +32,10 @@ public class CGiveCommand {
     // ----- CATEGORIES -----
 
     public static void addCategoryCommands(CommandAPICommand parent) {
-        IItemCategory[] categories = CustomItemManager.getCustomItemCategories();
+        ItemSection[] categories = CustomItemManager.getCustomItemCategories();
 
         // For each category; Create commands for giving single / all items in the category
-        for (IItemCategory category : categories) {
+        for (ItemSection category : categories) {
             parent.withSubcommand(
                     new CommandAPICommand(category.getInternalName())
                             .withSubcommand(
@@ -62,7 +62,7 @@ public class CGiveCommand {
 
     // ----- GIVE METHODS -----
 
-    private static void giveAllInCategory(Player player, IItemCategory category) {
+    private static void giveAllInCategory(Player player, ItemSection category) {
         String[] items = CustomItemManager.getItemNamesInCategory(category);
         List<ItemStack> itemStacks = new ArrayList<>();
         for (String s : items) {
