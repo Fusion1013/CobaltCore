@@ -1,48 +1,26 @@
 package se.fusion1013.plugin.cobaltcore.item;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import com.google.gson.JsonObject;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.*;
-import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
 import se.fusion1013.plugin.cobaltcore.event.PlayerHeldItemTickEvent;
-import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
-import se.fusion1013.plugin.cobaltcore.item.category.ItemCategory;
-import se.fusion1013.plugin.cobaltcore.item.category.ItemCategoryOld;
-import se.fusion1013.plugin.cobaltcore.item.components.ActionbarComponent;
-import se.fusion1013.plugin.cobaltcore.item.components.ChargeComponent;
-import se.fusion1013.plugin.cobaltcore.item.components.ComponentManager;
-import se.fusion1013.plugin.cobaltcore.item.components.IItemComponent;
-import se.fusion1013.plugin.cobaltcore.item.crafting.RecipeManager;
-import se.fusion1013.plugin.cobaltcore.item.enchantment.CobaltEnchantment;
-import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
-import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentWrapper;
-import se.fusion1013.plugin.cobaltcore.item.system.CobaltItem;
-import se.fusion1013.plugin.cobaltcore.item.system.IItemRarity;
-import se.fusion1013.plugin.cobaltcore.item.system.ItemRarity;
+import se.fusion1013.plugin.cobaltcore.item.loaders.ItemLoader;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSection;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSectionManager;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
 import se.fusion1013.plugin.cobaltcore.util.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class CustomItemManager extends Manager implements Listener {
@@ -51,59 +29,7 @@ public class CustomItemManager extends Manager implements Listener {
 
     private static final Map<String, ItemStack> INBUILT_ITEMS = new HashMap<>(); // Holds all custom items ITEMSTACKS
     private static final Map<String, ICustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
-    private static final Map<IItemCategory, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
-
-    private static final List<IItemCategory> REGISTERED_CATEGORIES = new ArrayList<>();
-    private static final List<IItemRarity[]> REGISTERED_RARITIES = new ArrayList<>();
-
-    private static final List<IItemComponent> REGISTERED_COMPONENTS = new ArrayList<>();
-
-    // ----- REGISTER HOLDERS -----
-
-    private static final Class<ItemRarity> ITEM_RARITY = registerRarity(ItemRarity.class);
-    // private static final Class<ItemCategoryOld> ITEM_CATEGORY = registerCategory(ItemCategoryOld.class);
-
-    private static final IItemCategory CATEGORY_NONE = registerCategory(new ItemCategory("none", "None", "If this shows up on an item, something has gone wrong", NamedTextColor.WHITE));
-
-    private static final IItemComponent ACTIONBAR_COMPONENT = registerComponent(new ActionbarComponent(""));
-    private static final IItemComponent CHARGE_COMPONENT = registerComponent(new ChargeComponent(""));
-
-    // ----- ITEM REGISTERING -----
-
-    // Item used for testing the CustomItem system.
-    public static final ICustomItem TEST_ITEM = register(new CobaltItem.Builder("test_item")
-            .material(Material.CLOCK).modelData(10) // Item Visuals
-            .itemName(HexUtils.colorify("<r:0.8:1.0>Test Rainbow Item&3&o Not Rainbow")) // Item name
-            .enchantments(new EnchantmentWrapper(CobaltEnchantment.WITHER, 2, false)) // Enchantment
-            .rarity(ItemRarity.LEGENDARY) // Rarity
-            .rarityLore(HexUtils.colorify("&8This item has a pretty high rarity huh,"), HexUtils.colorify("&8it is almost like you should not have it!")) // Rarity lore
-            .extraLore(
-                    Component.text("This is some extra lore").color(NamedTextColor.DARK_GRAY),
-                    Component.text("This is more extra lore").color(NamedTextColor.DARK_GRAY),
-                    Component.text("[").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
-                            .append(Component.keybind("key.sneak").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
-                            .append(Component.text("]: Do thing").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false))
-            ) // Extra lore
-            .category(ItemCategoryOld.TESTING) // Item category
-            .editMeta(meta -> { // Edit meta
-                meta.addEnchant(Enchantment.MENDING, 1, true);
-                return meta;
-            })
-            .itemActivatorAsync(ItemActivator.PLAYER_ACTIVATE_SNEAK, (item, event, slot) -> {
-                PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
-                sneakEvent.getPlayer().sendMessage("U DO DE SNEAK");
-            })
-            // Item Components
-            .component(new ActionbarComponent.Builder()
-                    .setActionbarComponent(Component.text("This is a test ab component")))
-            .build());
-
-    // Item used for testing the CustomBlock system.
-    public static final ICustomItem MIXING_CAULDRON = register(new CobaltItem.Builder("test_block")
-            .material(Material.CLOCK)
-            .itemName(ChatColor.RESET + "Mixing Cauldron")
-            .modelData(10005)
-            .build());
+    private static final Map<ItemSection, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
 
     // ----- CONSTRUCTORS -----
 
@@ -111,75 +37,6 @@ public class CustomItemManager extends Manager implements Listener {
         super(cobaltCore);
         INSTANCE = this;
     }
-
-    // ----- RECIPES -----
-
-    // TODO: Move Recipes to CustomItem or AbstractCustomItem
-    /**
-     * WARNING: STONECUTTING RECIPES MUST BE REGISTERED IN ALPHABETICAL ORDER
-    */
-    /*
-    public static StonecuttingRecipe addStoneCuttingRecipe(StonecuttingRecipe recipe) {
-        CobaltCore.getInstance().getServer().addRecipe(recipe);
-        return recipe;
-    }
-     */
-
-    /*
-    public static ShapedRecipe addShapedRecipe(ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
-        return addShapedRecipe("internal", result, row1, row2, row3, ingredients);
-    }
-    */
-
-    /*
-    /**
-     * Registers a new <code>ShapedRecipe</code> for the given <code>ItemStack</code>.
-     * @param result the <code>ItemStack</code> to add a recipe for.
-     * @param row1 recipe pattern.
-     * @param row2 recipe pattern.
-     * @param row3 recipe pattern.
-     * @param ingredients recipe ingredients.
-     * @return the recipe.
-     */
-    /*
-    public static ShapedRecipe addShapedRecipe(String recipeName, ItemStack result, String row1, String row2, String row3, AbstractCustomItem.ShapedIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
-        for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
-
-        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
-        recipe.shape(row1, row2, row3);
-        for (AbstractCustomItem.ShapedIngredient ingredient : ingredients) recipe.setIngredient(ingredient.key, ingredient.item);
-        CobaltCore.getInstance().getServer().addRecipe(recipe);
-
-        return recipe;
-    }
-     */
-
-    /*
-    public static ShapelessRecipe addShapelessRecipe(ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
-        return addShapelessRecipe("internal", result, ingredients);
-    }
-     */
-
-    /*
-    /**
-     * Registers a new <code>ShapelessRecipe</code> for the given <code>ItemStack</code>.
-     * @param result the <code>ItemStack</code> to add a recipe for.
-     * @param ingredients recipe ingredients.
-     * @return the recipe.
-     */
-    /*
-    public static ShapelessRecipe addShapelessRecipe(String recipeName, ItemStack result, AbstractCustomItem.ShapelessIngredient... ingredients) {
-        StringBuilder keyString = new StringBuilder("custom.shapeless." + recipeName + ".");
-        for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) keyString.append(ingredient.item.getType().name());
-
-        ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(CobaltCore.getInstance(), keyString.toString()), result);
-        for (AbstractCustomItem.ShapelessIngredient ingredient : ingredients) recipe.addIngredient(ingredient.count, ingredient.item);
-        CobaltCore.getInstance().getServer().addRecipe(recipe);
-
-        return recipe;
-    }
-     */
 
     // ----- REGISTER -----
 
@@ -192,78 +49,25 @@ public class CustomItemManager extends Manager implements Listener {
     public static ICustomItem register(ICustomItem item){
         INBUILT_ITEMS.put(item.getInternalName(), item.getItemStack());
         INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
-        ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
+        if (item.getItemCategory() != null) ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
         return item;
     }
 
-    public static IItemComponent registerComponent(IItemComponent component) {
-        REGISTERED_COMPONENTS.add(component);
-        return component;
-    }
-
-    public static IItemCategory registerCategory(IItemCategory category) {
-        REGISTERED_CATEGORIES.add(category);
-        return category;
-    }
-
-    /**
-     * Registers a new <code>IItemCategory</code>.
-     *
-     * @param category the <code>IItemCategory</code> to register.
-     * @return the <code>IItemCategory</code>.
-     */
-    @Deprecated
-    public static <T extends Enum<T>> Class<T> registerCategory(Class<T> category) {
-        for (int i = 0; i < category.getEnumConstants().length; i++) {
-            var c = (IItemCategory) category.getEnumConstants()[i];
-            REGISTERED_CATEGORIES.add(c);
-        }
-        return category;
-    }
-
-    /**
-     * Registers a new <code>IItemRarity</code>.
-     *
-     * @param rarity the <code>IItemRarity</code> to register.
-     * @return the <code>IItemRarity</code>.
-     */
-    public static <T extends Enum<T>> Class<T> registerRarity(Class<T> rarity) {
-        IItemRarity[] categories = new IItemRarity[rarity.getEnumConstants().length];
-        for (int i = 0; i < categories.length; i++) {
-            categories[i] = (IItemRarity) rarity.getEnumConstants()[i];
-        }
-        REGISTERED_RARITIES.add(categories);
-        return rarity;
+    public static ICustomItem register(INameProvider item) {
+        return register((ICustomItem) item);
     }
 
     // ----- GETTERS / SETTERS -----
 
-    /**
-     * Gets all <code>IItemCategory</code> of registered <code>ICustomItem</code>'s
-     *
-     * @return an array of <code>IItemCategory</code>.
-     */
-    public static IItemCategory[] getCustomItemCategories() {
-        return ITEMS_SORTED_CATEGORY.keySet().toArray(new IItemCategory[0]);
+    public static ItemSection[] getCustomItemCategories() {
+        return ITEMS_SORTED_CATEGORY.keySet().toArray(new ItemSection[0]);
     }
 
-    /**
-     * Get all <code>CustomItem</code>'s in the given <code>IItemCategory</code>.
-     *
-     * @param category the <code>IItemCategory</code> to get <code>CustomItem</code>'s from.
-     * @return an array of <code>CustomItem</code> names.
-     */
-    public static String[] getItemNamesInCategory(IItemCategory category) {
+    public static String[] getItemNamesInCategory(ItemSection category) {
         Map<String, ICustomItem> items = ITEMS_SORTED_CATEGORY.get(category);
         return items.keySet().toArray(new String[0]);
     }
 
-    /**
-     * Gets a <code>ICustomItem</code> from an <code>ItemStack</code>.
-     *
-     * @param item the <code>ItemStack</code>.
-     * @return the <code>ICustomItem</code>, or null if it was not found.
-     */
     public static ICustomItem getCustomItem(ItemStack item) { // Get persistent data container of item
         for (ICustomItem customItem : INBUILT_CUSTOM_ITEMS.values()) {
             if (customItem.compareTo(item)) return customItem;
@@ -321,7 +125,7 @@ public class CustomItemManager extends Manager implements Listener {
      * @param stack the item.
      * @return the internal name of the item.
      */
-    public static String getItemName(ItemStack stack) {
+    public static String getInternalItemName(ItemStack stack) {
         for (ICustomItem i : INBUILT_CUSTOM_ITEMS.values()) {
             if (i.compareTo(stack)) return i.getInternalName();
         }
@@ -363,40 +167,16 @@ public class CustomItemManager extends Manager implements Listener {
         return false;
     }
 
-    /**
-     * Gets an array of all registered <code>CustomItem</code>'s <code>ItemStack</code>'s.
-     *
-     * @return an array of <code>ItemStack</code>'s.
-     */
     public static ItemStack[] getCustomItemStacks() {
         return INBUILT_ITEMS.values().toArray(new ItemStack[0]);
     }
-
-    /**
-     * Gets an <code>CustomItem</code> from the registered <code>CustomItems</code>'s.
-     *
-     * @param name the name of the item to get.
-     * @return the <code>CustomItem</code>.
-     */
     public static ICustomItem getCustomItem(String name) {
         return INBUILT_CUSTOM_ITEMS.get(name);
     }
-
-    /**
-     * Gets an <code>ItemStack</code> from the registered <code>CustomItem</code>'s.
-     *
-     * @param name the name of the item to get.
-     * @return the <code>ItemStack</code>.
-     */
     public static ItemStack getCustomItemStack(String name) {
         return INBUILT_ITEMS.get(name);
     }
 
-    /**
-     * Gets an array of all registered item names.
-     *
-     * @return an array of names.
-     */
     public static String[] getCustomItemNames() {
         String[] names = new String[INBUILT_ITEMS.size()];
         List<String> keys = new ArrayList<>(INBUILT_ITEMS.keySet());
@@ -406,296 +186,43 @@ public class CustomItemManager extends Manager implements Listener {
         return names;
     }
 
-    public static IItemRarity getRarity(String name) {
-        for (IItemRarity[] rarityHandlers : REGISTERED_RARITIES) {
-            for (IItemRarity rarity : rarityHandlers) {
-                if (rarity.getInternalName().equalsIgnoreCase(name)) return rarity;
-            }
-        }
-        return null;
-    }
-
-    public static IItemCategory getCategory(String name) {
-        for (IItemCategory category : REGISTERED_CATEGORIES) {
-            if (category.getInternalName().equalsIgnoreCase(name)) return category;
-        }
-        return null;
-    }
-
-    // ----- ITEM CATEGORY LOADING -----
-
-    public static void loadItemCategoryFiles(CobaltPlugin plugin, boolean overwrite) {
-        File dataFolder = plugin.getDataFolder();
-        File itemFolder = new File(dataFolder, "item_categories");
-        loadItemCategoriesFromFolders(plugin, itemFolder, overwrite);
-    }
-
-    private static void loadItemCategoriesFromFolders(CobaltPlugin plugin, File rootFolder, boolean overwrite) {
-        // Load from item categories files folder
-        if (!rootFolder.exists()) {
-            rootFolder.mkdirs();
-            return;
-        }
-
-        plugin.getLogger().info("Loading item categories from folder '" + rootFolder.getName() + "'...");
-
-        int itemsLoaded = 0;
-        File[] files = rootFolder.listFiles();
-        if (files == null) return;
-        for (File file : files) {
-            if (file.isDirectory()) loadItemCategoriesFromFolders(plugin, file, overwrite);
-            else {
-                loadCategory(plugin, file, overwrite);
-                itemsLoaded++;
-            }
-        }
-
-        plugin.getLogger().info("Loaded " + itemsLoaded + " item categories from folder " + rootFolder.getName());
-    }
-
-    private static void loadCategory(CobaltPlugin plugin, File file, boolean overwrite) {
-        YamlConfiguration yaml = new YamlConfiguration();
-        try {
-            yaml.load(file);
-        } catch (IOException | InvalidConfigurationException ex) {
-            ex.printStackTrace();
-        }
-
-        String internalName = yaml.getString("internal_name");
-        if (internalName == null) return;
-
-        String name = yaml.getString("name");
-        String description = yaml.getString("description");
-        String colorFormatString = yaml.getString("color_format_string");
-        String colorString = yaml.getString("color");
-        if (colorString == null) return;
-        NamedTextColor color = NamedTextColor.NAMES.value(colorString);
-
-        registerCategory(new ItemCategory(internalName, name, description, colorFormatString, color));
-    }
-
     // ----- ITEM FILE LOADING -----
 
     public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
-        File dataFolder = plugin.getDataFolder();
-        File itemFolder = new File(dataFolder, "items/");
-        loadItemsFromFolders(plugin, itemFolder, overwrite);
 
-        loadItemsFromResources(plugin);
-
-        CobaltCore.getInstance().getManager(CobaltCore.getInstance(), RecipeManager.class).registerRecipes();
-    }
-
-    private static void loadItemsFromResources(CobaltPlugin plugin) {
-        // Load from resources
-        String[] itemFileNames = FileUtil.getResources(plugin.getClass(), "items");
-        for (String s : itemFileNames) {
-            File file = FileUtil.getOrCreateFileFromResource(plugin, "items/" + s);
-            if (file.exists()) plugin.getLogger().info("Found item file: " + file.getAbsolutePath());
-
-            loadItem(plugin, file, false);
-        }
-    }
-
-    private static void loadItemsFromFolders(CobaltPlugin plugin, File rootFolder, boolean overwrite) {
-        // Load from item files folder
-        if (!rootFolder.exists()) {
-            rootFolder.mkdirs();
-            return;
-        }
-
-        plugin.getLogger().info("Loading items from folder '" + rootFolder.getName() + "'...");
-
-        int itemsLoaded = 0;
-        File[] files = rootFolder.listFiles();
-        if (files == null) return;
-        for (File file : files) {
-            if (file.isDirectory()) loadItemsFromFolders(plugin, file, overwrite);
-            else {
-                loadItem(plugin, file, overwrite);
-                itemsLoaded ++;
-            }
-        }
-
-        plugin.getLogger().info("Loaded " + itemsLoaded + " items from folder " + rootFolder.getName());
-    }
-
-    private static void loadItem(CobaltPlugin plugin, File file, boolean overwrite) {
-        YamlConfiguration yaml = new YamlConfiguration();
-        try {
-            yaml.load(file);
-        } catch (IOException | InvalidConfigurationException ex) {
-            ex.printStackTrace();
-        }
-
-        String internalName = yaml.getString("internal_name");
-        if (internalName == null) return;
-        ICustomItem loaded = getCustomItem(internalName);
-        if (loaded != null) {
-            if (overwrite) {
-                loaded.onDisable();
-            } else {
-                plugin.getLogger().warning("An item with the name '" + internalName + "' has already been registered, skipping");
-                return;
-            }
-        }
-        CobaltItem.Builder itemBuilder = new CobaltItem.Builder(internalName);
-
-        // Load item values
-
-        // Material
-        if (yaml.contains("material")) {
-            Material material = EnumUtils.findEnumInsensitiveCase(Material.class, yaml.getString("material"));
-            if (material != null) itemBuilder.material(material);
-        }
-
-        // Model data
-        if (yaml.contains("model_data")) itemBuilder.modelData(yaml.getInt("model_data"));
-
-        // Display name
-        if (yaml.contains("display_name")) itemBuilder.itemName(HexUtils.colorify(yaml.getString("display_name")));
-
-        // Rarity
-        if (yaml.contains("rarity")) { // TODO: Load from all plugins
-            IItemRarity rarity = getRarity(yaml.getString("rarity"));
-            if (rarity != null) itemBuilder.rarity(rarity);
-
-            // Rarity lore
-            if (yaml.contains("rarity_lore")) {
-                List<String> rarityLore = yaml.getStringList("rarity_lore");
-                List<Component> rarityLoreComponents = new ArrayList<>();
-                for (String s : rarityLore) rarityLoreComponents.add(Component.text(s).color(NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
-                itemBuilder.rarityLore(rarityLoreComponents.toArray(new Component[0]));
-            }
-        }
-
-        // Item category
-        if (yaml.contains("category")) { // TODO: Load from all plugins
-            IItemCategory category = getCategory(yaml.getString("category"));
-            if (category != null) itemBuilder.category(category);
-        }
-
-        // Enchantments
-        if (yaml.contains("enchantments")) {
-            List<Map<?, ?>> mapList = yaml.getMapList("enchantments");
-
-            List<EnchantmentWrapper> enchantments = new ArrayList<>();
-
-            for (Map<?, ?> map : mapList) {
-                map.keySet().forEach(k -> {
-                    Map<?, ?> values = (Map<?, ?>) map.get(k);
-
-                    String name = (String) k;
-                    int level = (int) values.get("level");
-                    boolean ignoreLevelRestriction = false;
-                    if (values.get("ignore_level_restrictions") != null) ignoreLevelRestriction = (boolean) values.get("ignore_level_restrictions");
-
-                    EnchantmentWrapper wrapper = EnchantmentManager.getEnchantment(name, level, ignoreLevelRestriction);
-                    if (wrapper != null) enchantments.add(wrapper);
-                });
+        FileUtil.loadFilesInto(plugin, "items/", new IProviderStorage() {
+            @Override
+            public void put(String key, INameProvider provider) {
+                register(provider);
             }
 
-            itemBuilder.enchantments(enchantments.toArray(new EnchantmentWrapper[0]));
-        }
-
-        // Extra lore
-        if (yaml.contains("extra_lore")) {
-            List<String> extraLore = yaml.getStringList("extra_lore");
-            itemBuilder.extraLore(extraLore.toArray(new String[0]));
-        }
-
-        // Attributes
-        if (yaml.contains("attributes")) {
-            List<Map<?, ?>> mapList = yaml.getMapList("attributes");
-
-            for (Map<?, ?> map : mapList) {
-                map.keySet().forEach(k -> {
-                    Map<?, ?> values = (Map<?, ?>) map.get(k);
-
-                    Attribute attribute = EnumUtils.findEnumInsensitiveCase(Attribute.class, (String) k);
-                    double amount = (double) values.get("amount");
-                    AttributeModifier.Operation operation = EnumUtils.findEnumInsensitiveCase(AttributeModifier.Operation.class, (String) values.get("operation"));
-                    List<String> equipmentSlots = (List<String>) values.get("equipment_slots");
-
-                    for (String s : equipmentSlots) {
-                        itemBuilder.attribute(attribute, new AttributeModifier(UUID.randomUUID(), internalName + "_modifier", amount, operation, EnumUtils.findEnumInsensitiveCase(EquipmentSlot.class, s)));
-                    }
-                });
-            }
-        }
-
-        // Tags // TODO
-
-        // Extra meta editors
-        itemBuilder.editMeta(meta -> {
-
-            // Repairable
-            if (meta instanceof Repairable repairable) {
-                if (yaml.contains("repair_cost")) repairable.setRepairCost(yaml.getInt("repair_cost"));
+            @Override
+            public boolean has(String key) {
+                return getCustomItem(key) != null;
             }
 
-            // Book
-            if (meta instanceof BookMeta bookMeta) {
-                if (yaml.contains("book_author")) bookMeta.setAuthor(yaml.getString("book_author"));
-                if (yaml.contains("book_generation")) bookMeta.setGeneration(EnumUtils.findEnumInsensitiveCase(BookMeta.Generation.class, yaml.getString("book_generation")));
-                if (yaml.contains("book_title")) bookMeta.setTitle(yaml.getString("book_title"));
-                if (yaml.contains("book_text")) {
-                    List<String> text = yaml.getStringList("book_text");
-                    for (String s : text) bookMeta.addPage(HexUtils.colorify(s));
-                }
+            @Override
+            public INameProvider get(String key) {
+                return getCustomItem(key);
+            }
+        }, new IFileConstructor() {
+            @Override
+            public INameProvider createFrom(YamlConfiguration yaml) {
+                return ItemLoader.Load(yaml);
             }
 
-            // Leather Armor
-            if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
-                if (yaml.contains("leather_armor_color")) {
-                    leatherArmorMeta.setColor(ColorUtil.hex2Rgb(yaml.getString("leather_armor_color")));
-                    leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
-                }
+            @Override
+            public INameProvider createFrom(JsonObject json) {
+                return ItemLoader.Load(json);
             }
-
-            // Item Flags
-            if (yaml.contains("flags")) {
-                List<?> flags = yaml.getList("flags");
-                if (flags != null) {
-                    flags.forEach(f -> {
-                        meta.addItemFlags(EnumUtils.findEnumInsensitiveCase(ItemFlag.class, (String) f));
-                    });
-                }
-            }
-
-            // Misc
-            if (yaml.contains("unbreakable")) meta.setUnbreakable(yaml.getBoolean("unbreakable"));
-
-            return meta;
-        });
-
-        // Item Components
-        if (yaml.contains("components")) {
-            List<Map<?, ?>> mapList = yaml.getMapList("components");
-
-            for (Map<?, ?> map : mapList) {
-                map.keySet().forEach(k -> {
-                    String internalComponentName = (String) k;
-                    // IItemComponent component = getComponent(internalComponentName, (Map<?, ?>) map.get(k));
-                    IItemComponent component = ComponentManager.getComponent(internalComponentName, (Map<?, ?>) map.get(k), internalName);
-                    if (component != null) itemBuilder.component(component);
-                });
-            }
-        }
-
-        // Register item
-        register(itemBuilder.build());
-
-        RecipeManager.loadRecipesFromFile(file, internalName);
-
-        // plugin.getLogger().info("Loaded item from file '" + file.getName() + "'");
+        }, overwrite);
     }
 
     // ----- RELOADING / DISABLING -----
 
     public static void reloadItems() {
         for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) {
-            loadItemCategoryFiles(plugin, true);
+            ItemSectionManager.load(plugin, true);
             loadItemFiles(plugin, true);
         }
     }
