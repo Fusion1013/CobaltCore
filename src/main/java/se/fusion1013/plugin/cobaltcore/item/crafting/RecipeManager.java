@@ -79,12 +79,13 @@ public class RecipeManager extends Manager {
             ex.printStackTrace();
         }
 
+        loadRecipes(yaml, itemName);
+    }
+
+    public static void loadRecipes(YamlConfiguration yaml, String itemName) {
         for (IRecipeWrapper wrapper : REGISTERED_WRAPPERS) {
             WRAPPERS_TO_PROCESS.addAll(wrapper.loadFromFile(yaml, itemName));
         }
-
-        // loadShapedRecipe(yaml, itemName); // TODO: Make list of methods that load recipes and allow other plugins to register recipes
-        // loadShapelessRecipe(yaml, itemName);
     }
 
     private static void loadShapedRecipe(YamlConfiguration yaml, String itemName) {
