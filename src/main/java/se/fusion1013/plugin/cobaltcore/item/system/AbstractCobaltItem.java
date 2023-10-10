@@ -19,11 +19,10 @@ import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 import se.fusion1013.plugin.cobaltcore.item.IItemActivatorExecutor;
 import se.fusion1013.plugin.cobaltcore.item.IItemMetaEditor;
 import se.fusion1013.plugin.cobaltcore.item.ItemActivator;
-import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
-import se.fusion1013.plugin.cobaltcore.item.category.ItemCategoryOld;
 import se.fusion1013.plugin.cobaltcore.item.components.IItemComponent;
 import se.fusion1013.plugin.cobaltcore.item.components.AbstractItemComponent;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentWrapper;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSection;
 import se.fusion1013.plugin.cobaltcore.util.HexUtils;
 import se.fusion1013.plugin.cobaltcore.util.ItemUtil;
 
@@ -53,7 +52,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     protected List<EnchantmentWrapper> enchantmentWrappers = new ArrayList<>();
 
     // -- RARITY
-    protected IItemRarity rarity = ItemRarity.NONE;
+    protected ItemSection rarity;
     protected List<String> rarityExtraLore = new ArrayList<>(); // Lore to put under the rarity
 
     // -- EXTRA LORE
@@ -63,7 +62,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     protected Map<Attribute, AttributeModifier> attributes = new HashMap<>();
 
     // -- ITEM CATEGORIES
-    protected IItemCategory itemCategory = ItemCategoryOld.NONE;
+    protected ItemSection itemCategory;
 
     // -- ITEM ATTRIBUTES
 
@@ -135,15 +134,13 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         for (IItemComponent component : itemComponents.values()) component.onItemConstruction(stack, meta, persistentDataContainer);
 
         // -- RARITY
-        if (rarity != ItemRarity.NONE) {
+        if (rarity != null) {
             persistentDataContainer.set(rarity.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1); // Set rarity key
 
             // Add rarity lore
             lore.add(""); // Add a new line
-            lore.add(LegacyComponentSerializer.legacyAmpersand().serialize(rarity.getFormattedRarity()));
+            lore.add(LegacyComponentSerializer.legacyAmpersand().serialize(rarity.getFormattedName().append(Component.text(" Item").color(rarity.getColor()).decoration(TextDecoration.ITALIC, false))));
             lore.addAll(rarityExtraLore);
-        } else {
-            persistentDataContainer.set(ItemRarity.NONE.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1); // Set to NONE rarity. Does not impact item visuals
         }
 
         // -- EXTRA LORE
@@ -153,7 +150,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         // -- ITEM CATEGORY
-        if (itemCategory != ItemCategoryOld.NONE) {
+        if (itemCategory != null) {
             persistentDataContainer.set(itemCategory.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
 
             // Add item category lore
@@ -163,8 +160,6 @@ public abstract class AbstractCobaltItem implements ICustomItem {
                             itemCategory.getFormattedName().color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)
                     )
             );
-        } else {
-            persistentDataContainer.set(ItemCategoryOld.NONE.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
         }
 
         // -- ATTRIBUTES
@@ -245,8 +240,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // ----- VARIABLES -----
 
-        T obj;
-        String internalName;
+        private final T obj;
+        public final String internalName;
 
         // ----- CONSTRUCTORS -----
 
@@ -307,7 +302,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // -- RARITY
 
-        public B rarity(IItemRarity rarity) {
+        public B rarity(ItemSection rarity) {
             obj.rarity = rarity;
             return getThis();
         }
@@ -338,7 +333,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // -- ITEM CATEGORIES
 
-        public B category(IItemCategory category) {
+        public B category(ItemSection category) {
             obj.itemCategory = category;
             return getThis();
         }
@@ -412,7 +407,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     }
 
     @Override
-    public IItemCategory getItemCategory() {
+    public ItemSection getItemCategory() {
         return itemCategory;
     }
 
