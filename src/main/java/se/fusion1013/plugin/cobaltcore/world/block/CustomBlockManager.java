@@ -34,8 +34,6 @@ public class CustomBlockManager extends Manager implements CommandExecutor, List
 
     // ----- REGISTER -----
 
-    public static CustomBlock MIXING_CAULDRON = register(new CustomBlock(CustomItemManager.MIXING_CAULDRON, Material.CAULDRON));
-
     /**
      * Registers a new <code>CustomBlock</code>.
      *
@@ -89,7 +87,7 @@ public class CustomBlockManager extends Manager implements CommandExecutor, List
             ItemStack item = event.getItem();
             if (item == null) return;
 
-            String itemName = CustomItemManager.getItemName(item);
+            String itemName = CustomItemManager.getInternalItemName(item);
             if (CustomItemManager.isMaterial(itemName)) return;
 
             CustomBlock block = registeredBlocks.get(itemName);
