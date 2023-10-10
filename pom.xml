@@ -4,6 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
+
     <groupId>se.fusion1013.plugin</groupId>
     <artifactId>cobaltCore</artifactId>
     <version>5.0.0</version>
@@ -73,7 +75,8 @@
                                     <shadedPattern>de.slikey.exp4j</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.20.1 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile>
+                            <!-- <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.20.1 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile> -->
+                            <outputFile>${project.basedir}/server/plugins/CobaltCore-shaded.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -151,7 +154,8 @@
             <artifactId>vanish</artifactId>
             <version>3.21.G0.1</version>
             <scope>system</scope>
-            <systemPath>G:/Dokument/Minecraft/Plugin Development/Lib/VanishNoPacket.jar</systemPath>
+            <!-- <systemPath>G:/Dokument/Minecraft/Plugin Development/Lib/VanishNoPacket.jar</systemPath> -->
+            <systemPath>${project.basedir}/lib/VanishNoPacket.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.elmakers.math</groupId>
@@ -170,7 +174,8 @@
             <artifactId>CrazyAdvancementsAPI</artifactId>
             <version>2.1.10</version>
             <scope>system</scope>
-            <systemPath>G:/Dokument/Minecraft/Minecraft Servers/1.20.1 - Paper DEV/plugins/CrazyAdvancementsAPI.jar</systemPath>
+            <!-- <systemPath>G:/Dokument/Minecraft/Minecraft Servers/1.20.1 - Paper DEV/plugins/CrazyAdvancementsAPI.jar</systemPath> -->
+            <systemPath>${project.basedir}/lib/CrazyAdvancementsAPI.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
