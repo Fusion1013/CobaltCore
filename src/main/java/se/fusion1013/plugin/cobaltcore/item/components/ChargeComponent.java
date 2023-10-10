@@ -3,10 +3,7 @@ package se.fusion1013.plugin.cobaltcore.item.components;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
-import se.fusion1013.plugin.cobaltcore.action.system.ActionManager;
-import se.fusion1013.plugin.cobaltcore.action.system.IAction;
-import se.fusion1013.plugin.cobaltcore.action.system.ILivingEntityAction;
-import se.fusion1013.plugin.cobaltcore.action.system.IPlayerAction;
+import se.fusion1013.plugin.cobaltcore.action.system.*;
 import se.fusion1013.plugin.cobaltcore.event.PlayerHeldItemTickEvent;
 import se.fusion1013.plugin.cobaltcore.item.ICustomItem;
 import se.fusion1013.plugin.cobaltcore.item.IItemActivatorExecutor;
@@ -29,7 +26,9 @@ public class ChargeComponent extends AbstractItemComponent {
     private boolean resetOnStopCharge = true;
 
     // -- Activation
-    private final List<ILivingEntityAction> actions = new ArrayList<>();
+    private final List<ILivingEntityAction> entityActions = new ArrayList<>();
+    private final List<ILocationAction> locationActions = new ArrayList<>();
+    private boolean activateInstantly = false;
 
     // -- Internal
     private final Map<UUID, Integer> currentPlayerCharges = new HashMap<>();
@@ -63,9 +62,11 @@ public class ChargeComponent extends AbstractItemComponent {
             List<IAction> actions = ActionManager.getActions((List<Map<?,?>>) data.get("activation_actions"));
 
             for (IAction action : actions) {
-                if (action instanceof ILivingEntityAction livingEntityAction) this.actions.add(livingEntityAction);
+                if (action instanceof ILivingEntityAction livingEntityAction) this.entityActions.add(livingEntityAction);
+                if (action instanceof ILocationAction locationAction) this.locationActions.add(locationAction);
             }
         }
+        if (data.containsKey("activate_instantly")) activateInstantly = (boolean) data.get("activate_instantly");
     }
 
     // ----- EXECUTE -----
@@ -88,9 +89,16 @@ public class ChargeComponent extends AbstractItemComponent {
         boolean canCharge = canCharge(p);
         if (canCharge && currentCharge < chargeTime) {
             currentCharge++;
-        } else if (!canCharge && currentCharge >= chargeTime) {
-            for (ILivingEntityAction action : actions) {
-                if (!action.activate(p).hasActivated()) break;
+        } else if ((!canCharge || activateInstantly) && currentCharge >= chargeTime) {
+            boolean stopExecuting = false;
+
+            for (ILivingEntityAction action : entityActions) {
+                if (stopExecuting) break;
+                if (!action.activate(p).hasActivated()) stopExecuting = true;
+            }
+            for (ILocationAction action : locationActions) {
+                if (stopExecuting) break;
+                if (!action.activate(p.getLocation()).hasActivated()) stopExecuting = true;
             }
 
             currentCharge = 0;
@@ -138,7 +146,7 @@ public class ChargeComponent extends AbstractItemComponent {
             List<IAction> actions = ActionManager.getActions((List<Map<?,?>>) values.get("actions"));
 
             for (IAction action : actions) {
-                if (action instanceof ILivingEntityAction livingEntityAction) this.actions.add(livingEntityAction);
+                if (action instanceof ILivingEntityAction livingEntityAction) this.entityActions.add(livingEntityAction);
             }
         }
 
