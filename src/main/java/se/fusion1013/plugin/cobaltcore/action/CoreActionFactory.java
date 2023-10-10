@@ -18,6 +18,7 @@ public class CoreActionFactory implements IActionFactory {
         else if (actionType == CoreActionType.Particle) return new ParticleAction(data);
         else if (actionType == CoreActionType.Summon) return new SummonAction(data);
         else if (actionType == CoreActionType.Encounter) return new EncounterAction(data);
+        else if (actionType == CoreActionType.Effect) return new EffectAction(data);
         return null;
     }
 
@@ -31,6 +32,7 @@ public class CoreActionFactory implements IActionFactory {
         else if (actionType.equalsIgnoreCase("particle_action")) return new ParticleAction(data);
         else if (actionType.equalsIgnoreCase("summon_action")) return new SummonAction(data);
         else if (actionType.equalsIgnoreCase("encounter_action")) return new EncounterAction(data);
+        else if (actionType.equalsIgnoreCase("effect_action")) return new EffectAction(data);
         return null;
     }
 }
