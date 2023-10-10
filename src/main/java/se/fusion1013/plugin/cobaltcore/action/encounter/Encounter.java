@@ -1,14 +1,16 @@
 package se.fusion1013.plugin.cobaltcore.action.encounter;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitTask;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.util.INameProvider;
 
 import java.util.*;
 
-public class Encounter implements IEncounter {
+public class Encounter implements IEncounter, INameProvider {
 
     //region FIELDS
 
@@ -30,6 +32,10 @@ public class Encounter implements IEncounter {
 
     //region CONSTRUCTORS
 
+    public Encounter(YamlConfiguration yaml) {
+        this(yaml.getString("internal_name"), yaml);
+    }
+
     public Encounter(String internalName, YamlConfiguration yaml) {
 
         this.internalName = internalName;
@@ -38,6 +44,14 @@ public class Encounter implements IEncounter {
 
         // Determine duration of encounter
         for (EncounterEvent event : events) if (event.getEndTime() > duration) duration = event.getEndTime();
+    }
+
+    public Encounter(JsonObject json) {
+        this(json.get("internal_name").getAsString(), json);
+    }
+
+    public Encounter(String internalName, JsonObject json) {
+        this.internalName = internalName;
     }
 
     private void loadEvents(YamlConfiguration yaml) {
@@ -120,6 +134,7 @@ public class Encounter implements IEncounter {
         return events;
     }
 
+    @Override
     public String getInternalName() {
         return internalName;
     }
