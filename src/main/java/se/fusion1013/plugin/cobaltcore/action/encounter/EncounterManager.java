@@ -1,5 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.action.encounter;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -7,6 +8,10 @@ import org.bukkit.scheduler.BukkitTask;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.CobaltPlugin;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
+import se.fusion1013.plugin.cobaltcore.util.FileUtil;
+import se.fusion1013.plugin.cobaltcore.util.IFileConstructor;
+import se.fusion1013.plugin.cobaltcore.util.INameProvider;
+import se.fusion1013.plugin.cobaltcore.util.IProviderStorage;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,55 +32,33 @@ public class EncounterManager extends Manager {
     //region FILE LOADING
 
     public static void loadEncounterFiles(CobaltPlugin plugin, boolean overwrite) {
-        File dataFolder = plugin.getDataFolder();
-        File encounterFolder = new File(dataFolder, "encounters/");
-        loadEncountersFromFolders(plugin, encounterFolder, overwrite, "");
-    }
 
-    private static void loadEncountersFromFolders(CobaltPlugin plugin, File rootFolder, boolean overwrite, String prefix) {
-        // Load from item files folder
-        if (!rootFolder.exists()) {
-            rootFolder.mkdirs();
-            return;
-        }
-
-        plugin.getLogger().info("Loading encounters from folder '" + rootFolder.getName() + "'...");
-
-        int encountersLoaded = 0;
-        File[] files = rootFolder.listFiles();
-        if (files == null) return;
-        for (File file : files) {
-            if (file.isDirectory()) loadEncountersFromFolders(plugin, file, overwrite, file.getName() + "/");
-            else {
-                loadEncounter(plugin, file, overwrite, prefix);
-                encountersLoaded ++;
+        FileUtil.loadFilesInto(plugin, "encounters/", new IProviderStorage() {
+            @Override
+            public void put(String key, INameProvider provider) {
+                ENCOUNTERS.put(key, (Encounter) provider);
             }
-        }
 
-        plugin.getLogger().info("Loaded " + encountersLoaded + " items from folder " + rootFolder.getName());
-    }
+            @Override
+            public boolean has(String key) {
+                return ENCOUNTERS.containsKey(key);
+            }
 
-    private static void loadEncounter(CobaltPlugin plugin, File file, boolean overwrite, String prefix) {
-        YamlConfiguration yaml = new YamlConfiguration();
-        try {
-            yaml.load(file);
-        } catch (IOException | InvalidConfigurationException ex) {
-            ex.printStackTrace();
-        }
+            @Override
+            public INameProvider get(String key) {
+                return ENCOUNTERS.get(key);
+            }
+        }, new IFileConstructor() {
+            @Override
+            public INameProvider createFrom(YamlConfiguration yaml) {
+                return new Encounter(yaml);
+            }
 
-        String internalName = yaml.getString("internal_name");
-        if (internalName == null) return;
-
-        String encounterPath = prefix + internalName;
-
-        if (ENCOUNTERS.containsKey(encounterPath) && !overwrite) return;
-
-        try {
-            Encounter encounter = new Encounter(encounterPath, yaml);
-            ENCOUNTERS.put(encounterPath, encounter);
-        } catch (Exception ex) {
-            CobaltCore.getInstance().getLogger().info("Error Loading Encounter: " + encounterPath + ". Stacktrace: " + ex.getMessage());
-        }
+            @Override
+            public INameProvider createFrom(JsonObject json) {
+                return new Encounter(json);
+            }
+        }, overwrite);
     }
 
     //endregion
