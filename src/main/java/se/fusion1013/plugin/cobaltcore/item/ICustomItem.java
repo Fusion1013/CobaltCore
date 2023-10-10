@@ -4,16 +4,17 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import se.fusion1013.plugin.cobaltcore.item.category.IItemCategory;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSection;
+import se.fusion1013.plugin.cobaltcore.util.INameProvider;
 
-public interface ICustomItem {
+public interface ICustomItem extends INameProvider {
 
     // ----- GENERIC INFO GETTERS -----
 
     NamespacedKey getNamespacedKey();
     String getInternalName();
     ItemStack getItemStack();
-    IItemCategory getItemCategory();
+    ItemSection getItemCategory();
     String[] getTags();
     default void onDisable() {};
 
