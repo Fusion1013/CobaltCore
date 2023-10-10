@@ -24,17 +24,17 @@ import se.fusion1013.plugin.cobaltcore.entity.player.PlayerManager;
 import se.fusion1013.plugin.cobaltcore.event.EntitySpawnEvents;
 import se.fusion1013.plugin.cobaltcore.event.PlayerEvents;
 import se.fusion1013.plugin.cobaltcore.item.CustomItemManager;
+import se.fusion1013.plugin.cobaltcore.item.components.ComponentManager;
 import se.fusion1013.plugin.cobaltcore.item.crafting.RecipeManager;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
+import se.fusion1013.plugin.cobaltcore.item.section.ItemSectionManager;
 import se.fusion1013.plugin.cobaltcore.locale.LocaleManager;
 import se.fusion1013.plugin.cobaltcore.manager.*;
 import se.fusion1013.plugin.cobaltcore.commands.system.CommandManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleGroupManager;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.settings.SettingsManager;
-import se.fusion1013.plugin.cobaltcore.storage.ObjectManager;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
-import se.fusion1013.plugin.cobaltcore.util.ActionBarUtil;
 import se.fusion1013.plugin.cobaltcore.world.block.BlockPlacementManager;
 import se.fusion1013.plugin.cobaltcore.world.block.CustomBlockManager;
 import se.fusion1013.plugin.cobaltcore.world.block.entity.BlockEntityManager;
@@ -150,6 +150,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, PlayerManager.class);
 
         // Item managers
+        this.getManager(this, ComponentManager.class);
+        this.getManager(this, ItemSectionManager.class);
         this.getManager(this, CustomItemManager.class);
         this.getManager(this, EnchantmentManager.class);
         this.getManager(this, RecipeManager.class);
@@ -251,7 +253,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
             // Load custom items
             // NOTE: Must be run after manager registration. Otherwise, item components do not work
-            CustomItemManager.loadItemCategoryFiles(plugin, false);
+            ItemSectionManager.load(plugin, false);
             CustomItemManager.loadItemFiles(plugin, false);
 
             // Load custom advancements
