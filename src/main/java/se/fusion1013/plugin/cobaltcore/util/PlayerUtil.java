@@ -3,7 +3,6 @@ package se.fusion1013.plugin.cobaltcore.util;
 import dev.jorel.commandapi.SuggestionInfo;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -287,7 +286,7 @@ public class PlayerUtil {
 
         for (ItemStack itemStack : inventory) {
             if (itemStack == null) continue;
-            if (CustomItemManager.getItemName(itemStack).equalsIgnoreCase(item)) {
+            if (CustomItemManager.getInternalItemName(itemStack).equalsIgnoreCase(item)) {
                 int ca = itemStack.getAmount();
                 itemStack.setAmount(ca - left);
                 left -= ca;
@@ -305,7 +304,7 @@ public class PlayerUtil {
 
         for (ItemStack itemStack : inventory) {
             if (itemStack == null) continue;
-            if (CustomItemManager.getItemName(itemStack).equalsIgnoreCase(item)) {
+            if (CustomItemManager.getInternalItemName(itemStack).equalsIgnoreCase(item)) {
                 foundItemCount += itemStack.getAmount();
             }
         }
