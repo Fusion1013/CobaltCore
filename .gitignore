@@ -117,4 +117,4 @@ run/
 
 # Fusion Imports
 .paper-nms
-!lib/
+!lib/*.jar
