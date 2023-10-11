@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,7 +36,7 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
     @Override
     @Deprecated
     public void removeLocationSync(UUID uuid) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("DELETE FROM locations WHERE uuid = ?")
             ) {
@@ -58,7 +59,7 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
     @Override
     @Deprecated
     public void insertLocationSync(UUID uuid, Location location) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
             ) {
@@ -83,6 +84,6 @@ public class LocationDaoSQLite extends Dao implements ILocationDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreatePlayerLocationsTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreatePlayerLocationsTable);
     }
 }

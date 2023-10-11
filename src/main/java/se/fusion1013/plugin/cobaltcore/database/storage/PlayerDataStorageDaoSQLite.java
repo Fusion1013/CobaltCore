@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +36,7 @@ public class PlayerDataStorageDaoSQLite extends Dao implements IPlayerDataStorag
 
     @Override
     public void removePlayerDataStorageSync(UUID uuid) {
-        getDataManager().performThreadSafeSQLiteOperations(connection -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(connection -> {
             try (
                     PreparedStatement ps = connection.prepareStatement("DELETE FROM player_data_storage WHERE player_uuid = ?")
             ) {
@@ -58,7 +59,7 @@ public class PlayerDataStorageDaoSQLite extends Dao implements IPlayerDataStorag
 
     @Override
     public void insertPlayerDataStorageSync(UUID uuid, String data) {
-        getDataManager().performThreadSafeSQLiteOperations(connection -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(connection -> {
             try (
                     PreparedStatement ps = connection.prepareStatement("INSERT OR REPLACE INTO player_data_storage(player_uuid, content) VALUES(?, ?)")
             ) {
@@ -79,7 +80,7 @@ public class PlayerDataStorageDaoSQLite extends Dao implements IPlayerDataStorag
     public JsonObject getPlayerData(UUID playerUuid) {
         Map<UUID, JsonObject> map = new HashMap<>();
 
-        getDataManager().performThreadSafeSQLiteOperations(connection -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(connection -> {
             try (
                     PreparedStatement ps = connection.prepareStatement("SELECT * FROM player_data_storage WHERE player_uuid = ?")
             ) {
@@ -108,7 +109,7 @@ public class PlayerDataStorageDaoSQLite extends Dao implements IPlayerDataStorag
 
     @Override
     public void init() {
-        getDataManager().getSqliteDb().executeString(SQLiteCreatePlayerDataStorageTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreatePlayerDataStorageTable);
     }
 
     //endregion

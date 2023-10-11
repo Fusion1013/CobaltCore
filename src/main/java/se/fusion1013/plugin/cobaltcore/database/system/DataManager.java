@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
 import org.bukkit.Bukkit;
+import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.location.LocationDaoSQLite;
@@ -25,6 +26,7 @@ import se.fusion1013.plugin.cobaltcore.database.storage.ObjectStorageDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.storage.PlayerDataStorageDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.database.structure.IStructureDao;
 import se.fusion1013.plugin.cobaltcore.database.structure.StructureDaoSQLite;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.database.trades.ITradesDao;
 import se.fusion1013.plugin.cobaltcore.database.trades.TradesDaoSQLite;
 import se.fusion1013.plugin.cobaltcore.manager.Manager;
@@ -43,14 +45,9 @@ public class DataManager extends Manager {
     StorageType fallbackStorageType = StorageType.SQLITE; // TODO: Make setting
     Map<StorageType, Map<Class<?>, IDao>> daoImplementations = new HashMap<>();
 
-    // Pending Operations
-    private final int operationLimit = 100;
-    private int currentOperations = 0;
-
-    private final Queue<ISQLiteDataAccessor> sqlitePendingOperations = new LinkedList<>();
-
-    // Data storage accessors
-    private static Database sqliteDb;
+    private static final IDataImplementation[] IMPLEMENTATIONS = {
+      new SQLiteImplementation()
+    };
 
     // ----- CONSTRUCTORS -----
 
@@ -66,9 +63,8 @@ public class DataManager extends Manager {
      *
      * @param dao the <code>IDao</code> to register.
      * @param <T> the <code>IDao</code> type.
-     * @return the <code>IDao</code>.
      */
-    public <T extends IDao> T registerDao(T dao, Class<?> parent) {
+    public <T extends IDao> void registerDao(T dao, Class<?> parent) {
         // Adds the dao to the map
         StorageType type = dao.getStorageType();
         daoImplementations.computeIfAbsent(type, k -> new HashMap<>());
@@ -81,8 +77,6 @@ public class DataManager extends Manager {
         ISystemDao system = getDao(ISystemDao.class);
         dao.update(system.getVersion(dao.getId() + dao.getStorageType().name(), dao.getVersion()));
         system.setVersion(dao.getId() + dao.getStorageType().name(), dao.getVersion());
-
-        return dao;
     }
 
     // ----- DAO GETTING -----
@@ -96,9 +90,6 @@ public class DataManager extends Manager {
      */
     @SuppressWarnings("unchecked")
     public <T extends IDao> T getDao(Class<T> dao) {
-
-        CobaltCore.getInstance().getLogger().info("Searching for dao " + dao.getName() + "...");
-
         // Find the correct storage pair
         Map<Class<?>, IDao> storage = daoImplementations.get(storageType);
         if (storage == null) {
@@ -128,117 +119,40 @@ public class DataManager extends Manager {
         MONGODB
     }
 
-    // ----- PENDING OPERATIONS -----
-
-    Lock sqliteOperationLock = new ReentrantLock();
-
-    /**
-     * Performs a thread-safe operation on the SQLite database.
-     *
-     * @param dataAccessor the <code>ISQLiteDataAccessor</code>.
-     */
-    public void performThreadSafeSQLiteOperations(ISQLiteDataAccessor dataAccessor) {
-        try (
-                Connection conn = getSqliteDb().getSQLConnection()
-        ) {
-
-            if (dataAccessor != null) {
-                sqliteOperationLock.lock();
-                dataAccessor.modifyDatabase(conn);
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            sqliteOperationLock.unlock();
-        }
-    }
-
-    /**
-     * Adds a new <code>ISQLiteDataAccessor</code> to the pending operations.
-     *
-     * @param dataAccessor the <code>ISQLiteDataAccessor</code>.
-     */
-    public void insertSQLiteOperation(ISQLiteDataAccessor dataAccessor) {
-        sqlitePendingOperations.add(dataAccessor);
-    }
-
-    private void processPendingOperations() {
-
-        while (currentOperations < operationLimit && !sqlitePendingOperations.isEmpty()) {
-            try (
-                    Connection conn = getSqliteDb().getSQLConnection()
-            ) {
-                ISQLiteDataAccessor accessor = sqlitePendingOperations.poll();
-                if (accessor != null) accessor.modifyDatabase(conn);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            currentOperations++;
-        }
-
-        if (currentOperations > 0) {
-            CobaltCore.getInstance().getLogger().info("Performed " + currentOperations + " database operations");
-            CobaltCore.getInstance().getLogger().info("Pending operations left: " + sqlitePendingOperations.size());
-        }
-
-        currentOperations = 0;
-    }
-
     // ----- RELOADING / DISABLING -----
 
     @Override
     public void reload() {
-
-        // MongoDB mongoDB = MongoDB.getInstance();
-        // mongoDB.connect();
-
         // Load the database connection
         loadDatabaseConnection();
 
         // Initialize all the dao's
         initDao();
-
-        // Initializes the pending operations processor
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CobaltCore.getInstance(), this::processPendingOperations, 0, 20*10); // Run once every 10 seconds
     }
 
     /**
      * Loads the database connection.
      */
     private void loadDatabaseConnection() {
-        // Load Database Connection
+        // Get types from config
         String databaseImplementation = (String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "database-implementation");
-
-        switch (databaseImplementation) {
-            case "sqlite" -> {
-                storageType = StorageType.SQLITE;
-
-                // Initialize database
-                sqliteDb = new SQLite(CobaltCore.getInstance());
-                sqliteDb.load();
-            }
-            case "mongodb" -> {
-                storageType = StorageType.MONGODB;
-
-                // Initialize database
-                String url = (String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "mongo-db-url");
-                // mongoClient = new MongoClient(new MongoClientURI(url));
-                // mongoDB = mongoClient.getDatabase((String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "mongo-db-name"));
-            }
-        }
-
-        // Load Database Fallback
         String databaseFallback = (String) ConfigManager.getInstance().getFromConfig(CobaltCore.getInstance(), "cobalt.yml", "database-fallback-implementation");
 
-        switch (databaseFallback) {
-            case "sqlite" -> {
-                fallbackStorageType = StorageType.SQLITE;
+        // Convert to StorageType
+        StorageType implementationType = EnumUtils.findEnumInsensitiveCase(StorageType.class, databaseImplementation);
+        StorageType fallbackType = EnumUtils.findEnumInsensitiveCase(StorageType.class, databaseFallback);
 
-                if (sqliteDb == null) {
-                    sqliteDb = new SQLite(CobaltCore.getInstance());
-                    sqliteDb.load();
-                }
+        for (IDataImplementation implementation : IMPLEMENTATIONS) {
+            // Load implementation
+            if (implementation.type() == implementationType) {
+                storageType = implementationType;
+                implementation.loadConnection();
+            }
+
+            // Load fallback
+            if (implementation.type() == fallbackType) {
+                fallbackStorageType = fallbackType;
+                implementation.loadConnection();
             }
         }
     }
@@ -247,38 +161,16 @@ public class DataManager extends Manager {
      * Initializes all <code>Dao</code>'s.
      */
     private void initDao() {
-        // SQLITE
-        registerDao(new SystemDaoSQLite(), ISystemDao.class);
-
-        registerDao(new MappingsDaoSQLite(), IMappingsDao.class);
-        registerDao(new LocationDaoSQLite(), ILocationDao.class);
-        registerDao(new ParticleGroupDaoSQLite(), IParticleGroupDao.class);
-        registerDao(new ParticleStyleDaoSQLite(), IParticleStyleDao.class);
-        registerDao(new PlayerDaoSQLite(), IPlayerDao.class);
-        registerDao(new SettingDaoSQLite(), ISettingDao.class);
-        registerDao(new TradesDaoSQLite(), ITradesDao.class);
-        registerDao(new SoundAreaDaoSQLite(), ISoundAreaDao.class);
-        registerDao(new CustomSpawnerDaoSQLite(), ICustomSpawnerDao.class);
-        registerDao(new StructureDaoSQLite(), IStructureDao.class);
-        registerDao(new ObjectStorageDaoSQLite(), IObjectStorageDao.class);
-        registerDao(new PlayerDataStorageDaoSQLite(), IPlayerDataStorageDao.class);
+        for (IDataImplementation implementation : IMPLEMENTATIONS) {
+            implementation.initDao(this);
+        }
     }
 
     @Override
     public void disable() {
-        while (!sqlitePendingOperations.isEmpty()) {
-            sqlitePendingOperations.poll().modifyDatabase(sqliteDb.getSQLConnection());
+        for (IDataImplementation implementation : IMPLEMENTATIONS) {
+            implementation.onDisable();
         }
-    }
-
-    // ----- GETTERS / SETTERS -----
-
-    public Database getSqliteDb() {
-        if (sqliteDb == null) {
-            sqliteDb = new SQLite(CobaltCore.getInstance());
-            sqliteDb.load();
-        }
-        return sqliteDb;
     }
 
     // ----- INSTANCE VARIABLE & METHOD -----

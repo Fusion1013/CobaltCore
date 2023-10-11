@@ -6,6 +6,7 @@ import org.bukkit.World;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.util.LocationUUID;
 
 import java.sql.Connection;
@@ -34,7 +35,7 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
         Map<Long, Map<LocationUUID, String>> structures = new HashMap<>();
 
         try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM structure_view");
                 ResultSet rs = ps.executeQuery()
         ) {
@@ -56,7 +57,7 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
 
     @Override
     public void saveStructures(Map<Long, Map<LocationUUID, String>> structures) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement psStructure = conn.prepareStatement("INSERT OR REPLACE INTO structures(structure_name, location_uuid) VALUES(?,?)");
                     PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
@@ -98,8 +99,8 @@ public class StructureDaoSQLite extends Dao implements IStructureDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateStructureTable);
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateStructureView);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateStructureTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateStructureView);
     }
 
     @Override

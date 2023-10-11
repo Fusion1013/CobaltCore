@@ -5,6 +5,7 @@ import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
@@ -51,7 +52,7 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
     @Override
     public void removeParticleGroup(UUID uuid) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_groups WHERE uuid = ?");
@@ -72,7 +73,7 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
     @Override
     public void insertParticleGroups(List<ParticleGroup> groups) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_groups(uuid, name, integrity) VALUES(?,?, ?)");
                     PreparedStatement ps2 = conn.prepareStatement("INSERT OR REPLACE INTO particle_style_holders(group_uuid, style_name, offset_x, offset_y, offset_z, rotation_x, rotation_y, rotation_z, rotation_speed_x, rotation_speed_y, rotation_speed_z) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
@@ -118,7 +119,7 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
         Map<String, ParticleGroup> groupMap = new HashMap<>();
 
         try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_group_view")
         ) {
             ResultSet rs = ps.executeQuery();
@@ -161,9 +162,9 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
     @Override
     public void update(int version) {
         if (version <= 0) {
-            DataManager.getInstance().getSqliteDb().executeString("ALTER TABLE particle_groups ADD integrity INTEGER NOT NULL default 1;");
-            DataManager.getInstance().getSqliteDb().executeString("DROP VIEW IF EXISTS particle_group_view;");
-            DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateParticleGroupStyleView);
+            SQLiteImplementation.getSqliteDb().executeString("ALTER TABLE particle_groups ADD integrity INTEGER NOT NULL default 1;");
+            SQLiteImplementation.getSqliteDb().executeString("DROP VIEW IF EXISTS particle_group_view;");
+            SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateParticleGroupStyleView);
         }
     }
 
@@ -179,8 +180,8 @@ public class ParticleGroupDaoSQLite extends Dao implements IParticleGroupDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateParticleGroupStyleView);
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateParticleGroupTable);
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateParticleStyleHolderTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateParticleGroupStyleView);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateParticleGroupTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateParticleStyleHolderTable);
     }
 }

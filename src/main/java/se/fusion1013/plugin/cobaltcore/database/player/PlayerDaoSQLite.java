@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.particle.ParticleGroup;
 import se.fusion1013.plugin.cobaltcore.util.ParticleContainer;
 
@@ -28,7 +29,7 @@ public class PlayerDaoSQLite extends Dao implements IPlayerDao {
 
     @Override
     public void insertPlayer(Player player) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR IGNORE INTO players(uuid, name) VALUES(?, ?)");
             ) {
@@ -47,7 +48,7 @@ public class PlayerDaoSQLite extends Dao implements IPlayerDao {
     public String getPlayerName(UUID uuid) {
 
         try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE uuid = ?");
         ) {
             ps.setString(1, uuid.toString());
@@ -82,6 +83,6 @@ public class PlayerDaoSQLite extends Dao implements IPlayerDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreatePlayerTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreatePlayerTable);
     }
 }

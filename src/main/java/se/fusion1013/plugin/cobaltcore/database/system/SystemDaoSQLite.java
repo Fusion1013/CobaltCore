@@ -1,5 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +22,7 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
     @Override
     public int getVersion(String id, int internalVersion) {
         try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps1 = conn.prepareStatement("INSERT OR IGNORE INTO versions(identifier, version) VALUES(?, ?)");
                 PreparedStatement ps2 = conn.prepareStatement("SELECT * FROM versions WHERE identifier = ?");
         ) {
@@ -54,7 +56,7 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
 
     @Override
     public void setVersion(String id, int version) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO versions(identifier, version) VALUES(?, ?)");
             ) {
@@ -77,6 +79,6 @@ public class SystemDaoSQLite extends Dao implements ISystemDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateVersionTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateVersionTable);
     }
 }

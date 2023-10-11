@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.trades.CustomTradesManager;
 import se.fusion1013.plugin.cobaltcore.util.PreGeneratedWeightsRandom;
 import se.fusion1013.plugin.cobaltcore.util.RandomCollection;
@@ -33,12 +34,12 @@ public class TradesDaoSQLite extends Dao implements ITradesDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateMerchantTradesTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateMerchantTradesTable);
     }
 
     @Override
     public void removeMerchantTrade(String costItem, String resultItem) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM merchant_trades WHERE cost_item = ? AND result_item = ?")
@@ -58,7 +59,7 @@ public class TradesDaoSQLite extends Dao implements ITradesDao {
         RandomCollection<CustomTradesManager.MerchantRecipePlaceholder> list = new RandomCollection<>();
 
         try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM merchant_trades");
                 ResultSet rs = ps.executeQuery()
         ) {
@@ -85,7 +86,7 @@ public class TradesDaoSQLite extends Dao implements ITradesDao {
 
     @Override
     public void saveMerchantTrades(List<CustomTradesManager.MerchantRecipePlaceholder> trades, Double[] weights) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO merchant_trades(cost_item, cost_count, result_item, result_count, max_uses, weight) VALUES(?, ?, ?, ?, ?, ?)")
             ) {

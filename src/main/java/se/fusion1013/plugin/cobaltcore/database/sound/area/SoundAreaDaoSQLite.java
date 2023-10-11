@@ -7,6 +7,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.world.sound.SoundArea;
 
 import java.sql.Connection;
@@ -37,7 +38,7 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
         Map<Location, SoundArea> soundAreas = new HashMap<>();
 
         try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM sound_area_view");
                 ResultSet rs = ps.executeQuery();
         ) {
@@ -62,7 +63,7 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
 
     @Override
     public void saveSoundAreas(Map<Location, SoundArea> soundAreaMap) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO sound_areas(sound_area_uuid, sound, activation_range, cooldown) VALUES(?,?,?,?)");
                     PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
@@ -101,7 +102,7 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
 
     @Override
     public void removeSoundArea(UUID uuid) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM sound_areas WHERE sound_area_uuid = ?");
@@ -128,8 +129,8 @@ public class SoundAreaDaoSQLite extends Dao implements ISoundAreaDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateSoundAreaTable);
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateSoundAreaView);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateSoundAreaTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateSoundAreaView);
     }
 
     @Override

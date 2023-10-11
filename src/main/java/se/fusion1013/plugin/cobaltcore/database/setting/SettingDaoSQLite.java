@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.settings.PlayerSettingHolder;
 
 import java.sql.Connection;
@@ -29,7 +30,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
         Map<UUID, PlayerSettingHolder> settings = new HashMap<>();
 
         try {
-            Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+            Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM player_settings");
             ResultSet rs = ps.executeQuery();
 
@@ -55,7 +56,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void saveSettings(Map<UUID, PlayerSettingHolder> settings) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
             ) {
@@ -78,7 +79,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void removeSetting(String setting) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE setting = ?");
@@ -94,7 +95,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void removeSetting(Player player, String setting) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM player_settings WHERE player_uuid = ? AND setting = ?");
@@ -112,7 +113,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
     @Override
     public String getSetting(Player player, String setting) {
         try (
-                Connection conn = DataManager.getInstance().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM player_settings WHERE player_uuid = ? AND setting = ?");
         ) {
             ps.setString(1, player.getUniqueId().toString());
@@ -133,7 +134,7 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void setSetting(Player player, String setting, String value) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO player_settings(player_uuid, setting, value) VALUES(?, ?, ?)");
@@ -157,6 +158,6 @@ public class SettingDaoSQLite extends Dao implements ISettingDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreatePlayerSettingsTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreatePlayerSettingsTable);
     }
 }

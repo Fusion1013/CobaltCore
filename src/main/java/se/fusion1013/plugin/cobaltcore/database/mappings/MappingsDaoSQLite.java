@@ -5,6 +5,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.advancement.CobaltAdvancementManager;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +25,7 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
 
     @Override
     public void insertMappingSync(String type, UUID id, String mapping) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO mappings(type, uuid, mapping) VALUES(?,?,?)")
             ) {
@@ -47,7 +48,7 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
 
     @Override
     public void removeMappingSync(UUID id) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("DELETE FROM mappings WHERE uuid = ?")
             ) {
@@ -68,7 +69,7 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
     public Map<UUID, String> getMappings() {
         Map<UUID, String> mappings = new HashMap<>();
 
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("SELECT * FROM mappings");
                     ResultSet rs = ps.executeQuery();
@@ -90,7 +91,7 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
     public Map<UUID, String> getMappingsOfType(String type) {
         Map<UUID, String> mappings = new HashMap<>();
 
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("SELECT * FROM mappings WHERE type = ?");
             ) {
@@ -119,6 +120,6 @@ public class MappingsDaoSQLite extends Dao implements IMappingsDao {
 
     @Override
     public void init() {
-        getDataManager().getSqliteDb().executeString(SQLiteCreateMappingsTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateMappingsTable);
     }
 }

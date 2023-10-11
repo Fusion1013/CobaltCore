@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ public abstract class Database {
     public static String[] getDatabaseTables() {
         List<String> tables = new ArrayList<>();
 
-        DataManager.getInstance().performThreadSafeSQLiteOperations(conn -> { // TODO: Verify that this is working as expected
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> { // TODO: Verify that this is working as expected
             try (
                     PreparedStatement stmt = conn.prepareStatement("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%'");
                     ResultSet rs = stmt.executeQuery();

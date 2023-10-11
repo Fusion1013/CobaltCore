@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.storage.IStorageObject;
 
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class ObjectStorageDaoSQLite extends Dao implements IObjectStorageDao {
 
     @Override
     public void removeJsonStorageSync(UUID uuid) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("DELETE FROM object_storage WHERE uuid = ?")
             ) {
@@ -57,7 +58,7 @@ public class ObjectStorageDaoSQLite extends Dao implements IObjectStorageDao {
 
     @Override
     public void insertJsonStorageSync(UUID uuid, String chunkWorldKey, IStorageObject storage) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO object_storage(uuid, chunk_world_key, object_type, content) VALUES(?, ?, ?, ?)")
             ) {
@@ -80,7 +81,7 @@ public class ObjectStorageDaoSQLite extends Dao implements IObjectStorageDao {
         // <StorageIdentifier, <StorageUUID, StorageObject>>
         Map<String, JsonObject> jsonObjectMap = new HashMap<>();
 
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("SELECT * FROM object_storage WHERE chunk_world_key = ?")
             ) {
@@ -110,6 +111,6 @@ public class ObjectStorageDaoSQLite extends Dao implements IObjectStorageDao {
 
     @Override
     public void init() {
-        getDataManager().getSqliteDb().executeString(SQLiteCreateObjectStorageTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateObjectStorageTable);
     }
 }

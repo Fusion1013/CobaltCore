@@ -1,6 +1,7 @@
 package se.fusion1013.plugin.cobaltcore.database.system;
 
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class SQLite extends Database {
      * @param string Statement to execute.
      */
     public void executeString(String string){
-        DataManager.getInstance().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     Statement s = conn.createStatement()
             ) {

@@ -7,6 +7,7 @@ import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.location.ILocationDao;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.entity.CustomEntityManager;
 import se.fusion1013.plugin.cobaltcore.entity.ICustomEntity;
 import se.fusion1013.plugin.cobaltcore.world.spawner.CustomSpawner;
@@ -48,7 +49,7 @@ public class CustomSpawnerDaoSQLite extends Dao implements ICustomSpawnerDao {
         Map<Long, Map<Location, CustomSpawner>> spawners = new HashMap<>();
 
         try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM custom_spawners_view");
                 ResultSet rs = ps.executeQuery()
         ) {
@@ -99,7 +100,7 @@ public class CustomSpawnerDaoSQLite extends Dao implements ICustomSpawnerDao {
 
     @Override
     public void saveCustomSpawners(Map<Long, Map<Location, CustomSpawner>> spawners) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO custom_spawners(custom_spawner_uuid, entity, spawner_type, spawn_count, activation_range, spawn_radius, cooldown, delay_summon, play_sound, play_sound_delayed) VALUES(?,?,?,?,?,?,?,?,?,?)");
                     PreparedStatement psLocation = conn.prepareStatement("INSERT OR REPLACE INTO locations(uuid, world, x_pos, y_pos, z_pos, yaw, pitch) VALUES(?, ?, ?, ?, ?, ?, ?)")
@@ -156,7 +157,7 @@ public class CustomSpawnerDaoSQLite extends Dao implements ICustomSpawnerDao {
     @Override
     public void removeCustomSpawner(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
-            getDataManager().performThreadSafeSQLiteOperations(conn -> {
+            SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
                 try (
                         PreparedStatement ps = conn.prepareStatement("DELETE FROM custom_spawners WHERE custom_spawner_uuid = ?")
                 ) {
@@ -179,8 +180,8 @@ public class CustomSpawnerDaoSQLite extends Dao implements ICustomSpawnerDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateCustomSpawnerTable);
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateCustomSpawnerView);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateCustomSpawnerTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateCustomSpawnerView);
     }
 
     @Override

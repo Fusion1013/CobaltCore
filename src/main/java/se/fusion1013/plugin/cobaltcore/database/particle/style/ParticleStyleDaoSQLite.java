@@ -7,6 +7,7 @@ import org.bukkit.util.Vector;
 import se.fusion1013.plugin.cobaltcore.CobaltCore;
 import se.fusion1013.plugin.cobaltcore.database.system.Dao;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
+import se.fusion1013.plugin.cobaltcore.database.system.implementations.SQLiteImplementation;
 import se.fusion1013.plugin.cobaltcore.particle.manager.ParticleStyleManager;
 import se.fusion1013.plugin.cobaltcore.particle.styles.ParticleStyle;
 
@@ -46,7 +47,7 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
     public void removeParticleStyle(String styleName) {
         Bukkit.getScheduler().runTaskAsynchronously(CobaltCore.getInstance(), () -> {
             try (
-                    Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                    Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                     PreparedStatement ps = conn.prepareStatement("DELETE FROM particle_styles WHERE name = ?");
                     PreparedStatement ps2 = conn.prepareStatement("DELETE FROM particle_style_holders WHERE style_name = ?")
             ) {
@@ -64,7 +65,7 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
 
     @Override
     public void insertParticleStyles(List<ParticleStyle> styles) {
-        getDataManager().performThreadSafeSQLiteOperations(conn -> {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
             try (
                     PreparedStatement ps = conn.prepareStatement("INSERT OR REPLACE INTO particle_styles(name, particle, offset_x, offset_y, offset_z, count, speed, rotation_x, rotation_y, rotation_z, angular_velocity_x, angular_velocity_y, angular_velocity_z, style_type, data, style_extra) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
             ) {
@@ -102,7 +103,7 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
         Map<String, ParticleStyle> styles = new HashMap<>();
 
         try (
-                Connection conn = getDataManager().getSqliteDb().getSQLConnection();
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM particle_styles");
                 ResultSet rs = ps.executeQuery()
         ) {
@@ -160,6 +161,6 @@ public class ParticleStyleDaoSQLite extends Dao implements IParticleStyleDao {
 
     @Override
     public void init() {
-        DataManager.getInstance().getSqliteDb().executeString(SQLiteCreateParticleStyleTable);
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreateParticleStyleTable);
     }
 }
