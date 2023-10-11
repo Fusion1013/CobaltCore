@@ -1,7 +1,6 @@
 package se.fusion1013.plugin.cobaltcore.item.loaders;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -42,6 +41,5 @@ public class AttributeLoader implements IItemLoader {
 
     @Override
     public void Load(JsonObject json, CobaltItem.Builder builder) {
-        throw new NotImplementedException();
     }
 }

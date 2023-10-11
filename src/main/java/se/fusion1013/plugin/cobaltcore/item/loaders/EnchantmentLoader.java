@@ -1,11 +1,9 @@
 package se.fusion1013.plugin.cobaltcore.item.loaders;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentManager;
 import se.fusion1013.plugin.cobaltcore.item.enchantment.EnchantmentWrapper;
-import se.fusion1013.plugin.cobaltcore.item.loaders.IItemLoader;
 import se.fusion1013.plugin.cobaltcore.item.system.CobaltItem;
 
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ public class EnchantmentLoader implements IItemLoader {
 
     @Override
     public void Load(JsonObject json, CobaltItem.Builder builder) {
-        throw new NotImplementedException();
     }
 
     private static EnchantmentWrapper[] FromMapList(List<Map<?, ?>> mapList) {

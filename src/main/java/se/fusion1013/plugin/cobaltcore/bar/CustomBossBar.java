@@ -1,6 +1,5 @@
 package se.fusion1013.plugin.cobaltcore.bar;
 
-import com.sun.jna.platform.win32.COM.util.annotation.ComObject;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
