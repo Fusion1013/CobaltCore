@@ -10,14 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class LocationJsonDao implements ILocationDao {
+class LocationJsonDao implements ILocationDao {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final File jsonFile;
 
     public LocationJsonDao(File jsonFile) {
         this.jsonFile = jsonFile; // Initialize the jsonFile variable
     }
-
+    @Override
+    public void init() {
+        // Implement initialization logic here
+        // This method is called when your data storage implementation is initialized.
+    }
     @Override
     public void removeLocation(UUID uuid) {
         Map<UUID, Location> locations = getAllLocations();
