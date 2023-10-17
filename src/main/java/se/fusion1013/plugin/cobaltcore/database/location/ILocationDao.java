@@ -2,7 +2,7 @@ package se.fusion1013.plugin.cobaltcore.database.location;
 
 import org.bukkit.Location;
 import se.fusion1013.plugin.cobaltcore.database.system.IDao;
-
+import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import java.util.UUID;
 
 public interface ILocationDao extends IDao {
@@ -40,3 +40,4 @@ public interface ILocationDao extends IDao {
     @Override
     default String getId() { return "location"; }
 }
+

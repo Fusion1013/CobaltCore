@@ -116,7 +116,8 @@ public class DataManager extends Manager {
 
     public enum StorageType {
         SQLITE,
-        MONGODB
+        MONGODB,
+        JSON
     }
 
     // ----- RELOADING / DISABLING -----
