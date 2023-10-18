@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class LocationJsonDao implements ILocationDao {
+public class LocationDaoJson implements ILocationDao {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final File jsonFile;
 
-    public LocationJsonDao(File jsonFile) {
+    public LocationDaoJson(File jsonFile) {
         this.jsonFile = jsonFile; // Initialize the jsonFile variable
     }
     @Override
