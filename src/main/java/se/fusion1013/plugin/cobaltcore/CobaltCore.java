@@ -14,6 +14,7 @@ import se.fusion1013.plugin.cobaltcore.commands.particle.MainParticleCommand;
 import se.fusion1013.plugin.cobaltcore.commands.settings.SettingCommand;
 import se.fusion1013.plugin.cobaltcore.commands.spawner.SpawnerCommand;
 import se.fusion1013.plugin.cobaltcore.commands.structure.StructureCommand;
+import se.fusion1013.plugin.cobaltcore.commands.structure.WetnessCommand;
 import se.fusion1013.plugin.cobaltcore.config.ConfigManager;
 import se.fusion1013.plugin.cobaltcore.database.system.DataManager;
 import se.fusion1013.plugin.cobaltcore.database.system.Database;
@@ -207,6 +208,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
         StructureCommand.register();
         SpawnerCommand.register();
+
+        WetnessCommand.register();
     } // Do not register cobalt and setting commands here, that is done elsewhere since they must be reloaded every time a new plugin is loaded.
 
     // ----- PLUGIN REGISTRATION -----

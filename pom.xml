@@ -62,7 +62,6 @@
                                     <shadedPattern>de.slikey.exp4j</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <!-- <outputFile>G:\Dokument\Minecraft\Minecraft Servers\1.20.1 - Paper DEV\plugins\CobaltCore-shaded.jar</outputFile> -->
                             <outputFile>${project.basedir}/server/plugins/CobaltCore-shaded.jar</outputFile>
                         </configuration>
                     </execution>

@@ -34,3 +34,6 @@
 
 # ACTIONS
 - ~~Potion effect action~~
+
+# SYSTEMS
+- Allow loading files through pastebin
