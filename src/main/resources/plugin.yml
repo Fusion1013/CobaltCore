@@ -1,0 +1,5 @@
+name: CobaltCore
+version: '0.1'
+main: se.fusion1013.cobaltCore.CobaltCore
+api-version: '1.21'
+authors: [ Fusion1013 ]

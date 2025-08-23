@@ -1,0 +1,1 @@
+copy "C:\Users\William\Documents\GitHub\CobaltCore\build\libs\CobaltCore-0.1.jar" "G:\Dokument\Minecraft\Minecraft Servers\1.21.8 - Paper\plugins\"
