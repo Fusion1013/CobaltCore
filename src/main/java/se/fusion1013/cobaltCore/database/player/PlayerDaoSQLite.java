@@ -1,0 +1,85 @@
+package se.fusion1013.cobaltCore.database.player;
+
+import org.bukkit.entity.Player;
+import se.fusion1013.cobaltCore.database.system.Dao;
+import se.fusion1013.cobaltCore.database.system.DataStorageType;
+import se.fusion1013.cobaltCore.database.system.implementations.SQLiteImplementation;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+
+public class PlayerDaoSQLite extends Dao implements IPlayerDao {
+
+    // ----- CREATE TABLE -----
+
+    private static final String SQLiteCreatePlayerTable = "CREATE TABLE IF NOT EXISTS players (" +
+            "`uuid` varchar(36) NOT NULL," +
+            "`name` varchar(32) NOT NULL," +
+            "PRIMARY KEY (`uuid`,`name`)" +
+            ");";
+
+    // ----- PLAYER INSERTING -----
+
+    @Override
+    public void insertPlayer(Player player) {
+        SQLiteImplementation.performThreadSafeSQLiteOperations(conn -> {
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT OR IGNORE INTO players(uuid, name) VALUES(?, ?)");
+            ) {
+                ps.setString(1, player.getUniqueId().toString());
+                ps.setString(2, player.getName());
+                ps.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    // ----- PLAYER GETTING -----
+
+    @Override
+    public String getPlayerName(UUID uuid) {
+
+        try (
+                Connection conn = SQLiteImplementation.getSqliteDb().getSQLConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE uuid = ?");
+        ) {
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("name");
+            }
+
+            rs.close();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return "";
+    }
+
+    @Override
+    public Player getPlayer(UUID uuid) {
+        return null;
+    }
+
+    // ----- TYPE -----
+
+    @Override
+    public DataStorageType getDataStorageType() {
+        return DataStorageType.SQLITE;
+    }
+
+
+    // ----- INIT -----
+
+    @Override
+    public void init() {
+        SQLiteImplementation.getSqliteDb().executeString(SQLiteCreatePlayerTable);
+    }
+}

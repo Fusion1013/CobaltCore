@@ -1,0 +1,15 @@
+{
+  "": "",
+  "prefix.core": "&7[<g:#00aaaa:#0066aa>Cobalt&7] ",
+  "cobalt.player.join": "&7This server is running &3%plugin% v&3%version%",
+
+  "connection.join": "&3%player% &7joined the game",
+  "connection.quit": "&3%player% &7left the game",
+
+  "commands.accept.fail": "&7No pending requests to accept",
+  "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
+
+  "commands.cobalt.particle.effect.list.header": "<g:#00aaaa:#0066aa>----- Effects -----",
+  "commands.cobalt.particle.effect.list.item": "&7 - [&3%id%&7] &3%name% &7- &3%type%",
+  "commands.cobalt.particle.effect.modify.set": "&7Modified particle effect &3%name%"
+}

@@ -1,30 +1,205 @@
 package se.fusion1013.cobaltCore;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.fusion1013.cobaltCore.commands.AcceptCommand;
+import se.fusion1013.cobaltCore.commands.CobaltCommand;
+import se.fusion1013.cobaltCore.commands.cgive.CGiveCommand;
+import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
+import se.fusion1013.cobaltCore.database.system.DataManager;
+import se.fusion1013.cobaltCore.database.system.Database;
+import se.fusion1013.cobaltCore.database.system.SQLite;
+import se.fusion1013.cobaltCore.events.PlayerEvents;
+import se.fusion1013.cobaltCore.item.CustomItemManager;
+import se.fusion1013.cobaltCore.item.components.ComponentManager;
+import se.fusion1013.cobaltCore.item.crafting.RecipeManager;
+import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
+import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
+import se.fusion1013.cobaltCore.locale.LocaleManager;
+import se.fusion1013.cobaltCore.manager.Manager;
+import se.fusion1013.cobaltCore.particle.ParticleEffectManager;
 
-public final class CobaltCore extends JavaPlugin implements Listener {
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     private static CobaltCore INSTANCE;
+    private static Database db;
+
+    public CobaltCore() {
+        INSTANCE = this;
+        this.managers = new LinkedHashMap<>();
+    }
+
+    // ##### ENABLING / DISABLING #####
 
     @Override
     public void onEnable() {
-        getLogger().info("Enabling CobaltCore...");
-        INSTANCE = this;
-        Bukkit.getPluginManager().registerEvents(this, this);
+        registerCobaltPlugin(this);
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        disableCobaltPlugin(this);
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        event.getPlayer().sendMessage(Component.text("Hello, " + event.getPlayer().getName() + "!"));
+    // ##### MANAGERS #####
+
+    private final Map<CobaltPlugin, Map<Class<?>, Manager>> managers;
+
+    public <T extends Manager> T getManager(CobaltPlugin plugin, Class<T> managerClass) {
+        this.managers.computeIfAbsent(plugin, k -> new LinkedHashMap<>());
+
+        if (this.managers.get(plugin).containsKey(managerClass))
+            return (T) this.managers.get(plugin).get(managerClass);
+
+        try {
+            long time = System.currentTimeMillis();
+
+            // plugin.getLogger().info("Reloading manager " + managerClass.getName());
+
+            T manager = managerClass.getConstructor(plugin.getClass()).newInstance(plugin);
+            this.managers.get(plugin).put(managerClass, manager);
+            manager.reload();
+
+            // plugin.getLogger().info("Reloaded manager " + managerClass.getName() + " in " + (System.currentTimeMillis() - time) + "ms");
+
+            return manager;
+        } catch (ReflectiveOperationException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
+
+    @Override
+    public void reloadManagers() {
+        CobaltPlugin.super.reloadManagers();
+
+        // Disable all active managers first
+        if (this.managers.get(this) != null) this.managers.get(this).values().forEach(Manager::disable);
+
+        // Register managers using getManager()
+        this.getManager(this, DataManager.class);
+        this.getManager(this, LocaleManager.class);
+        this.getManager(this, ParticleEffectManager.class);
+        this.getManager(this, ItemSectionManager.class);
+        this.getManager(this, ComponentManager.class);
+        this.getManager(this, RecipeManager.class);
+        this.getManager(this, EnchantmentManager.class);
+        this.getManager(this, CustomItemManager.class);
+    }
+
+    // ##### LISTENERS #####
+
+
+    @Override
+    public void registerListeners() {
+        CobaltPlugin.super.registerListeners();
+        // Bukkit.getPluginManager().registerEvents(..., this)
+        Bukkit.getPluginManager().registerEvents(new PlayerEvents(), this);
+    }
+
+    // ##### COMMAND REGISTRATION #####
+
+
+    @Override
+    public void registerCommands() {
+        CobaltPlugin.super.registerCommands();
+
+        CobaltCommand.register();
+        AcceptCommand.register();
+        ParticleCommand.register();
+        CGiveCommand.createCgiveCommand();
+    }
+
+    // ##### PLUGIN REGISTRATION #####
+
+    private final static Set<CobaltPlugin> cobaltPlugins = new HashSet<>();
+
+    public void disableCobaltPlugin(CobaltPlugin plugin) {
+        long time = System.currentTimeMillis();
+        if (this.managers.get(plugin) != null) this.managers.get(plugin).values().forEach(Manager::disable);
+        plugin.getLogger().info("Disabled managers in " + (System.currentTimeMillis() - time) + "ms");
+        cobaltPlugins.remove(plugin);
+    }
+
+    public boolean registerCobaltPlugin(CobaltPlugin plugin) {
+
+        getLogger().info("Registering Plugin " + plugin.getName() + ".");
+
+        if (cobaltPlugins.add(plugin)) {
+
+            // Pre Init
+            plugin.preInit();
+
+            // Connect to database if the plugin is CobaltCore
+            if (plugin instanceof CobaltCore) {
+                getLogger().info("Instantiating Database..."); // TODO: Do this for every plugin, create new database file for each plugin
+                db = new SQLite(this); // TODO: Move to DataManager
+                db.load();
+            }
+
+            // Register Locale for Plugin
+            long time = System.currentTimeMillis();
+            LocaleManager.loadLocale(plugin);
+            plugin.getLogger().info("Loaded locale in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Init Database Tables
+            time = System.currentTimeMillis();
+            plugin.initDatabaseTables(); // TODO: Remove this method (Needs to be removed from other plugins too)
+            plugin.getLogger().info("Initialized database in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Reloads all Managers
+            time = System.currentTimeMillis();
+            plugin.reloadManagers();
+            plugin.getLogger().info("Reloaded managers in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Load custom items
+            // NOTE: Must be run after manager registration. Otherwise, item components do not work
+            ItemSectionManager.load(plugin, false);
+            CustomItemManager.loadItemFiles(plugin, false);
+
+            // Registers all Commands
+            time = System.currentTimeMillis();
+            plugin.registerCommands();
+            plugin.getLogger().info("Commands registered in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Registers all Listeners
+            time = System.currentTimeMillis();
+            plugin.registerListeners();
+            plugin.getLogger().info("Registered Listeners in " + (System.currentTimeMillis() - time) + "ms");
+
+            // Post Init
+            plugin.postInit();
+        }
+
+        // getLogger().info("Reloading cobalt command...");
+        // CobaltCommand.register();
+        // SettingCommand.register();
+        // CommandGenerator.register();
+
+        getLogger().info("Successfully registered " + plugin.getName() + ".");
+        return true;
+    }
+
+    public Database getSQLiteDatabase() {
+        return db;
+    }
+
+    public static CobaltCore getInstance() {
+        return INSTANCE;
+    }
+
+    public static Set<CobaltPlugin> getRegisteredCobaltPlugins() {
+        return cobaltPlugins;
+    }
+
+    @Override
+    public String getInternalName() {
+        return "CobaltCore";
+    }
+
 }
