@@ -115,6 +115,8 @@ buildNumber.properties
 # Common working directory
 run/
 
+.gradle
+
 # Fusion Imports
 .paper-nms
 !lib/*.jar
