@@ -121,3 +121,4 @@ run/
 .paper-nms
 !lib/*.jar
 /build
+/build
