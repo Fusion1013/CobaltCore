@@ -1,4 +1,4 @@
-package se.fusion1013.cobaltCore.commands.cgive;
+package se.fusion1013.cobaltCore.commands.item;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;

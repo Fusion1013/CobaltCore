@@ -4,7 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.cobaltCore.commands.AcceptCommand;
 import se.fusion1013.cobaltCore.commands.CobaltCommand;
-import se.fusion1013.cobaltCore.commands.cgive.CGiveCommand;
+import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
+import se.fusion1013.cobaltCore.commands.item.EditCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
 import se.fusion1013.cobaltCore.database.system.DataManager;
 import se.fusion1013.cobaltCore.database.system.Database;
@@ -113,6 +114,7 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         AcceptCommand.register();
         ParticleCommand.register();
         CGiveCommand.createCgiveCommand();
+        EditCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####
