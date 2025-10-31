@@ -1,4 +1,4 @@
-package se.fusion1013.cobaltCore.particle;
+package se.fusion1013.cobaltCore.particle.effects;
 
 import dev.jorel.commandapi.arguments.Argument;
 import org.bukkit.Location;

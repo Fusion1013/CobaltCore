@@ -9,8 +9,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
-import se.fusion1013.cobaltCore.particle.IParticleEffect;
-import se.fusion1013.cobaltCore.particle.ParticleEffectManager;
+import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
+import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 import java.util.List;

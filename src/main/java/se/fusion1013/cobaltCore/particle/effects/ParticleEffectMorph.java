@@ -1,4 +1,4 @@
-package se.fusion1013.cobaltCore.particle;
+package se.fusion1013.cobaltCore.particle.effects;
 
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 import se.fusion1013.cobaltCore.util.EasingUtil;
 
@@ -51,7 +50,7 @@ public class ParticleEffectMorph extends AbstractParticleEffect implements IPart
             Vector a = fromPoints.get(i);
             Vector b = toPoints.get(i);
 
-            double easedProgress = EasingUtil.ease(progress, EasingUtil.EasingMethod.EaseInOutSine);
+            double easedProgress = EasingUtil.EasingMethod.EaseInOutSine.ease(progress);
 
             Vector interpolated = a.clone().multiply(1.0 - easedProgress).add(b.clone().multiply(easedProgress));
             Location point = center.clone().add(interpolated);

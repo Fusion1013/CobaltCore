@@ -1,6 +1,7 @@
 package se.fusion1013.cobaltCore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Optional;
 
 public class CobaltCommand {
 
@@ -35,13 +37,26 @@ public class CobaltCommand {
         return new CommandAPICommand("reload")
                 .withPermission("commands.core.reload")
                 .withSubcommand(new CommandAPICommand("items")
+                        .withOptionalArguments(new GreedyStringArgument("options"))
                         .executes(CobaltCommand::reloadItems));
     }
 
     private static void reloadItems(CommandSender sender, CommandArguments args) {
         try {
+            Optional<Object> options = args.getOptional("options");
+            String commandOptions = options.map(o -> (String) o).orElse("");
+
+            boolean verbose = commandOptions.contains("-v") || commandOptions.contains("-verbose");
+
             CustomItemManager.reloadItems();
-            if (sender instanceof Player player) LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.reload.items");
+            if (sender instanceof Player player) {
+                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.reload.items");
+                if (verbose) {
+                    for (String s : CustomItemManager.getCustomItemNames()) {
+                        LocaleManager.getInstance().sendMessage("", player, "commands.core.reload.items.item", StringPlaceholders.builder().addPlaceholder("item_name", s).build());
+                    }
+                }
+            }
         } catch (Exception ex) {
             CobaltCore.getInstance().getLogger().warning("Encountered issue while reloading items: " + ex.getMessage());
 
@@ -71,7 +86,7 @@ public class CobaltCommand {
                     StringPlaceholders placeholders = StringPlaceholders.builder()
                             .addPlaceholder("count", LocaleManager.getLocaleFileCount())
                             .build();
-                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.cobalt.locale.reset.result", placeholders);
+                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.core.locale.reset.result", placeholders);
                 });
     }
 

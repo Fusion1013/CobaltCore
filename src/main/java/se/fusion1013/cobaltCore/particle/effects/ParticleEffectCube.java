@@ -1,4 +1,4 @@
-package se.fusion1013.cobaltCore.particle;
+package se.fusion1013.cobaltCore.particle.effects;
 
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -8,10 +8,10 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
+import se.fusion1013.cobaltCore.particle.ParticleShapeUtils;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ParticleEffectCube extends AbstractParticleEffect implements IParticleEffect {

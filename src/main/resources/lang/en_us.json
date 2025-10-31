@@ -7,14 +7,16 @@
   "connection.quit": "&3%player% &7left the game",
 
   "commands.accept.fail": "&7No pending requests to accept",
-  "commands.cobalt.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
+  "commands.core.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
+  "commands.core.reload.items": "&7Reloaded all items",
+  "commands.core.reload.items.item": "&7 - &3%item_name%",
 
-  "commands.cobalt.particle.effect.list.header": "<g:#00aaaa:#0066aa>----- Effects -----",
-  "commands.cobalt.particle.effect.list.item": "&7 - [&3%id%&7] &3%name% &7- &3%type%",
-  "commands.cobalt.particle.effect.modify.set": "&7Modified particle effect &3%name%",
+  "commands.core.particle.effect.list.header": "<g:#00aaaa:#0066aa>----- Effects -----",
+  "commands.core.particle.effect.list.item": "&7 - [&3%id%&7] &3%name% &7- &3%type%",
+  "commands.core.particle.effect.modify.set": "&7Modified particle effect &3%name%",
 
-  "commands.cobalt.edit.item.item_model.fail": "&7Failed to set item model of item &3%item%",
-  "commands.cobalt.edit.item.item_model": "&7Set item model of item &3%item% &7to &3%data%",
-  "commands.cobalt.edit.item.name.fail": "&7Failed to set name of item &3%item%",
-  "commands.cobalt.edit.item.name": "&7Changed name of item &3%item% &7to &3%name%"
+  "commands.core.edit.item.item_model.fail": "&7Failed to set item model of item &3%item%",
+  "commands.core.edit.item.item_model": "&7Set item model of item &3%item% &7to &3%model%",
+  "commands.core.edit.item.name.fail": "&7Failed to set name of item &3%item%",
+  "commands.core.edit.item.name": "&7Changed name of item &3%item% &7to &3%name%"
 }

@@ -1,8 +1,9 @@
-package se.fusion1013.cobaltCore.particle;
+package se.fusion1013.cobaltCore.particle.effects;
 
 import org.bukkit.Particle;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.manager.Manager;
+import se.fusion1013.cobaltCore.particle.ParticleShapeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

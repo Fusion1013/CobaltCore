@@ -8,7 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 import se.fusion1013.cobaltCore.CobaltCore;
-import se.fusion1013.cobaltCore.particle.*;
+import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
+import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
+import se.fusion1013.cobaltCore.particle.effects.ParticleEffectMorph;
 
 import java.util.List;
 

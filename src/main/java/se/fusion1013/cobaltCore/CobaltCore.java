@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.cobaltCore.commands.AcceptCommand;
 import se.fusion1013.cobaltCore.commands.CobaltCommand;
+import se.fusion1013.cobaltCore.commands.EaseCommand;
+import se.fusion1013.cobaltCore.commands.RotateAround;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
 import se.fusion1013.cobaltCore.commands.item.EditCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
@@ -18,7 +20,7 @@ import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
 import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.manager.Manager;
-import se.fusion1013.cobaltCore.particle.ParticleEffectManager;
+import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -115,6 +117,8 @@ public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
         ParticleCommand.register();
         CGiveCommand.createCgiveCommand();
         EditCommand.register();
+        RotateAround.register();
+        EaseCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####

@@ -60,7 +60,7 @@ public class EditCommand {
     private static CommandAPICommand createEditItemModelCommand() {
         return new CommandAPICommand("model")
                 .withPermission("cobalt.core.commands.edit.item.model")
-                .withArguments(new StringArgument("model"))
+                .withArguments(new GreedyStringArgument("model"))
                 .executesPlayer((sender, args) -> {
                     editItemModel(sender, (String) args.args()[0]);
                 });
