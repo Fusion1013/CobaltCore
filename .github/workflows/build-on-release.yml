@@ -1,0 +1,40 @@
+name: Build Plugin on Release
+
+on:
+  release:
+    types: [published]   # Trigger when a new release is published
+  # alternatively:
+  # push:
+  #   tags:
+  #     - 'v*'  # trigger when a tag like v1.0.0 is pushed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build plugin
+        run: |
+          ./gradlew clean build  # or mvn package, depending on your build tool
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-jar
+          path: build/libs/*.jar
+
+      - name: Upload to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/libs/*.jar
+          tag: ${{ github.ref_name }}
