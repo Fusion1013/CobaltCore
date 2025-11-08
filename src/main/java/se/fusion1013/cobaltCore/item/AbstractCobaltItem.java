@@ -125,12 +125,13 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         persistentDataContainer.set(key, PersistentDataType.INTEGER, 1);
 
         // -- ITEM VISUALS
-        meta.setCustomModelData(modelData);
-        meta.setItemModel(NamespacedKey.fromString(itemModel));
+        // meta.setCustomModelData(modelData);
 
-        String[] itemModelNamespaceSplit = itemModel.split(":");
-        if (itemModelNamespaceSplit.length > 1) meta.setItemModel(new NamespacedKey(itemModelNamespaceSplit[0], itemModelNamespaceSplit[1]));
-        else meta.setItemModel(new NamespacedKey("minecraft", itemModelNamespaceSplit[0]));
+        if (!itemModel.isEmpty()) {
+            String[] itemModelNamespaceSplit = itemModel.split(":");
+            if (itemModelNamespaceSplit.length > 1) meta.setItemModel(new NamespacedKey(itemModelNamespaceSplit[0], itemModelNamespaceSplit[1]));
+            else meta.setItemModel(new NamespacedKey("minecraft", itemModelNamespaceSplit[0]));
+        }
 
         // -- ITEM NAME
         meta.setDisplayName(itemName);
