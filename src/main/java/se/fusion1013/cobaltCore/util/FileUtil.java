@@ -11,6 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -105,6 +106,17 @@ public class FileUtil {
         // return the array of strings of filenames inside path.
         return result.toArray(new String[result.size()]);
 
+    }
+
+    public static void saveYamlFile(CobaltPlugin plugin, String folderName, String fileName, YamlConfiguration yaml) {
+        File dataFolder = plugin.getDataFolder();
+        File file = new File(dataFolder, folderName + "/" + fileName + ".yml");
+        plugin.getLogger().info("Saving file into folder '" + folderName + "'...");
+        try {
+            yaml.save(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void loadFilesInto(CobaltPlugin plugin, String folderName, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {

@@ -7,12 +7,15 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
+import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.util.FileUtil;
 import se.fusion1013.cobaltCore.util.ItemUtil;
+import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,30 +24,9 @@ public class CGiveCommand {
     public static void createCgiveCommand() {
         new CommandAPICommand("cgive")
                 .withPermission("commands.core.item")
-                .withSubcommand(createPastebinCommand())
                 .withArguments(new StringArgument("item").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
                 .executesPlayer(CGiveCommand::giveItem)
                 .register();
-    }
-
-    // ----- PASTEBIN -----
-
-    private static CommandAPICommand createPastebinCommand() {
-        return new CommandAPICommand("pastebin")
-                .withPermission("commands.core.item.pastebin")
-                .withArguments(new StringArgument("id"))
-                .executesPlayer((player, commandArguments) -> {
-                    String pasteId = (String) commandArguments.args()[0];
-
-                    try {
-                        YamlConfiguration yaml = FileUtil.loadFromPastebin(pasteId);
-                        ICustomItem item = ItemLoader.Load(yaml);
-                        ItemStack itemStack = item.getItemStack();
-                        player.getInventory().addItem(itemStack);
-                    } catch (Exception e) {
-                        player.sendMessage("Error: " + e.getMessage());
-                    }
-                });
     }
 
     // ----- CATEGORIES -----
@@ -99,6 +81,18 @@ public class CGiveCommand {
     private static void giveItem(Player player, CommandArguments args){
         String itemName = (String)args.args()[0];
         ItemStack is = CustomItemManager.getCustomItemStack(itemName);
-        if (is != null) player.getInventory().addItem(is);
+
+        StringPlaceholders placeholders = StringPlaceholders.builder()
+                .addPlaceholder("amount", 1)
+                .addPlaceholder("item", itemName)
+                .addPlaceholder("player", player.getName())
+                .build();
+
+        if (is != null) {
+            player.getInventory().addItem(is);
+            LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.cgive.success", placeholders);
+        } else {
+            LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.cgive.error", placeholders);
+        }
     }
 }

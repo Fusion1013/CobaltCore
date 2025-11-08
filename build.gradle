@@ -50,15 +50,6 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
-tasks.build {
-    finalizedBy("copyToServer")
-}
-
-tasks.register("copyToServer", Copy) {
-    from(tasks.jar) // take the output from jar task
-    into("G:/Dokument/Minecraft/Minecraft Servers/1.21.8 - Paper/plugins")
-}
-
 processResources {
     def props = [version: version]
     inputs.properties props

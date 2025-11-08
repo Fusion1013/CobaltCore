@@ -2,31 +2,22 @@ package se.fusion1013.cobaltCore.commands.item;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockDataMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.util.HexUtils;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
+import se.fusion1013.cobaltCore.util.StringUtil;
 
-public class EditCommand {
+public class ItemPropertyCommand {
 
-    public static void register() {
-        new CommandAPICommand("edit")
-                .withPermission("cobalt.core.commands.edit")
-                .withSubcommand(createEditItemCommand())
-                .register();
-    }
-
-    private static CommandAPICommand createEditItemCommand() {
-        return new CommandAPICommand("item")
-                .withPermission("cobalt.core.commands.edit.item")
+    public static CommandAPICommand createEditItemPropertyCommand() {
+        return new CommandAPICommand("property")
+                .withPermission("cobalt.core.commands.item.property")
                 .withSubcommand(createEditItemModelCommand())
                 .withSubcommand(createEditCustomNameCommand());
     }
@@ -41,7 +32,7 @@ public class EditCommand {
                     ItemMeta meta = stack.getItemMeta();
 
                     StringPlaceholders placeholders = StringPlaceholders.builder()
-                            .addPlaceholder("item", stack.getType().toString())
+                            .addPlaceholder("item", StringUtil.reformatString(stack.getType().toString()))
                             .addPlaceholder("name", newName)
                             .build();
 
@@ -71,7 +62,7 @@ public class EditCommand {
         ItemMeta meta = stack.getItemMeta();
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
-                .addPlaceholder("item", stack.getType().toString())
+                .addPlaceholder("item", StringUtil.reformatString(stack.getType().toString()))
                 .addPlaceholder("model", model)
                 .build();
         if (meta == null) {
@@ -84,5 +75,4 @@ public class EditCommand {
 
         LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.edit.item.item_model", placeholders);
     }
-
 }

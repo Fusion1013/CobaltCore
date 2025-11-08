@@ -18,5 +18,11 @@
   "commands.core.edit.item.item_model.fail": "&7Failed to set item model of item &3%item%",
   "commands.core.edit.item.item_model": "&7Set item model of item &3%item% &7to &3%model%",
   "commands.core.edit.item.name.fail": "&7Failed to set name of item &3%item%",
-  "commands.core.edit.item.name": "&7Changed name of item &3%item% &7to &3%name%"
+  "commands.core.edit.item.name": "&7Changed name of item &3%item% &7to &3%name%",
+
+  "commands.core.cgive.success": "&7Gave &3%amount% %item% &7to &3%player%",
+  "commands.core.cgive.error": "&7Unknown item &3%item%",
+
+  "commands.core.pastebin.test.success": "&7Loaded item &3%item% &7from pastebin &3%pastebin%",
+  "commands.core.pastebin.test.error": "&7Could not load item from pastebin &3%pastebin%"
 }
