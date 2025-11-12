@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class CobaltCore extends JavaPlugin implements CobaltPlugin {
+public class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     private static CobaltCore INSTANCE;
     private static Database db;

@@ -68,7 +68,9 @@ public class FileUtil {
         ArrayList<String> result = new ArrayList<String>();
 
         // get the path of the jar file
-        String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
+        int dirUrlIndex = dirURL.getPath().indexOf("!");
+        if (dirUrlIndex <= 0) return new String[0];
+        String jarPath = dirURL.getPath().substring(5, dirUrlIndex); //strip out only the JAR file
 
         // decode the compiled jar for iteration
         JarFile jar = null;
