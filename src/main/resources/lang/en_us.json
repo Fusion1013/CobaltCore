@@ -7,6 +7,7 @@
   "connection.quit": "&3%player% &7left the game",
 
   "commands.accept.fail": "&7No pending requests to accept",
+  "commands.deny": "&7Denied the request",
   "commands.core.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
   "commands.core.reload.items": "&7Reloaded all items",
   "commands.core.reload.items.item": "&7 - &3%item_name%",

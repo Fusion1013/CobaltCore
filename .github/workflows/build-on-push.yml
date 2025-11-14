@@ -3,12 +3,10 @@ name: Build with Maven
 on:
   push:
     branches:
-      - master
-      - 1.21.8
+      - main
   pull_request:
     branches:
-      - master
-      - 1.21.8
+      - main
 
 jobs:
   build:
