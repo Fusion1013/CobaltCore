@@ -114,6 +114,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         AcceptCommand.register();
         ParticleCommand.register();
         CGiveCommand.createCgiveCommand();
+        CSummonCommand.register();
         EditCommand.register();
         RotateAround.register();
         EaseCommand.register();
