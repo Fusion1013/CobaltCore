@@ -1,5 +1,9 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.DoubleArgument;
+import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -11,8 +15,8 @@ import java.util.List;
 
 public class ParticleEffectSphere extends AbstractParticleEffect implements IParticleEffect {
 
-    private final double radius;
-    private final int density;
+    private double radius;
+    private int density;
 
     public ParticleEffectSphere(Particle particle, double radius, int density) {
         this(new TransformationPipeline(), particle, radius, density);
@@ -38,6 +42,21 @@ public class ParticleEffectSphere extends AbstractParticleEffect implements IPar
     @Override
     public String getName() {
         return "sphere";
+    }
+
+    @Override
+    public List<Argument> getModifyArguments() {
+        List<Argument> arguments = super.getModifyArguments();
+        arguments.add(new DoubleArgument("radius"));
+        arguments.add(new IntegerArgument("density"));
+        return arguments;
+    }
+
+    @Override
+    public void modify(CommandArguments arguments) {
+        super.modify(arguments);
+        radius = (double) arguments.get("radius");
+        density = (int) arguments.get("density");
     }
 
     @Override

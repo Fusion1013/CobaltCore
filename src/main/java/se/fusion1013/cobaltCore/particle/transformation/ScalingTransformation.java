@@ -2,11 +2,11 @@ package se.fusion1013.cobaltCore.particle.transformation;
 
 import org.bukkit.util.Vector;
 
-public class Scaling implements IParticleTransformation {
+public class ScalingTransformation implements IParticleTransformation {
 
     private final double factor;
 
-    public Scaling(double factor) {
+    public ScalingTransformation(double factor) {
         this.factor = factor;
     }
 

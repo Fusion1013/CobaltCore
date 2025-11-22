@@ -2,10 +2,7 @@ package se.fusion1013.cobaltCore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import se.fusion1013.cobaltCore.commands.AcceptCommand;
-import se.fusion1013.cobaltCore.commands.CobaltCommand;
-import se.fusion1013.cobaltCore.commands.EaseCommand;
-import se.fusion1013.cobaltCore.commands.RotateAround;
+import se.fusion1013.cobaltCore.commands.*;
 import se.fusion1013.cobaltCore.commands.edit.EditCommand;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
 import se.fusion1013.cobaltCore.commands.edit.EditItemCommand;
@@ -120,6 +117,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         EditCommand.register();
         RotateAround.register();
         EaseCommand.register();
+        IsCustomItemCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####

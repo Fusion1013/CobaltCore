@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.particle.effects;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -67,6 +68,12 @@ public class ParticleEffectCube extends AbstractParticleEffect implements IParti
     }
 
     @Override
+    public void modify(Object[] args) {
+        super.modify(args);
+
+    }
+
+    @Override
     public void modify(String key, Object value) {
         super.modify(key, value);
         switch (key) {
@@ -74,6 +81,13 @@ public class ParticleEffectCube extends AbstractParticleEffect implements IParti
             case "density" -> density = (int) value;
 
         }
+    }
+
+    @Override
+    public void modify(CommandArguments arguments) {
+        super.modify(arguments);
+        size = (double) arguments.get("size");
+        density = (int) arguments.get("density");
     }
 
     @Override

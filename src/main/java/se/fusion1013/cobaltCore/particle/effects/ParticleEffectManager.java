@@ -48,6 +48,8 @@ public class ParticleEffectManager extends Manager<CobaltCore> {
     public static final IParticleEffect PARTICLE_EFFECT_TORUS = register(new ParticleEffectTorus(Particle.CRIT, 5, 4, 100));
     public static final IParticleEffect PARTICLE_EFFECT_MORPH = register(new ParticleEffectMorph(ParticleShapeUtils.generateSphere(2, 100), ParticleShapeUtils.generateSphere(10, 100), Particle.CRIT));
     public static final IParticleEffect PARTICLE_EFFECT_FIBONACCI_SPHERE = register(new ParticleEffectFibonacciSphere(Particle.CRIT, 3, 100));
+    public static final IParticleEffect PARTICLE_EFFECT_LINE = register(new ParticleEffectLine(Particle.CRIT));
+    public static final IParticleEffect PARTICLE_EFFECT_SPIRAL = register(new ParticleEffectSpiral(Particle.CRIT));
 
     private static IParticleEffect register(IParticleEffect effect) {
         DEFAULT_PARTICLE_EFFECTS.put(effect.getName(), effect);

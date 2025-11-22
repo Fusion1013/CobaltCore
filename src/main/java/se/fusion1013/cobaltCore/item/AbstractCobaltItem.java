@@ -211,7 +211,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         if (item == null) return false;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
-        return meta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER);
+        return meta.getPersistentDataContainer().has(key);
     }
 
     // ----- ACTIVATORS -----

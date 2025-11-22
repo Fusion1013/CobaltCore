@@ -2,6 +2,7 @@ package se.fusion1013.cobaltCore.particle.effects;
 
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ParticleArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.ParticleData;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -32,9 +33,9 @@ public abstract class AbstractParticleEffect implements IParticleEffect {
     private void displayParticleAtLocation(Location center, Player player, Particle particle, Vector vector) {
         Location point = center.clone().add(vector);
         if (player != null) {
-            player.spawnParticle(particle, point, 1, 0, 0, 0, 0);
+            player.spawnParticle(particle, point, 1, 0, 0, 0, 0, null, true);
         } else {
-            center.getWorld().spawnParticle(particle, point, 1, 0 ,0 ,0 ,0);
+            center.getWorld().spawnParticle(particle, point, 1, 0 ,0 ,0 ,0, null, true);
         }
     }
 
@@ -44,6 +45,11 @@ public abstract class AbstractParticleEffect implements IParticleEffect {
     }
 
     // ##### GETTERS / SETTERS #####
+
+    @Override
+    public List<Vector> getPoints(Location center) {
+        return List.of();
+    }
 
     public void setTransformationPipeline(TransformationPipeline transformationPipeline) {
         this.transformationPipeline = transformationPipeline;
@@ -61,6 +67,14 @@ public abstract class AbstractParticleEffect implements IParticleEffect {
     @Override
     public void modify(Object[] args) {
 
+    }
+
+    @Override
+    public void modify(CommandArguments arguments) {
+        ParticleData<?> particle = (ParticleData<?>) arguments.get("particle");
+        if (particle == null) return;
+        this.particle = particle.particle();
+        // TODO: Particle data
     }
 
     @Override
