@@ -4,6 +4,7 @@ import org.bukkit.Particle;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.particle.ParticleShapeUtils;
+import se.fusion1013.cobaltCore.particle.effects.glyph.ParticleEffectGlyph;
 
 import java.util.ArrayList;
 import java.util.HashMap;

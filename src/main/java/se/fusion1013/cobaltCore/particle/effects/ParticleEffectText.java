@@ -1,13 +1,14 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
-import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.arguments.DoubleArgument;
-import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import se.fusion1013.cobaltCore.particle.effects.glyph.GlyphData;
+import se.fusion1013.cobaltCore.particle.effects.glyph.GlyphManager;
+import se.fusion1013.cobaltCore.particle.effects.glyph.ParticleEffectGlyph;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class ParticleEffectText extends AbstractParticleEffect implements IParticleEffect {
 
+    private String alphabet;
     private String text;
     private double scale;
     private double spacing;
@@ -50,7 +52,7 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
         if (text == null) return;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            GlyphData glyphData = ParticleEffectGlyph.getGlyphFromName("aether_rune." + c);
+            GlyphData glyphData = GlyphManager.getGlyph(alphabet, c);
             if (glyphData == null) {
                 glyphs.add(new GlyphData("", "", List.of(), spacing * scale));
             } else {
@@ -71,6 +73,7 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
     @Override
     public List<Argument> getModifyArguments() {
         List<Argument> arguments = super.getModifyArguments();
+        arguments.add(new StringArgument("alphabet").replaceSuggestions(ArgumentSuggestions.strings(GlyphManager.getAlphabetNames())));
         arguments.add(new DoubleArgument("scale"));
         arguments.add(new DoubleArgument("spacing"));
         arguments.add(new GreedyStringArgument("text"));
@@ -80,6 +83,7 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
     @Override
     public void modify(CommandArguments arguments) {
         super.modify(arguments);
+        alphabet = (String) arguments.get("alphabet");
         scale = (double) arguments.get("scale");
         spacing = (double) arguments.get("spacing");
         text = (String) arguments.get("text");

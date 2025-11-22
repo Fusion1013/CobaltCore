@@ -1,4 +1,4 @@
-package se.fusion1013.cobaltCore.particle.effects;
+package se.fusion1013.cobaltCore.particle.effects.glyph;
 
 import org.bukkit.util.Vector;
 
