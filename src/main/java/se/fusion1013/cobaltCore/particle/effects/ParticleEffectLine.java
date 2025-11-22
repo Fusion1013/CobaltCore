@@ -1,6 +1,7 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
 import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
@@ -8,26 +9,30 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import se.fusion1013.cobaltCore.CobaltCore;
-import se.fusion1013.cobaltCore.particle.ParticleShapeUtils;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ParticleEffectLine extends AbstractParticleEffect implements IParticleEffect {
 
     private int density = 8;
+    private double randomRange = 0;
     private Location location2;
+
+    private final Random random;
 
     public ParticleEffectLine(Particle particle) {
         super(particle, new TransformationPipeline());
+        random = new Random();
     }
 
     public ParticleEffectLine(Particle particle, TransformationPipeline transformationPipeline, int density, Location location2) {
         super(particle, transformationPipeline);
         this.density = density;
         this.location2 = location2;
+        random = new Random();
     }
 
     @Override
@@ -48,7 +53,8 @@ public class ParticleEffectLine extends AbstractParticleEffect implements IParti
         int steps = (int) Math.round(density * distance);
         Vector direction = location2.clone().subtract(center).toVector().normalize();
         for (int i = 0; i < steps; i++) {
-            Vector location = direction.clone().multiply((double) i / (double) density);
+            double r = randomRange <= 0 ? 0 : random.nextDouble(-randomRange, randomRange);
+            Vector location = direction.clone().multiply((double) (i + r) / (double) density);
             points.add(location);
         }
         return points;
@@ -60,6 +66,7 @@ public class ParticleEffectLine extends AbstractParticleEffect implements IParti
 
         arguments.add(new IntegerArgument("density"));
         arguments.add(new LocationArgument("end_location"));
+        arguments.add(new DoubleArgument("random_range"));
 
         return arguments;
     }
@@ -69,6 +76,7 @@ public class ParticleEffectLine extends AbstractParticleEffect implements IParti
         super.modify(arguments);
         density = (int) arguments.get("density");
         location2 = (Location) arguments.get("end_location");
+        randomRange = (double) arguments.get("random_range");
     }
 
     @Override
