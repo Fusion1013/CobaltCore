@@ -119,6 +119,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         RotateAround.register();
         EaseCommand.register();
         IsCustomItemCommand.register();
+        TestCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####

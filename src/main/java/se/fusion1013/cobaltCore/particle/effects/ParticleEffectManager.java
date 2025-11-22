@@ -50,6 +50,8 @@ public class ParticleEffectManager extends Manager<CobaltCore> {
     public static final IParticleEffect PARTICLE_EFFECT_FIBONACCI_SPHERE = register(new ParticleEffectFibonacciSphere(Particle.CRIT, 3, 100));
     public static final IParticleEffect PARTICLE_EFFECT_LINE = register(new ParticleEffectLine(Particle.CRIT));
     public static final IParticleEffect PARTICLE_EFFECT_SPIRAL = register(new ParticleEffectSpiral(Particle.CRIT));
+    public static final IParticleEffect PARTICLE_EFFECT_GLYPH = register(new ParticleEffectGlyph(Particle.CRIT));
+    public static final IParticleEffect PARTICLE_EFFECT_TEXT = register(new ParticleEffectText(Particle.CRIT));
 
     private static IParticleEffect register(IParticleEffect effect) {
         DEFAULT_PARTICLE_EFFECTS.put(effect.getName(), effect);
