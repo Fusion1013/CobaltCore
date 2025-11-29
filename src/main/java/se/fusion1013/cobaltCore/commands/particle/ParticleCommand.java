@@ -1,13 +1,14 @@
 package se.fusion1013.cobaltCore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
+import se.fusion1013.cobaltCore.commands.system.ICommandValue;
 import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
-
-import java.util.List;
 
 public class ParticleCommand {
 
@@ -31,17 +32,17 @@ public class ParticleCommand {
             IParticleEffect effect = ParticleEffectManager.getParticleEffect(particleEffectName);
             if (effect == null) continue;
 
-            List<Argument> effectArguments = effect.getModifyArguments();
-            displayCommand.withSubcommand(createParticleDisplaySubcommand(effect.copy(), effectArguments));
+            ICommandValue[] commandValues = effect.getCommandIntegration().getValues();
+            displayCommand.withSubcommand(createParticleDisplaySubcommand(effect, commandValues));
         }
 
         return displayCommand;
     }
 
-    private static CommandAPICommand createParticleDisplaySubcommand(IParticleEffect particleEffect, List<Argument> arguments) {
+    private static CommandAPICommand createParticleDisplaySubcommand(IParticleEffect particleEffect, ICommandValue[] commandValues) {
         CommandAPICommand command = new CommandAPICommand(particleEffect.getName());
-        for (Argument argument : arguments) {
-            command.withArguments(argument);
+        for (ICommandValue commandValue : commandValues) {
+            command.withArguments(commandValue.getArgument());
         }
         command.executesNative((s, a) -> {
             displayParticle(particleEffect, a, s.getLocation());
@@ -50,7 +51,10 @@ public class ParticleCommand {
     }
 
     private static void displayParticle(IParticleEffect particleEffect, CommandArguments args, Location location) {
-        particleEffect.modify(args);
+        ICommandValue[] commandValues = particleEffect.getCommandIntegration().getValues();
+        for (ICommandValue commandValue : commandValues) {
+            commandValue.setValue(args);
+        }
         particleEffect.display(location);
     }
 

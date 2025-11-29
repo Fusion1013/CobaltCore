@@ -1,36 +1,31 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
-import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.executors.CommandArguments;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import se.fusion1013.cobaltCore.commands.system.ICommandSet;
 
-/** Interface for interacting with a particle effect. */
+import java.util.List;
+
+/**
+ * Interface for interacting with a particle effect.
+ */
 public interface IParticleEffect {
 
-  default void display(Location center) {
-    display(center, null);
-  }
+    default void display(Location center) {
+        display(center, null);
+    }
 
-  void display(Location center, Player player);
+    void display(Location center, Player player);
 
-  List<Vector> getPoints();
+    List<Vector> getPoints();
 
-  List<Vector> getPoints(Location center);
+    List<Vector> getPoints(Location center);
 
-  String getName();
+    String getName();
 
-  List<String> getInfoStrings();
+    List<String> getInfoStrings();
 
-  IParticleEffect copy();
+    ICommandSet getCommandIntegration();
 
-  void modify(String key, Object value);
-
-  void modify(Object[] args);
-
-  void modify(CommandArguments arguments);
-
-  List<Argument> getModifyArguments();
 }

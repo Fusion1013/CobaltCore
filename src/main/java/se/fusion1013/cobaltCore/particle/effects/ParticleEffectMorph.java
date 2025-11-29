@@ -1,13 +1,10 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
-import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.DoubleArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import se.fusion1013.cobaltCore.commands.system.ICommandValue;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 import se.fusion1013.cobaltCore.util.EasingUtil;
 
@@ -16,20 +13,12 @@ import java.util.List;
 
 public class ParticleEffectMorph extends AbstractParticleEffect implements IParticleEffect {
 
-    private List<Vector> fromPoints;
-    private List<Vector> toPoints;
+    private final List<Vector> fromPoints;
+    private final List<Vector> toPoints;
     private double progress; // between 0.0 and 1.0
 
-    public ParticleEffectMorph(List<Vector> fromPoints, List<Vector> toPoints, Particle particle) {
-        this(new TransformationPipeline(), fromPoints, toPoints, particle);
-    }
-
-    public ParticleEffectMorph(TransformationPipeline pipeline, List<Vector> fromPoints, List<Vector> toPoints, Particle particle) {
-        super(particle, pipeline);
-        // int size = Math.min(fromPoints.size(), toPoints.size());
-        // this.fromPoints = fromPoints.subList(0, size);
-        // this.toPoints = matchPoints(fromPoints, toPoints.subList(0, size));
-
+    public ParticleEffectMorph(Particle particle, List<Vector> fromPoints, List<Vector> toPoints) {
+        super("morph", particle, new TransformationPipeline());
         this.fromPoints = fromPoints;
         this.toPoints = matchPoints(fromPoints, toPoints);
 
@@ -56,9 +45,9 @@ public class ParticleEffectMorph extends AbstractParticleEffect implements IPart
             Location point = center.clone().add(interpolated);
 
             if (player != null) {
-                player.spawnParticle(particle, point, 1, 0, 0, 0, 0);
+                player.spawnParticle(particle.getParticle(), point, 1, 0, 0, 0, 0);
             } else {
-                center.getWorld().spawnParticle(particle, point, 1, 0, 0, 0, 0);
+                center.getWorld().spawnParticle(particle.getParticle(), point, 1, 0, 0, 0, 0);
             }
         }
     }
@@ -96,41 +85,12 @@ public class ParticleEffectMorph extends AbstractParticleEffect implements IPart
         return "morph";
     }
 
-    @Override
-    public List<Argument> getModifyArguments() {
-        List<Argument> arguments = super.getModifyArguments();
-
-        arguments.add(new StringArgument("from_effect").replaceSuggestions(ArgumentSuggestions.strings(s -> ParticleEffectManager.getCustomParticleEffectNames())));
-        arguments.add(new StringArgument("to_effect").replaceSuggestions(ArgumentSuggestions.strings(s -> ParticleEffectManager.getCustomParticleEffectNames())));
-        arguments.add(new DoubleArgument("progress"));
-
-        return arguments;
-    }
-
-    @Override
-    public void modify(String key, Object value) {
-        super.modify(key, value);
-        switch (key) {
-            case "from_effect":
-                fromPoints = loadPointsFromEffect(ParticleEffectManager.getCustomEffect((String) value));
-                matchPoints(fromPoints, toPoints);
-                break;
-            case "to_effect":
-                toPoints = loadPointsFromEffect(ParticleEffectManager.getCustomEffect((String) value));
-                matchPoints(fromPoints, toPoints);
-                break;
-            case "progress":
-                progress = (double) value;
-                break;
-        }
-    }
-
     private List<Vector> loadPointsFromEffect(IParticleEffect effect) {
         return effect.getPoints();
     }
 
     @Override
-    public IParticleEffect copy() {
-        return new ParticleEffectMorph(transformationPipeline, fromPoints, toPoints, particle);
+    public ICommandValue[] getValues() {
+        return new ICommandValue[0];
     }
 }
