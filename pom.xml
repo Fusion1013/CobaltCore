@@ -21,6 +21,14 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
@@ -52,7 +60,7 @@
                             <target>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar"
                                       todir="D:\containers\minecraft\1.21.8_paper_dev_plugins"
-                                      overwrite="true" />
+                                      overwrite="true"/>
                             </target>
                         </configuration>
                         <goals>

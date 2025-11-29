@@ -1,30 +1,116 @@
 {
   "characters": [
-    { "symbol": "a", "path": "aether_rune.a" },
-    { "symbol": "b", "path": "aether_rune.b" },
-    { "symbol": "c", "path": "aether_rune.c" },
-    { "symbol": "d", "path": "aether_rune.d" },
-    { "symbol": "e", "path": "aether_rune.e" },
-    { "symbol": "f", "path": "aether_rune.f" },
-    { "symbol": "g", "path": "aether_rune.g" },
-    { "symbol": "h", "path": "aether_rune.h" },
-    { "symbol": "i", "path": "aether_rune.i" },
-    { "symbol": "j", "path": "aether_rune.j" },
-    { "symbol": "k", "path": "aether_rune.k" },
-    { "symbol": "l", "path": "aether_rune.l" },
-    { "symbol": "m", "path": "aether_rune.m" },
-    { "symbol": "n", "path": "aether_rune.n" },
-    { "symbol": "o", "path": "aether_rune.o" },
-    { "symbol": "p", "path": "aether_rune.p" },
-    { "symbol": "q", "path": "aether_rune.q" },
-    { "symbol": "r", "path": "aether_rune.r" },
-    { "symbol": "s", "path": "aether_rune.s" },
-    { "symbol": "t", "path": "aether_rune.t" },
-    { "symbol": "u", "path": "aether_rune.u" },
-    { "symbol": "v", "path": "aether_rune.v" },
-    { "symbol": "w", "path": "aether_rune.w" },
-    { "symbol": "x", "path": "aether_rune.x" },
-    { "symbol": "y", "path": "aether_rune.y" },
-    { "symbol": "z", "path": "aether_rune.z" }
+    {
+      "symbol": "a",
+      "path": "aether_rune.a"
+    },
+    {
+      "symbol": "b",
+      "path": "aether_rune.b"
+    },
+    {
+      "symbol": "c",
+      "path": "aether_rune.c"
+    },
+    {
+      "symbol": "d",
+      "path": "aether_rune.d"
+    },
+    {
+      "symbol": "e",
+      "path": "aether_rune.e"
+    },
+    {
+      "symbol": "f",
+      "path": "aether_rune.f"
+    },
+    {
+      "symbol": "g",
+      "path": "aether_rune.g"
+    },
+    {
+      "symbol": "h",
+      "path": "aether_rune.h"
+    },
+    {
+      "symbol": "i",
+      "path": "aether_rune.i"
+    },
+    {
+      "symbol": "j",
+      "path": "aether_rune.j"
+    },
+    {
+      "symbol": "k",
+      "path": "aether_rune.k"
+    },
+    {
+      "symbol": "l",
+      "path": "aether_rune.l"
+    },
+    {
+      "symbol": "m",
+      "path": "aether_rune.m"
+    },
+    {
+      "symbol": "n",
+      "path": "aether_rune.n"
+    },
+    {
+      "symbol": "o",
+      "path": "aether_rune.o"
+    },
+    {
+      "symbol": "p",
+      "path": "aether_rune.p"
+    },
+    {
+      "symbol": "q",
+      "path": "aether_rune.q"
+    },
+    {
+      "symbol": "r",
+      "path": "aether_rune.r"
+    },
+    {
+      "symbol": "s",
+      "path": "aether_rune.s"
+    },
+    {
+      "symbol": "t",
+      "path": "aether_rune.t"
+    },
+    {
+      "symbol": "u",
+      "path": "aether_rune.u"
+    },
+    {
+      "symbol": "v",
+      "path": "aether_rune.v"
+    },
+    {
+      "symbol": "w",
+      "path": "aether_rune.w"
+    },
+    {
+      "symbol": "x",
+      "path": "aether_rune.x"
+    },
+    {
+      "symbol": "y",
+      "path": "aether_rune.y"
+    },
+    {
+      "symbol": "z",
+      "path": "aether_rune.z"
+    },
+    {
+      "symbol": ",",
+      "path": "aether_rune.comma"
+    },
+    {
+      "symbol": ".",
+      "path": "aether_rune.period"
+    }
   ]
 }
