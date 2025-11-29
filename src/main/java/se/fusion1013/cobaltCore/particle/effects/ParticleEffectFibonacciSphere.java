@@ -12,16 +12,14 @@ import se.fusion1013.cobaltCore.variable.IntVariable;
 
 import java.util.List;
 
-public class ParticleEffectSpiral extends AbstractParticleEffect implements IParticleEffect {
+public class ParticleEffectFibonacciSphere extends AbstractParticleEffect
+        implements IParticleEffect {
 
     private final DoubleVariable radius = new DoubleVariable("radius");
-    private final IntVariable count = new IntVariable("count");
-    private final DoubleVariable rotationSpeed = new DoubleVariable("rotationSpeed");
-    private final DoubleVariable heightSpeed = new DoubleVariable("heightSpeed");
-    private final DoubleVariable waveHeight = new DoubleVariable("waveHeight");
+    private final IntVariable density = new IntVariable("density");
 
-    public ParticleEffectSpiral(Particle particle) {
-        super("spiral", particle, new TransformationPipeline());
+    public ParticleEffectFibonacciSphere(Particle particle) {
+        super("fibonacci_sphere", particle, new TransformationPipeline());
     }
 
     @Override
@@ -31,11 +29,11 @@ public class ParticleEffectSpiral extends AbstractParticleEffect implements IPar
 
     @Override
     public List<Vector> getPoints() {
-        return ShapeUtils.getAnimatedCircle(radius.getValue(), count.getValue(), rotationSpeed.getValue(), heightSpeed.getValue(), waveHeight.getValue());
+        return ShapeUtils.generateFibonacciSphere(radius.getValue(), density.getValue());
     }
 
     @Override
     public ICommandValue[] getValues() {
-        return new ICommandValue[]{particle, radius, count, rotationSpeed, heightSpeed, waveHeight};
+        return new ICommandValue[]{particle, radius, density};
     }
 }

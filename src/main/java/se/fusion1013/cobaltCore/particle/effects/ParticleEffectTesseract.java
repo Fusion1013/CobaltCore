@@ -1,102 +1,65 @@
 package se.fusion1013.cobaltCore.particle.effects;
 
-import dev.jorel.commandapi.arguments.Argument;
-import dev.jorel.commandapi.arguments.DoubleArgument;
-import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import se.fusion1013.cobaltCore.commands.system.ICommandValue;
 import se.fusion1013.cobaltCore.particle.transformation.ScalingTransformation;
 import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 import se.fusion1013.cobaltCore.shape.tesseract.Tesseract;
+import se.fusion1013.cobaltCore.variable.DoubleVariable;
+import se.fusion1013.cobaltCore.variable.IntVariable;
+
+import java.util.List;
 
 public class ParticleEffectTesseract extends AbstractParticleEffect implements IParticleEffect {
 
-  private double width;
-  private int density;
-  private double wGap;
-  private double xVelocity;
-  private double yVelocity;
-  private double zVelocity;
-  private double wVelocity;
+    private final DoubleVariable width = new DoubleVariable("width");
+    private final IntVariable density = new IntVariable("density");
+    private final DoubleVariable wGap = new DoubleVariable("wGap");
+    private final DoubleVariable xVelocity = new DoubleVariable("xVelocity");
+    private final DoubleVariable yVelocity = new DoubleVariable("yVelocity");
+    private final DoubleVariable zVelocity = new DoubleVariable("zVelocity");
+    private final DoubleVariable wVelocity = new DoubleVariable("wVelocity");
 
-  public ParticleEffectTesseract(Particle particle) {
-    super(particle, new TransformationPipeline().add(new ScalingTransformation(10)));
-  }
+    public ParticleEffectTesseract(Particle particle) {
+        super("tesseract", particle, new TransformationPipeline().add(new ScalingTransformation(10)));
+    }
 
-  public ParticleEffectTesseract(
-      Particle particle, TransformationPipeline transformationPipeline, double width, int density) {
-    super(particle, transformationPipeline);
-    this.width = width;
-    this.density = density;
-  }
+    @Override
+    public void display(Location center, Player player) {
+        display(center, player, particle.getParticle(), getPoints());
+    }
 
-  @Override
-  public List<Argument> getModifyArguments() {
-    List<Argument> arguments = super.getModifyArguments();
-    arguments.add(new DoubleArgument("width"));
-    arguments.add(new IntegerArgument("density"));
-    arguments.add(new DoubleArgument("w_gap"));
-    arguments.add(new DoubleArgument("x_velocity"));
-    arguments.add(new DoubleArgument("y_velocity"));
-    arguments.add(new DoubleArgument("z_velocity"));
-    arguments.add(new DoubleArgument("w_velocity"));
-    return arguments;
-  }
+    @Override
+    public List<Vector> getPoints() {
+        double time = System.currentTimeMillis();
+        return Tesseract.generateTesseract(
+                width.getValue(),
+                wGap.getValue(),
+                density.getValue(),
+                time * xVelocity.getValue(),
+                time * yVelocity.getValue(),
+                time * zVelocity.getValue(),
+                time * wVelocity.getValue());
+    }
 
-  @Override
-  public void modify(CommandArguments arguments) {
-    super.modify(arguments);
-    width = (double) arguments.get("width");
-    density = (int) arguments.get("density");
-    wGap = (double) arguments.get("w_gap");
-    xVelocity = (double) arguments.get("x_velocity");
-    yVelocity = (double) arguments.get("y_velocity");
-    zVelocity = (double) arguments.get("z_velocity");
-    wVelocity = (double) arguments.get("w_velocity");
-  }
+    @Override
+    public List<Vector> getPoints(Location center) {
+        double time = System.currentTimeMillis();
+        return Tesseract.generateTesseract(
+                width.getValue(),
+                wGap.getValue(),
+                density.getValue(),
+                time * xVelocity.getValue(),
+                time * yVelocity.getValue(),
+                time * zVelocity.getValue(),
+                time * wVelocity.getValue());
+    }
 
-  @Override
-  public void display(Location center, Player player) {
-    display(center, player, particle, getPoints());
-  }
-
-  @Override
-  public List<Vector> getPoints() {
-    double time = System.currentTimeMillis();
-    return Tesseract.generateTesseract(
-        width,
-        wGap,
-        density,
-        time * xVelocity,
-        time * yVelocity,
-        time * zVelocity,
-        time * wVelocity);
-  }
-
-  @Override
-  public List<Vector> getPoints(Location center) {
-    double time = System.currentTimeMillis();
-    return Tesseract.generateTesseract(
-        width,
-        wGap,
-        density,
-        time * xVelocity,
-        time * yVelocity,
-        time * zVelocity,
-        time * wVelocity);
-  }
-
-  @Override
-  public String getName() {
-    return "tesseract";
-  }
-
-  @Override
-  public IParticleEffect copy() {
-    return new ParticleEffectTesseract(particle, transformationPipeline, width, density);
-  }
+    @Override
+    public ICommandValue[] getValues() {
+        return new ICommandValue[]{particle, width, density, wGap, xVelocity, yVelocity, zVelocity, wVelocity};
+    }
 }

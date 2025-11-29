@@ -1,19 +1,14 @@
 package se.fusion1013.cobaltCore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LocationType;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
-
-import java.util.List;
 
 import static se.fusion1013.cobaltCore.commands.particle.ParticleCommand.CUSTOM_PARTICLE_EFFECT_ARGUMENT;
 import static se.fusion1013.cobaltCore.commands.particle.ParticleCommand.PARTICLE_EFFECT_ARGUMENT;
@@ -25,8 +20,7 @@ public class ParticleEffectCommand {
                 .withPermission("commands.core.cparticle.effect")
                 .withSubcommand(createCreateCommand())
                 .withSubcommand(createListCommand())
-                .withSubcommand(createDisplayCommand())
-                .withSubcommand(createModifyCommand());
+                .withSubcommand(createDisplayCommand());
     }
 
     private static CommandAPICommand createCreateCommand() {
@@ -77,50 +71,50 @@ public class ParticleEffectCommand {
                 });
     }
 
-    private static CommandAPICommand createModifyCommand() {
-        CommandAPICommand command = new CommandAPICommand("modify")
-                .withPermission("commands.core.cparticle.effect.modify");
-
-        String[] effects = ParticleEffectManager.getDefaultParticleEffectNames();
-        for (String s : effects) {
-            command.withSubcommand(generateExtraSettingsSubcommand(ParticleEffectManager.getParticleEffect(s)));
-        }
-
-        return command;
-    }
-
-    private static CommandAPICommand generateExtraSettingsSubcommand(IParticleEffect effect) {
-        List<Argument> arguments = effect.getModifyArguments();
-        CommandAPICommand command = new CommandAPICommand(effect.getName());
-
-        for (Argument argument : arguments) {
-            CommandAPICommand node = new CommandAPICommand(argument.getNodeName());
-            node.withArguments(CUSTOM_PARTICLE_EFFECT_ARGUMENT);
-            node.withArguments(argument);
-            node.executes((commandSender, commandArguments) -> {
-                // Get arguments
-                String effectName = (String) commandArguments.args()[0];
-                Object setting = commandArguments.args()[1];
-                String commandPath = argument.getNodeName();
-                IParticleEffect particleEffect = ParticleEffectManager.getCustomEffect(effectName);
-
-                // Set the value
-                particleEffect.modify(commandPath, setting);
-
-                // Send feedback if sender is a player
-                if (commandSender instanceof Player player) {
-                    List<String> info = particleEffect.getInfoStrings();
-
-                    StringPlaceholders placeholders = StringPlaceholders.builder()
-                            .addPlaceholder("name", particleEffect.getName())
-                            .build();
-                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.particle.effect.modify.set", placeholders);
-                    for (String s : info) player.sendMessage(s);
-                }
-            });
-            command.withSubcommand(node);
-        }
-        return command;
-    }
+//    private static CommandAPICommand createModifyCommand() {
+//        CommandAPICommand command = new CommandAPICommand("modify")
+//                .withPermission("commands.core.cparticle.effect.modify");
+//
+//        String[] effects = ParticleEffectManager.getDefaultParticleEffectNames();
+//        for (String s : effects) {
+//            command.withSubcommand(generateExtraSettingsSubcommand(ParticleEffectManager.getParticleEffect(s)));
+//        }
+//
+//        return command;
+//    }
+//
+//    private static CommandAPICommand generateExtraSettingsSubcommand(IParticleEffect effect) {
+//        List<Argument> arguments = effect.getModifyArguments();
+//        CommandAPICommand command = new CommandAPICommand(effect.getName());
+//
+//        for (Argument argument : arguments) {
+//            CommandAPICommand node = new CommandAPICommand(argument.getNodeName());
+//            node.withArguments(CUSTOM_PARTICLE_EFFECT_ARGUMENT);
+//            node.withArguments(argument);
+//            node.executes((commandSender, commandArguments) -> {
+//                // Get arguments
+//                String effectName = (String) commandArguments.args()[0];
+//                Object setting = commandArguments.args()[1];
+//                String commandPath = argument.getNodeName();
+//                IParticleEffect particleEffect = ParticleEffectManager.getCustomEffect(effectName);
+//
+//                // Set the value
+//                particleEffect.modify(commandPath, setting);
+//
+//                // Send feedback if sender is a player
+//                if (commandSender instanceof Player player) {
+//                    List<String> info = particleEffect.getInfoStrings();
+//
+//                    StringPlaceholders placeholders = StringPlaceholders.builder()
+//                            .addPlaceholder("name", particleEffect.getName())
+//                            .build();
+//                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.cobalt.particle.effect.modify.set", placeholders);
+//                    for (String s : info) player.sendMessage(s);
+//                }
+//            });
+//            command.withSubcommand(node);
+//        }
+//        return command;
+//    }
 
 }
