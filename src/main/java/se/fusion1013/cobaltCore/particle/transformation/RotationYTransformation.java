@@ -2,11 +2,11 @@ package se.fusion1013.cobaltCore.particle.transformation;
 
 import org.bukkit.util.Vector;
 
-public class RotationY implements IParticleTransformation {
+public class RotationYTransformation implements IParticleTransformation {
 
     private final double angle;
 
-    public RotationY(double angle) {
+    public RotationYTransformation(double angle) {
         this.angle = angle;
     }
 

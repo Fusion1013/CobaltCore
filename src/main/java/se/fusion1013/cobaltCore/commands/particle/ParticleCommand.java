@@ -2,15 +2,10 @@ package se.fusion1013.cobaltCore.commands.particle;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.wrappers.ParticleData;
-import org.bukkit.Bukkit;
+import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.util.Vector;
-import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
-import se.fusion1013.cobaltCore.particle.effects.ParticleEffectMorph;
 
 import java.util.List;
 
@@ -23,24 +18,48 @@ public class ParticleCommand {
         new CommandAPICommand("cparticle")
                 .withPermission("commands.core.cparticle")
                 .withSubcommand(createDisplayCommand())
-                .withSubcommand(createTestMorph())
+//                .withSubcommand(createTestMorph())
                 .withSubcommand(ParticleEffectCommand.createParticleEffectCommand())
                 .register();
     }
 
     private static CommandAPICommand createDisplayCommand() {
-        return new CommandAPICommand("display")
-                .withPermission("commands.core.cparticle.display")
-                .withArguments(PARTICLE_EFFECT_ARGUMENT)
-                .withArguments(new LocationArgument("position", LocationType.PRECISE_POSITION, false))
-                .executes((commandSender, commandArguments) -> {
-                    String effectName = (String) commandArguments.args()[0];
-                    Location location = (Location) commandArguments.args()[1];
+        CommandAPICommand displayCommand = new CommandAPICommand("display")
+                .withPermission("commands.core.cparticle");
 
-                    IParticleEffect effect =  ParticleEffectManager.getParticleEffect(effectName);
-                    effect.display(location);
-                });
+        for (String particleEffectName : ParticleEffectManager.getDefaultParticleEffectNames()) {
+            IParticleEffect effect = ParticleEffectManager.getParticleEffect(particleEffectName);
+            if (effect == null) continue;
+
+            List<Argument> effectArguments = effect.getModifyArguments();
+            displayCommand.withSubcommand(createParticleDisplaySubcommand(effect.copy(), effectArguments));
+        }
+
+        return displayCommand;
     }
+
+    private static CommandAPICommand createParticleDisplaySubcommand(IParticleEffect particleEffect, List<Argument> arguments) {
+        CommandAPICommand command = new CommandAPICommand(particleEffect.getName());
+        for (Argument argument : arguments) {
+            command.withArguments(argument);
+        }
+        command.executesNative((s, a) -> {
+            displayParticle(particleEffect, a, s.getLocation());
+        });
+        return command;
+    }
+
+    private static void displayParticle(IParticleEffect particleEffect, CommandArguments args, Location location) {
+        particleEffect.modify(args);
+        particleEffect.display(location);
+    }
+
+
+
+
+
+
+    /*
 
     private static CommandAPICommand createTestMorph() {
         return new CommandAPICommand("test_morph")
@@ -81,5 +100,6 @@ public class ParticleCommand {
             }
         }, 0L, 1L);
     }
+     */
 
 }

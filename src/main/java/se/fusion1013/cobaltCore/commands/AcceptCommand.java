@@ -18,6 +18,7 @@ public class AcceptCommand {
 
     public static void register() {
         new CommandAPICommand("accept")
+                .withPermission("cobalt.core.commands.accept")
                 .executes((commandSender, commandArguments) -> {
                     if (commandSender instanceof Player player) {
                         IAcceptDelegate delegate = ACCEPT_DELEGATE_MAP.get(player.getUniqueId());
@@ -26,10 +27,20 @@ public class AcceptCommand {
                             LocaleManager.getInstance().sendMessage(player, "commands.accept.fail");
                         } else {
                             delegate.onAccept(commandSender);
+                            setPendingAcceptRequest(player, null);
                         }
                     }
                 })
                 .register();
+
+        new CommandAPICommand("deny")
+                .withPermission("cobalt.core.commands.deny")
+                .executes((commandSender, commandArguments) -> {
+                    if (commandSender instanceof Player player) {
+                        LocaleManager.getInstance().sendMessage(player, "commands.deny");
+                        setPendingAcceptRequest(player, null);
+                    }
+                }).register();
     }
 
 }

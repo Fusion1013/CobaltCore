@@ -2,13 +2,9 @@ package se.fusion1013.cobaltCore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import se.fusion1013.cobaltCore.commands.AcceptCommand;
-import se.fusion1013.cobaltCore.commands.CobaltCommand;
-import se.fusion1013.cobaltCore.commands.EaseCommand;
-import se.fusion1013.cobaltCore.commands.RotateAround;
+import se.fusion1013.cobaltCore.commands.*;
 import se.fusion1013.cobaltCore.commands.edit.EditCommand;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
-import se.fusion1013.cobaltCore.commands.edit.EditItemCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
 import se.fusion1013.cobaltCore.database.system.DataManager;
 import se.fusion1013.cobaltCore.database.system.Database;
@@ -21,6 +17,7 @@ import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
 import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.manager.Manager;
+import se.fusion1013.cobaltCore.particle.effects.glyph.GlyphManager;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
 
 import java.util.HashSet;
@@ -88,6 +85,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         // Register managers using getManager()
         this.getManager(this, DataManager.class);
         this.getManager(this, LocaleManager.class);
+        this.getManager(this, GlyphManager.class);
         this.getManager(this, ParticleEffectManager.class);
         this.getManager(this, ItemSectionManager.class);
         this.getManager(this, ComponentManager.class);
@@ -117,9 +115,12 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         AcceptCommand.register();
         ParticleCommand.register();
         CGiveCommand.createCgiveCommand();
+        CSummonCommand.register();
         EditCommand.register();
         RotateAround.register();
         EaseCommand.register();
+        IsCustomItemCommand.register();
+        TestCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####

@@ -15,6 +15,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
+import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -123,6 +124,9 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // -- INTERNALS
         persistentDataContainer.set(key, PersistentDataType.INTEGER, 1);
+        for (String tag : tags) {
+            persistentDataContainer.set(new NamespacedKey(CobaltCore.getInstance(), tag), PersistentDataType.INTEGER, 1);
+        }
 
         // -- ITEM VISUALS
         // meta.setCustomModelData(modelData);
@@ -211,7 +215,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         if (item == null) return false;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
-        return meta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER);
+        return meta.getPersistentDataContainer().has(key);
     }
 
     // ----- ACTIVATORS -----
