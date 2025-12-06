@@ -34,7 +34,7 @@ public class ParticleEffectMorph extends AbstractParticleEffect implements IPart
     }
 
     @Override
-    public void display(Location center, Player player) {
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
         for (int i = 0; i < fromPoints.size(); i++) {
             Vector a = fromPoints.get(i);
             Vector b = toPoints.get(i);

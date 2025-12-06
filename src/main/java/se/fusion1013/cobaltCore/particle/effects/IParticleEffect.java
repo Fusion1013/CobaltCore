@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import se.fusion1013.cobaltCore.commands.system.ICommandSet;
+import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 
 import java.util.List;
 
@@ -13,10 +14,10 @@ import java.util.List;
 public interface IParticleEffect {
 
     default void display(Location center) {
-        display(center, null);
+        display(center, null, null);
     }
 
-    void display(Location center, Player player);
+    void display(Location center, Player player, TransformationPipeline extraPipeline);
 
     List<Vector> getPoints();
 

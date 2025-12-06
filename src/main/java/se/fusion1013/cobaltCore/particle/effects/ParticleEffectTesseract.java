@@ -28,8 +28,8 @@ public class ParticleEffectTesseract extends AbstractParticleEffect implements I
     }
 
     @Override
-    public void display(Location center, Player player) {
-        display(center, player, particle.getParticle(), getPoints());
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
+        display(center, player, particle.getParticle(), getPoints(), extraPipeline);
     }
 
     @Override

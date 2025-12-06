@@ -31,8 +31,8 @@ public class ParticleEffectSpirograph extends AbstractParticleEffect implements 
     }
 
     @Override
-    public void display(Location center, Player player) {
-        display(center, player, particle.getParticle(), getPoints());
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
+        display(center, player, particle.getParticle(), getPoints(), extraPipeline);
     }
 
     @Override

@@ -38,8 +38,8 @@ public class ParticleEffectCircle extends AbstractParticleEffect implements IPar
     }
 
     @Override
-    public void display(Location center, Player player) {
-        display(center, player, particle.getParticle(), getPoints());
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
+        display(center, player, particle.getParticle(), getPoints(), extraPipeline);
     }
 
     @Override

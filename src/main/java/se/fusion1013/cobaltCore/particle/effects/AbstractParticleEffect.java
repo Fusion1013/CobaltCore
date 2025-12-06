@@ -23,10 +23,11 @@ public abstract class AbstractParticleEffect implements IParticleEffect, IComman
         this.transformationPipeline = transformationPipeline;
     }
 
-    protected void display(Location center, Player player, Particle particle, List<Vector> points) {
+    protected void display(Location center, Player player, Particle particle, List<Vector> points, TransformationPipeline extraPipeline) {
         for (Vector vector : points) {
-            Vector transformed = transformationPipeline.apply(vector);
-            displayParticleAtLocation(center, player, particle, transformed);
+            Vector transformed1 = transformationPipeline.apply(vector);
+            Vector transformed2 = extraPipeline.apply(transformed1);
+            displayParticleAtLocation(center, player, particle, transformed2);
         }
     }
 

@@ -25,9 +25,9 @@ public class ParticleEffectLine extends AbstractParticleEffect implements IParti
     }
 
     @Override
-    public void display(Location center, Player player) {
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
         List<Vector> points = getPoints(center);
-        display(center, player, particle.getParticle(), points);
+        display(center, player, particle.getParticle(), points, extraPipeline);
     }
 
     @Override

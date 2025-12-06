@@ -9,6 +9,8 @@ import org.bukkit.Location;
 import se.fusion1013.cobaltCore.commands.system.ICommandValue;
 import se.fusion1013.cobaltCore.particle.effects.IParticleEffect;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
+import se.fusion1013.cobaltCore.particle.transformation.RotationYTransformation;
+import se.fusion1013.cobaltCore.particle.transformation.TransformationPipeline;
 
 public class ParticleCommand {
 
@@ -55,7 +57,11 @@ public class ParticleCommand {
         for (ICommandValue commandValue : commandValues) {
             commandValue.setValue(args);
         }
-        particleEffect.display(location);
+
+        TransformationPipeline pipeline = new TransformationPipeline();
+        RotationYTransformation rotationYTransformation = new RotationYTransformation(Math.toRadians(location.getRotation().yaw()));
+        pipeline.add(rotationYTransformation);
+        particleEffect.display(location, null, pipeline);
     }
 
 

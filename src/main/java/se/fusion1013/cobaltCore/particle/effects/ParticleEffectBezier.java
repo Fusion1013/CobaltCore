@@ -25,8 +25,8 @@ public class ParticleEffectBezier extends AbstractParticleEffect implements IPar
     }
 
     @Override
-    public void display(Location center, Player player) {
-        display(new Location(center.getWorld(), 0, 0, 0), player, particle.getParticle(), getPoints());
+    public void display(Location center, Player player, TransformationPipeline extraPipeline) {
+        display(new Location(center.getWorld(), 0, 0, 0), player, particle.getParticle(), getPoints(), extraPipeline);
     }
 
     @Override
