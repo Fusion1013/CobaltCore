@@ -1,6 +1,6 @@
 name: CobaltCore
-version: '0.2.2'
+version: '${project.version}'
 main: se.fusion1013.cobaltCore.CobaltCore
 api-version: '1.21'
 authors: [ Fusion1013 ]
-depend: [CommandAPI]
+depend: [ CommandAPI ]

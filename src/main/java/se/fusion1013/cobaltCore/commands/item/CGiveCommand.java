@@ -2,19 +2,15 @@ package se.fusion1013.cobaltCore.commands.item;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
-import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
-import se.fusion1013.cobaltCore.util.FileUtil;
 import se.fusion1013.cobaltCore.util.ItemUtil;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
@@ -77,10 +73,10 @@ public class CGiveCommand {
      * Gives a specific item to the player.
      *
      * @param player the player to give the item to.
-     * @param args the item to give the player.
+     * @param args   the item to give the player.
      */
-    private static void giveItem(Player player, CommandArguments args){
-        String itemName = (String)args.args()[0];
+    private static void giveItem(Player player, CommandArguments args) {
+        String itemName = (String) args.args()[0];
         ItemStack is = CustomItemManager.getCustomItemStack(itemName);
 
         StringPlaceholders placeholders = StringPlaceholders.builder()

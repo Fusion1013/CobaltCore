@@ -6,7 +6,7 @@
 
     <groupId>se.fusion1013</groupId>
     <artifactId>cobaltcore</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
 
     <name>cobaltcore</name>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-core</artifactId>
-            <version>10.1.2</version>
+            <version>11.1.0</version>
             <scope>provided</scope>
         </dependency>
 

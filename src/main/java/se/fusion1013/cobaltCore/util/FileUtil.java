@@ -11,7 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -23,7 +23,7 @@ public class FileUtil {
      * Saves a <code>JSONObject</code> to the specified path.
      *
      * @param object the <code>JSONObject</code> to save.
-     * @param path the path to save it at.
+     * @param path   the path to save it at.
      * @return whether the file was created or not.
      */
     public static boolean saveJson(JSONObject object, String path) {
@@ -45,7 +45,7 @@ public class FileUtil {
     /**
      * Gets a file from the specified path. If the file has not been created, create it from the plugin's resource folder if it exists.
      *
-     * @param plugin the plugin that is getting/creating the file.
+     * @param plugin   the plugin that is getting/creating the file.
      * @param filePath the path to the file.
      * @return the file, or null if file does not exist.
      */
@@ -75,7 +75,7 @@ public class FileUtil {
         // decode the compiled jar for iteration
         JarFile jar = null;
         try {
-            jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+            jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
         } catch (UnsupportedEncodingException ex) {
             CobaltCore.getInstance().getServer().getConsoleSender().sendMessage("ERROR - getResources() - couldn't decode the Jar file to index resources.");
         } catch (IOException ex) {
@@ -86,15 +86,15 @@ public class FileUtil {
         Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
 
         // iterate through and add elements inside the structures folder to the resources to be moved.
-        while(entries.hasMoreElements()) {
+        while (entries.hasMoreElements()) {
             String name = entries.nextElement().getName();
             // check that element starts with path
             if (name.startsWith(path)) {
                 String entry = name.substring(path.length() + 1);
-                String last = name.substring(name.length()- 1);
+                String last = name.substring(name.length() - 1);
 
                 // discard if it is a directory
-                if (last != File.separator){
+                if (last != File.separator) {
                     // resource contains at least one character or number
                     if (entry.matches(".*[a-zA-Z0-9].*")) {
                         //getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "Found an element that starts with the correct path: " + name);
@@ -141,7 +141,8 @@ public class FileUtil {
         File[] files = rootFolder.listFiles();
         if (files == null) return filesLoaded;
         for (File file : files) {
-            if (file.isDirectory()) filesLoaded += loadFromFolders(plugin, file, providerStorage, constructor, overwrite);
+            if (file.isDirectory())
+                filesLoaded += loadFromFolders(plugin, file, providerStorage, constructor, overwrite);
             else {
                 if (tryLoadFile(plugin, file, providerStorage, constructor, overwrite)) filesLoaded++;
             }
@@ -207,7 +208,7 @@ public class FileUtil {
         String extension = "";
         int i = file.getName().lastIndexOf('.');
         if (i >= 0) {
-            extension = file.getName().substring(i+1);
+            extension = file.getName().substring(i + 1);
         }
         return extension;
     }

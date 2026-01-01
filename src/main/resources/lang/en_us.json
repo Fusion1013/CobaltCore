@@ -2,28 +2,23 @@
   "": "",
   "prefix.core": "&7[<g:#00aaaa:#0066aa>Core&7] ",
   "cobalt.player.join": "&7This server is running &3%plugin% v&3%version%",
-
+  "message.staffchat": "&7[&3SC&7] [&3%player%&7] %message%",
   "connection.join": "&3%player% &7joined the game",
   "connection.quit": "&3%player% &7left the game",
-
   "commands.accept.fail": "&7No pending requests to accept",
   "commands.deny": "&7Denied the request",
   "commands.core.locale.reset.result": "&7Reset locale. &3%count% &7files affected",
   "commands.core.reload.items": "&7Reloaded all items",
   "commands.core.reload.items.item": "&7 - &3%item_name%",
-
   "commands.core.particle.effect.list.header": "<g:#00aaaa:#0066aa>----- Effects -----",
   "commands.core.particle.effect.list.item": "&7 - [&3%id%&7] &3%name% &7- &3%type%",
   "commands.core.particle.effect.modify.set": "&7Modified particle effect &3%name%",
-
   "commands.core.edit.item.item_model.fail": "&7Failed to set item model of item &3%item%",
   "commands.core.edit.item.item_model": "&7Set item model of item &3%item% &7to &3%model%",
   "commands.core.edit.item.name.fail": "&7Failed to set name of item &3%item%",
   "commands.core.edit.item.name": "&7Changed name of item &3%item% &7to &3%name%",
-
   "commands.core.cgive.success": "&7Gave &3%amount% %item% &7to &3%player%",
   "commands.core.cgive.error": "&7Unknown item &3%item%",
-
   "commands.core.pastebin.test.success": "&7Loaded item &3%item% &7from pastebin &3%pastebin%",
   "commands.core.pastebin.test.error": "&7Could not load item from pastebin &3%pastebin%"
 }
