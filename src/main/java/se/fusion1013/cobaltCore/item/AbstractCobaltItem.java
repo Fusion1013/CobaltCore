@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -14,18 +13,19 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.CustomModelDataComponent;
-import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.components.AbstractItemComponent;
 import se.fusion1013.cobaltCore.item.components.IItemComponent;
 import se.fusion1013.cobaltCore.item.enchantment.EnchantmentWrapper;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
+import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
+import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
+import se.fusion1013.cobaltCore.item.toggles.ItemToggles;
 import se.fusion1013.cobaltCore.util.HexUtils;
 import se.fusion1013.cobaltCore.util.ItemUtil;
+import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 import java.util.*;
 
@@ -81,6 +81,9 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     // -- ITEM COMPONENTS
     protected final Map<String, IItemComponent> itemComponents = new HashMap<>();
 
+    // -- TOGGLES
+    protected final IItemToggles toggles = new ItemToggles();
+
     // ----- CONSTRUCTORS -----
 
     /**
@@ -116,7 +119,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         ItemStack stack = new ItemStack(material, amount);
 
         // -- ENCHANTMENTS // NOTE: Must be set before getting item meta from itemstack
-        for (EnchantmentWrapper wrapper : enchantmentWrappers) stack = wrapper.add(stack); // TODO: If there is a high number of enchantments, add them in a compact list in the lore (like hypixel)
+        for (EnchantmentWrapper wrapper : enchantmentWrappers)
+            stack = wrapper.add(stack); // TODO: If there is a high number of enchantments, add them in a compact list in the lore (like hypixel)
 
         ItemMeta meta = stack.getItemMeta();
         PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
@@ -133,7 +137,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         if (!itemModel.isEmpty()) {
             String[] itemModelNamespaceSplit = itemModel.split(":");
-            if (itemModelNamespaceSplit.length > 1) meta.setItemModel(new NamespacedKey(itemModelNamespaceSplit[0], itemModelNamespaceSplit[1]));
+            if (itemModelNamespaceSplit.length > 1)
+                meta.setItemModel(new NamespacedKey(itemModelNamespaceSplit[0], itemModelNamespaceSplit[1]));
             else meta.setItemModel(new NamespacedKey("minecraft", itemModelNamespaceSplit[0]));
         }
 
@@ -142,7 +147,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         // -- ITEM COMPONENT LORE
         itemComponents.values().forEach(k -> lore.addAll(k.getLore()));
-        for (IItemComponent component : itemComponents.values()) component.onItemConstruction(stack, meta, persistentDataContainer);
+        for (IItemComponent component : itemComponents.values())
+            component.onItemConstruction(stack, meta, persistentDataContainer);
 
         // -- RARITY
         if (rarity != null) {
@@ -269,6 +275,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         protected abstract T createObj();
+
         protected abstract B getThis();
 
         // ----- BUILDER METHODS -----
@@ -329,7 +336,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         public B rarityLore(Component... rarityLore) {
-            for (Component component : rarityLore) obj.rarityExtraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
+            for (Component component : rarityLore)
+                obj.rarityExtraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
             return getThis();
         }
 
@@ -341,7 +349,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         public B extraLore(Component... extraLore) {
-            for (Component component : extraLore) obj.extraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
+            for (Component component : extraLore)
+                obj.extraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
             return getThis();
         }
 
@@ -408,6 +417,10 @@ public abstract class AbstractCobaltItem implements ICustomItem {
             return getThis();
         }
 
+        public B setToggle(ItemToggleType type, boolean value) {
+            obj.toggles.setValue(type, value);
+            return getThis();
+        }
     }
 
     // ----- GETTERS / SETTERS -----
@@ -430,5 +443,28 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     @Override
     public String[] getTags() {
         return tags;
+    }
+
+    @Override
+    public IItemToggles getItemToggles() {
+        return toggles;
+    }
+
+    @Override
+    public StringPlaceholders getInfo() {
+        StringPlaceholders.Builder placeholders = StringPlaceholders.builder()
+                .addPlaceholder("internal_name", internalName)
+                .addPlaceholder("key", key.getKey() + "." + key.getNamespace())
+                .addPlaceholder("amount", amount)
+                .addPlaceholder("material", material)
+                .addPlaceholder("model_data", modelData)
+                .addPlaceholder("item_model", itemModel)
+                .addPlaceholder("item_name", itemName)
+                .addPlaceholder("rarity", rarity)
+                .addPlaceholder("rarity_lore", rarityExtraLore)
+                .addPlaceholder("extra_lore", extraLore)
+                .addPlaceholder("item_category", itemCategory);
+
+        return placeholders.build();
     }
 }

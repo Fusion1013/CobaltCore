@@ -13,10 +13,10 @@ import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RarityLoader implements IItemLoader {
+public class RarityLoader implements IItemLoaderComponent {
 
     @Override
-    public void Load(YamlConfiguration yaml, CobaltItem.Builder builder) {
+    public void load(YamlConfiguration yaml, CobaltItem.Builder builder) {
         LoadRarity(yaml, builder);
         LoadLore(yaml, builder);
     }
@@ -34,16 +34,17 @@ public class RarityLoader implements IItemLoader {
         List<String> rarityLore = yaml.getStringList("rarity_lore");
         List<Component> rarityLoreComponents = new ArrayList<>();
 
-        for (String s : rarityLore) rarityLoreComponents.add(
-                Component.text(s)
-                        .color(NamedTextColor.DARK_GRAY)
-                        .decoration(TextDecoration.ITALIC, false)
-        );
+        for (String s : rarityLore)
+            rarityLoreComponents.add(
+                    Component.text(s)
+                            .color(NamedTextColor.DARK_GRAY)
+                            .decoration(TextDecoration.ITALIC, false)
+            );
 
         builder.rarityLore(rarityLoreComponents.toArray(new Component[0]));
     }
 
     @Override
-    public void Load(JsonObject json, CobaltItem.Builder builder) {
+    public void load(JsonObject json, CobaltItem.Builder builder) {
     }
 }

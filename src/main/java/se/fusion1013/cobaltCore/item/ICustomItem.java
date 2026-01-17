@@ -5,18 +5,30 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
+import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.util.INameProvider;
+import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 public interface ICustomItem extends INameProvider {
 
     // ----- GENERIC INFO GETTERS -----
 
     NamespacedKey getNamespacedKey();
+
     String getInternalName();
+
     ItemStack getItemStack();
+
     ItemSection getItemCategory();
+
     String[] getTags();
-    default void onDisable() {};
+
+    StringPlaceholders getInfo();
+
+    default void onDisable() {
+    }
+
+    IItemToggles getItemToggles();
 
     // ----- ITEM COMPARISON -----
 
@@ -37,5 +49,4 @@ public interface ICustomItem extends INameProvider {
     <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot);
 
     <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event);
-
 }

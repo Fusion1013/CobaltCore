@@ -4,11 +4,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.cobaltCore.commands.*;
 import se.fusion1013.cobaltCore.commands.edit.EditCommand;
+import se.fusion1013.cobaltCore.commands.entity.CustomEntityCommand;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
 import se.fusion1013.cobaltCore.database.system.DataManager;
 import se.fusion1013.cobaltCore.database.system.Database;
 import se.fusion1013.cobaltCore.database.system.SQLite;
+import se.fusion1013.cobaltCore.entity.CustomEntityManager;
 import se.fusion1013.cobaltCore.events.PlayerEvents;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.components.ComponentManager;
@@ -17,8 +19,8 @@ import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
 import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.manager.Manager;
-import se.fusion1013.cobaltCore.particle.effects.glyph.GlyphManager;
 import se.fusion1013.cobaltCore.particle.effects.ParticleEffectManager;
+import se.fusion1013.cobaltCore.particle.effects.glyph.GlyphManager;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -92,6 +94,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, RecipeManager.class);
         this.getManager(this, EnchantmentManager.class);
         this.getManager(this, CustomItemManager.class);
+        this.getManager(this, CustomEntityManager.class);
     }
 
     // ##### LISTENERS #####
@@ -121,6 +124,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         EaseCommand.register();
         IsCustomItemCommand.register();
         TestCommand.register();
+        CustomEntityCommand.register();
     }
 
     // ##### PLUGIN REGISTRATION #####
@@ -169,6 +173,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
             // NOTE: Must be run after manager registration. Otherwise, item components do not work
             ItemSectionManager.load(plugin, false);
             CustomItemManager.loadItemFiles(plugin, false);
+            CustomEntityManager.loadEntityFiles(plugin, false);
 
             // Registers all Commands
             time = System.currentTimeMillis();

@@ -14,10 +14,10 @@ import se.fusion1013.cobaltCore.util.HexUtils;
 
 import java.util.List;
 
-public class MetaEditorLoader implements IItemLoader {
+public class MetaEditorLoader implements IItemLoaderComponent {
 
     @Override
-    public void Load(YamlConfiguration yaml, CobaltItem.Builder builder) {
+    public void load(YamlConfiguration yaml, CobaltItem.Builder builder) {
         builder.editMeta(meta -> {
             ConfigureRepairable(yaml, meta);
             ConfigureBook(yaml, meta);
@@ -37,7 +37,8 @@ public class MetaEditorLoader implements IItemLoader {
     private static void ConfigureBook(YamlConfiguration yaml, ItemMeta meta) {
         if (meta instanceof BookMeta bookMeta) {
             if (yaml.contains("book_author")) bookMeta.setAuthor(yaml.getString("book_author"));
-            if (yaml.contains("book_generation")) bookMeta.setGeneration(EnumUtils.findEnumInsensitiveCase(BookMeta.Generation.class, yaml.getString("book_generation")));
+            if (yaml.contains("book_generation"))
+                bookMeta.setGeneration(EnumUtils.findEnumInsensitiveCase(BookMeta.Generation.class, yaml.getString("book_generation")));
             if (yaml.contains("book_title")) bookMeta.setTitle(yaml.getString("book_title"));
             if (yaml.contains("book_text")) {
                 List<String> text = yaml.getStringList("book_text");
@@ -71,7 +72,7 @@ public class MetaEditorLoader implements IItemLoader {
     }
 
     @Override
-    public void Load(JsonObject json, CobaltItem.Builder builder) {
+    public void load(JsonObject json, CobaltItem.Builder builder) {
 
     }
 }

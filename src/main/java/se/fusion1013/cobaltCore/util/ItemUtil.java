@@ -7,6 +7,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
@@ -41,11 +43,11 @@ public class ItemUtil {
         // Clear custom enchantment lore
         List<String> lore = resultMeta.getLore();
         if (lore != null) {
-            for (int i = lore.size() - 1; i >= 0 ; i--) {
+            for (int i = lore.size() - 1; i >= 0; i--) {
                 String loreText = lore.get(i).split(" ")[0].toLowerCase();
                 if (loreText.length() < 5) continue;
                 if (
-                        EnchantmentManager.getEnchantment(loreText.substring(2, loreText.length()-2)) != null
+                        EnchantmentManager.getEnchantment(loreText.substring(2, loreText.length() - 2)) != null
                                 || EnchantmentManager.getEnchantment(loreText.substring(2)) != null
                 ) {
                     lore.remove(i);
@@ -68,8 +70,10 @@ public class ItemUtil {
             Integer firstValue = 0;
             Integer secondValue = 0;
 
-            if (firstContainer.has(key, PersistentDataType.INTEGER)) firstValue = firstContainer.get(key, PersistentDataType.INTEGER);
-            if (secondContainer.has(key, PersistentDataType.INTEGER)) secondValue = secondContainer.get(key, PersistentDataType.INTEGER);
+            if (firstContainer.has(key, PersistentDataType.INTEGER))
+                firstValue = firstContainer.get(key, PersistentDataType.INTEGER);
+            if (secondContainer.has(key, PersistentDataType.INTEGER))
+                secondValue = secondContainer.get(key, PersistentDataType.INTEGER);
 
             int total = 0;
 
@@ -106,7 +110,7 @@ public class ItemUtil {
                     bundleMeta.setItems(fixItems(bundleMeta.getItems()));
                     stack.setItemMeta(bundleMeta);
                     inventory.setItem(i, stack);
-                    fixedItems+=bundleMeta.getItems().size();
+                    fixedItems += bundleMeta.getItems().size();
                 } else if (stackMeta instanceof BlockStateMeta blockStateMeta) {
                     if (blockStateMeta.getBlockState() instanceof ShulkerBox shulkerBox) {
                         fixedItems += fixItems(shulkerBox);
@@ -123,6 +127,11 @@ public class ItemUtil {
         }
 
         return fixedItems;
+    }
+
+    public static void fixItem(@NotNull Item item) {
+        ItemStack itemStack = item.getItemStack();
+        item.setItemStack(fixItem(itemStack));
     }
 
     public static <T extends Container> int fixItems(T container) {
@@ -172,7 +181,7 @@ public class ItemUtil {
 
     public static boolean hasEnchantmentGlint(ItemStack stack) {
         boolean hasEnchants = stack.getItemMeta().hasEnchants();
-        boolean hasEnchants2 = stack.getItemMeta().getEnchants().keySet().size() > 0;
+        boolean hasEnchants2 = stack.getItemMeta().getEnchants().size() > 0;
         return hasEnchants && (!hasEnchants2);
     }
 
@@ -215,7 +224,7 @@ public class ItemUtil {
      * Applies a random weighted <code>Enchantment</code> to an <code>ItemStack</code>.
      *
      * @param stack the <code>ItemStack</code> to apply the <code>Enchantment</code> to.
-     * @param tier the relative tier of the enchantment. (Between 0 & 7).
+     * @param tier  the relative tier of the enchantment. (Between 0 & 7).
      * @return the <code>ItemStack</code> with the <code>Enchantment</code> applied.
      */
     public static ItemStack addWeightedEnchantment(ItemStack stack, int tier) {
@@ -225,9 +234,9 @@ public class ItemUtil {
     /**
      * Adds an <code>Enchantment</code> to an <code>ItemStack</code>.
      *
-     * @param item the <code>ItemStack</code> to add the <code>Enchantment</code> to.
+     * @param item        the <code>ItemStack</code> to add the <code>Enchantment</code> to.
      * @param enchantment the <code>Enchantment</code> to add to the <code>ItemStack</code>.
-     * @param level the level of the <code>Enchantment</code>.
+     * @param level       the level of the <code>Enchantment</code>.
      * @return an <code>ItemStack</code> with the <code>Enchantment</code> applied to it.
      */
     public static ItemStack addEnchant(ItemStack item, Enchantment enchantment, int level) {
@@ -314,7 +323,8 @@ public class ItemUtil {
          */
         private static CobaltEnchantment getRandomCobaltEnchantment(int tier) {
             List<CobaltEnchantment> validEnchantments = new ArrayList<>();
-            for (CobaltEnchantment enchantment : values()) if (enchantment.tier <= tier && enchantment.tier >= tier-2) validEnchantments.add(enchantment);
+            for (CobaltEnchantment enchantment : values())
+                if (enchantment.tier <= tier && enchantment.tier >= tier - 2) validEnchantments.add(enchantment);
             Random r = new Random();
             return validEnchantments.get(r.nextInt(validEnchantments.size()));
         }
@@ -323,7 +333,7 @@ public class ItemUtil {
          * Applies a random weighted <code>Enchantment</code> to an <code>ItemStack</code>.
          *
          * @param stack the <code>ItemStack</code> to apply the <code>Enchantment</code> to.
-         * @param tier the relative tier of the enchantment. (Between 0 & 7).
+         * @param tier  the relative tier of the enchantment. (Between 0 & 7).
          * @return the <code>ItemStack</code> with the <code>Enchantment</code> applied.
          */
         public static ItemStack addWeightedEnchantment(ItemStack stack, int tier) {
@@ -351,39 +361,39 @@ public class ItemUtil {
      * Gives a number of chests filled with the provided items to the player.
      * The number of chests given depends on the number of items.
      *
-     * @param p the player to give the items to.
+     * @param p     the player to give the items to.
      * @param items the items to populate the chest with.
-     * @param name the name of the chest. Will ignore if set to null.
+     * @param name  the name of the chest. Will ignore if set to null.
      */
     public static void giveChest(Player p, ItemStack[] items, String name) {
         ItemStack chestItem = new ItemStack(Material.CHEST, 1);
-        BlockStateMeta bsm = (BlockStateMeta)chestItem.getItemMeta();
+        BlockStateMeta bsm = (BlockStateMeta) chestItem.getItemMeta();
         if (bsm == null) return; // This should never happen
 
         ItemStack[] truncatedItems = new ItemStack[27];
         for (int i = 0; i < items.length; i++) {
             if (i % 27 == 0) {
                 // If the list of items is full, give a box to the player and reset the list.
-                giveBox(p, truncatedItems, chestItem, (Chest)bsm.getBlockState(), name);
+                giveBox(p, truncatedItems, chestItem, (Chest) bsm.getBlockState(), name);
 
                 chestItem = new ItemStack(Material.CHEST, 1);
-                bsm = (BlockStateMeta)chestItem.getItemMeta();
+                bsm = (BlockStateMeta) chestItem.getItemMeta();
                 if (bsm == null) return; // This should never happen
                 truncatedItems = new ItemStack[27];
             }
             truncatedItems[i % 27] = items[i];
         }
 
-        giveBox(p, truncatedItems, chestItem, (Chest)bsm.getBlockState(), name);
+        giveBox(p, truncatedItems, chestItem, (Chest) bsm.getBlockState(), name);
     }
 
     /**
      * Gives a number of shulker boxes filled with the provided items to the player.
      * The number of shulker boxes given depends on the number of items.
      *
-     * @param p the player to give the items to.
+     * @param p     the player to give the items to.
      * @param items the items to populate the box with.
-     * @param name the name of the shulker box. Will ignore if set to null.
+     * @param name  the name of the shulker box. Will ignore if set to null.
      */
     public static void giveShulkerBox(Player p, ItemStack[] items, String name) {
         giveShulkerBox(p, items, Material.SHULKER_BOX, name);
@@ -392,10 +402,10 @@ public class ItemUtil {
     /**
      * Gives a number of shulker boxes filled with the provided items to the player.
      *
-     * @param p the player to give the box to.
-     * @param items the items to populate the box with.
+     * @param p               the player to give the box to.
+     * @param items           the items to populate the box with.
      * @param shulkerMaterial the material of the shulker box.
-     * @param name the name of the shulker box. Will ignore if set to null.
+     * @param name            the name of the shulker box. Will ignore if set to null.
      */
     public static void giveShulkerBox(Player p, ItemStack[] items, Material shulkerMaterial, String name) {
         giveShulkerBox(p, items, shulkerMaterial, Component.text(name));
@@ -404,10 +414,10 @@ public class ItemUtil {
     /**
      * Gives a number of shulker boxes filled with the provided items to the player.
      *
-     * @param p the player to give the box to.
-     * @param items the items to populate the box with.
+     * @param p               the player to give the box to.
+     * @param items           the items to populate the box with.
      * @param shulkerMaterial the material of the shulker box.
-     * @param name the name of the shulker box. Will ignore if set to null.
+     * @param name            the name of the shulker box. Will ignore if set to null.
      */
     public static void giveShulkerBox(Player p, ItemStack[] items, Material shulkerMaterial, Component name) {
         ItemStack shulkerItem = new ItemStack(shulkerMaterial, 1);
@@ -418,32 +428,32 @@ public class ItemUtil {
         for (int i = 0; i < items.length; i++) {
             if (i % 28 == 27) {
                 // If the list of items is full, give a box to the player and reset the list.
-                giveBox(p, truncatedItems, shulkerItem, (ShulkerBox)bsm.getBlockState(), name);
+                giveBox(p, truncatedItems, shulkerItem, (ShulkerBox) bsm.getBlockState(), name);
 
                 shulkerItem = new ItemStack(shulkerMaterial, 1);
-                bsm = (BlockStateMeta)shulkerItem.getItemMeta();
+                bsm = (BlockStateMeta) shulkerItem.getItemMeta();
                 if (bsm == null) return; // This should never happen
                 truncatedItems = new ItemStack[27];
             }
             truncatedItems[i % 27] = items[i];
         }
 
-        giveBox(p, truncatedItems, shulkerItem, (ShulkerBox)bsm.getBlockState(), name);
+        giveBox(p, truncatedItems, shulkerItem, (ShulkerBox) bsm.getBlockState(), name);
     }
 
     /**
      * Gives a box filled with the provided items to the player.
      *
-     * @param p the player to give the items to.
-     * @param items the items to populate the box with.
-     * @param box the box <code>ItemStack</code> to give to the player.
+     * @param p         the player to give the items to.
+     * @param items     the items to populate the box with.
+     * @param box       the box <code>ItemStack</code> to give to the player.
      * @param container the container to populate with the items.
-     * @param name the name of the box. Will ignore if set to null.
-     * @param <T> the type of the container.
+     * @param name      the name of the box. Will ignore if set to null.
+     * @param <T>       the type of the container.
      * @return the filled container.
      */
     private static <T extends Container> T giveBox(Player p, ItemStack[] items, ItemStack box, T container, String name) {
-        BlockStateMeta blockStateMeta = (BlockStateMeta)box.getItemMeta();
+        BlockStateMeta blockStateMeta = (BlockStateMeta) box.getItemMeta();
         if (blockStateMeta == null) return null;
 
         Inventory inventory = container.getInventory();
@@ -461,16 +471,16 @@ public class ItemUtil {
     /**
      * Gives a box filled with the provided items to the player.
      *
-     * @param p the player to give the items to.
-     * @param items the items to populate the box with.
-     * @param box the box <code>ItemStack</code> to give to the player.
+     * @param p         the player to give the items to.
+     * @param items     the items to populate the box with.
+     * @param box       the box <code>ItemStack</code> to give to the player.
      * @param container the container to populate with the items.
-     * @param name the name of the box. Will ignore if set to null.
-     * @param <T> the type of the container.
+     * @param name      the name of the box. Will ignore if set to null.
+     * @param <T>       the type of the container.
      * @return the filled container.
      */
     private static <T extends Container> T giveBox(Player p, ItemStack[] items, ItemStack box, T container, Component name) {
-        BlockStateMeta blockStateMeta = (BlockStateMeta)box.getItemMeta();
+        BlockStateMeta blockStateMeta = (BlockStateMeta) box.getItemMeta();
         if (blockStateMeta == null) return null;
 
         Inventory inventory = container.getInventory();
@@ -489,7 +499,7 @@ public class ItemUtil {
      * Inserts an array of items into an inventory.
      *
      * @param inventory the inventory to insert the items into.
-     * @param items the items to insert into the inventory.
+     * @param items     the items to insert into the inventory.
      * @return the inventory.
      */
     public static Inventory insertItems(Inventory inventory, ItemStack[] items) {

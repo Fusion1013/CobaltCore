@@ -6,6 +6,7 @@ import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Location;
 import org.bukkit.World;
+import se.fusion1013.cobaltCore.commands.entity.CustomEntityCommand;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 
@@ -15,6 +16,7 @@ public class CSummonCommand {
         new CommandAPICommand("csummon")
                 .withPermission("commands.core.item")
                 .withSubcommand(createSummonItemCommand())
+                .withSubcommand(CustomEntityCommand.createSummonEntityCommand())
                 .register();
     }
 

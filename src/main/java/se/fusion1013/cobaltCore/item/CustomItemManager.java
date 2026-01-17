@@ -6,13 +6,19 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
@@ -20,6 +26,8 @@ import se.fusion1013.cobaltCore.events.PlayerHeldItemTickEvent;
 import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
+import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
+import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.util.*;
 
@@ -52,10 +60,11 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @param item the <code>CustomItem</code> to register.
      * @return the <code>CustomItem</code>.
      */
-    public static ICustomItem register(ICustomItem item){
+    public static ICustomItem register(ICustomItem item) {
         INBUILT_ITEMS.put(item.getInternalName(), item.getItemStack());
         INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
-        if (item.getItemCategory() != null) ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
+        if (item.getItemCategory() != null)
+            ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
         return item;
     }
 
@@ -108,7 +117,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         ICustomItem itemMainHand = getCustomItem(player.getInventory().getItemInMainHand());
         ICustomItem itemOffHand = getCustomItem(player.getInventory().getItemInOffHand());
 
-        return new ICustomItem[] {itemMainHand, itemOffHand};
+        return new ICustomItem[]{itemMainHand, itemOffHand};
     }
 
     /**
@@ -176,9 +185,11 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     public static ItemStack[] getCustomItemStacks() {
         return INBUILT_ITEMS.values().toArray(new ItemStack[0]);
     }
+
     public static ICustomItem getCustomItem(String name) {
         return INBUILT_CUSTOM_ITEMS.get(name);
     }
+
     public static ItemStack getCustomItemStack(String name) {
         return INBUILT_ITEMS.get(name);
     }
@@ -247,8 +258,10 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 ICustomItem[] items = getPlayerHeldCustomItem(p);
-                if (items[0] != null) items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND);
-                if (items[1] != null) items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND);
+                if (items[0] != null)
+                    items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND);
+                if (items[1] != null)
+                    items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND);
 
                 for (ICustomItem item : getPlayerCustomItems(p))
                     if (item != null)
@@ -265,8 +278,53 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     // ----- EVENTS -----
 
     @EventHandler
-    public void inventoryEvent(PlayerItemHeldEvent event) {
+    public void inventoryEvent(InventoryClickEvent event) {
+        Inventory clickedInventory = event.getClickedInventory();
+        if (clickedInventory == null) return;
+        if (clickedInventory.getType() == InventoryType.PLAYER) return;
+
+        ItemStack item = event.getCursor();
+        if (item.getType() == Material.AIR) return;
+
+        ICustomItem customItem = getCustomItem(item);
+        if (customItem == null) return;
+
+        if (!customItem.getItemToggles().getValue(ItemToggleType.DenyContainer)) return;
+
+        event.setCancelled(true);
+        if (event.getWhoClicked() instanceof Player player) {
+            LocaleManager.getInstance().sendMessage("", player, "core.custom_item.deny_container", customItem.getInfo());
+        }
+    }
+
+    @EventHandler
+    public void playerItemHeldEvent(PlayerItemHeldEvent event) {
         ItemUtil.fixItems(event.getPlayer().getInventory());
+    }
+
+    @EventHandler
+    public void itemDestroyEvent(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Item item) {
+            ItemStack itemStack = item.getItemStack();
+            ICustomItem customItem = getCustomItem(itemStack);
+            if (customItem != null && customItem.getItemToggles().getValue(ItemToggleType.Invulnerable)) {
+                item.setHealth(20);
+            }
+        }
+    }
+
+    @EventHandler
+    public void itemSpawnEvent(ItemSpawnEvent event) {
+        // Fix the item
+        ItemUtil.fixItem(event.getEntity());
+
+        ICustomItem customItem = getCustomItem(event.getEntity().getItemStack());
+        if (customItem == null) return;
+
+        // Set attributes of item entity
+        if (customItem.getItemToggles().getValue(ItemToggleType.Glowing)) event.getEntity().setGlowing(true);
+        if (customItem.getItemToggles().getValue(ItemToggleType.Persistent)) event.getEntity().setWillAge(false);
+        if (customItem.getItemToggles().getValue(ItemToggleType.Invulnerable)) event.getEntity().setInvulnerable(true);
     }
 
     @EventHandler
@@ -280,13 +338,14 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     // ----- INSTANCE VARIABLE & METHOD -----
 
     private static CustomItemManager INSTANCE = null;
+
     /**
      * Returns the object representing this <code>CustomItemManager</code>.
      *
      * @return The object of this class.
      */
-    public static CustomItemManager getInstance(){
-        if (INSTANCE == null){
+    public static CustomItemManager getInstance() {
+        if (INSTANCE == null) {
             INSTANCE = new CustomItemManager(CobaltCore.getInstance());
         }
         return INSTANCE;

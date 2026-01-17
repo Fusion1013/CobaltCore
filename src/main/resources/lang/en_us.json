@@ -20,5 +20,22 @@
   "commands.core.cgive.success": "&7Gave &3%amount% %item% &7to &3%player%",
   "commands.core.cgive.error": "&7Unknown item &3%item%",
   "commands.core.pastebin.test.success": "&7Loaded item &3%item% &7from pastebin &3%pastebin%",
-  "commands.core.pastebin.test.error": "&7Could not load item from pastebin &3%pastebin%"
+  "commands.core.pastebin.test.error": "&7Could not load item from pastebin &3%pastebin%",
+  "commands.core.edit.item.getinfo.no_held_item": "&7No held item",
+  "commands.core.edit.item.getinfo.no_custom_item": "&7The held item is not a custom item",
+  "commands.core.edit.item.getinfo.header": "&7Displaying Info for Custom Item %internal_name%",
+  "commands.core.edit.item.getinfo.internal_name": "&7 - Internal Name: &3%internal_name%",
+  "commands.core.edit.item.getinfo.key": "&7 - Key: &3%key%",
+  "commands.core.edit.item.getinfo.amount": "&7 - Amount: &3%amount%",
+  "commands.core.edit.item.getinfo.material": "&7 - Material: &3%material%",
+  "commands.core.edit.item.getinfo.model_data": "&7 - Model Data: &3%model_data%",
+  "commands.core.edit.item.getinfo.item_model": "&7 - Item Model: &3%item_model%",
+  "commands.core.edit.item.getinfo.item_name": "&7 - Display Name: &3%item_name%",
+  "commands.core.edit.item.getinfo.rarity": "&7 - Rarity: &3%rarity%",
+  "commands.core.edit.item.getinfo.rarity_lore": "&7 - Rarity Lore: &3%rarity_lore%",
+  "commands.core.edit.item.getinfo.extra_lore": "&7 - Extra Lore: &3%extra_lore%",
+  "commands.core.edit.item.getinfo.item_category": "&7 - Item Category: &3%item_category%",
+  "commands.core.centity.list.header": "&7Listing Custom Entity Instances",
+  "commands.core.centity.list.item": "&7 - &3%uuid%",
+  "core.custom_item.deny_container": "&7%item_name%&7 will not allow that.."
 }

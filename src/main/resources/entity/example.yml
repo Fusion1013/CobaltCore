@@ -1,0 +1,5 @@
+internal_name: example_entity
+entity_type: zombie
+health:
+  max: 20 # The max and starting health of the entity
+  scale_factor: 1.2 # Multiply by this value per nearby player over 1

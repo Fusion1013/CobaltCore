@@ -1,21 +1,16 @@
 package se.fusion1013.cobaltCore.item.loaders;
 
 import com.google.gson.JsonObject;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.EquipmentSlot;
-import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.cobaltCore.item.CobaltItem;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-public class AttributeLoader implements IItemLoader {
+public class AttributeLoader implements IItemLoaderComponent {
 
     @Override
-    public void Load(YamlConfiguration yaml, CobaltItem.Builder builder) {
+    public void load(YamlConfiguration yaml, CobaltItem.Builder builder) {
         if (!yaml.contains("attributes")) return;
         FromMapList(yaml.getMapList("attributes"), builder);
     }
@@ -42,6 +37,6 @@ public class AttributeLoader implements IItemLoader {
     }
 
     @Override
-    public void Load(JsonObject json, CobaltItem.Builder builder) {
+    public void load(JsonObject json, CobaltItem.Builder builder) {
     }
 }

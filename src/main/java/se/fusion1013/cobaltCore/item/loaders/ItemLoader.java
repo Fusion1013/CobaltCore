@@ -4,10 +4,12 @@ import com.google.gson.JsonObject;
 import org.bukkit.configuration.file.YamlConfiguration;
 import se.fusion1013.cobaltCore.item.CobaltItem;
 import se.fusion1013.cobaltCore.item.ICustomItem;
+import se.fusion1013.cobaltCore.loader.AbstractFileLoader;
+import se.fusion1013.cobaltCore.loader.IFileLoaderComponent;
 
-public class ItemLoader {
+public class ItemLoader extends AbstractFileLoader<ICustomItem, CobaltItem.Builder> {
 
-    private static final IItemLoader[] LOADERS = new IItemLoader[] {
+    private static final IItemLoaderComponent[] LOADERS = new IItemLoaderComponent[]{
             new ItemBaseLoader(),
             new RarityLoader(),
             new EnchantmentLoader(),
@@ -16,7 +18,8 @@ public class ItemLoader {
             new AttributeLoader(),
             new MetaEditorLoader(),
             new ComponentLoader(),
-            new RecipeLoader()
+            new RecipeLoader(),
+            new ItemToggleLoader()
     };
 
     public static ICustomItem Load(YamlConfiguration yaml) {
@@ -24,7 +27,7 @@ public class ItemLoader {
         if (internalName == null) return null;
 
         var builder = new CobaltItem.Builder(internalName);
-        for (IItemLoader loader : LOADERS) loader.Load(yaml, builder);
+        for (IItemLoaderComponent loader : LOADERS) loader.load(yaml, builder);
         return builder.build();
     }
 
@@ -33,8 +36,22 @@ public class ItemLoader {
         if (internalName == null) return null;
 
         var builder = new CobaltItem.Builder(internalName);
-        for (IItemLoader loader : LOADERS) loader.Load(json, builder);
+        for (IItemLoaderComponent loader : LOADERS) loader.load(json, builder);
         return builder.build();
     }
 
+    @Override
+    public ICustomItem load(YamlConfiguration yaml) {
+        return Load(yaml);
+    }
+
+    @Override
+    public ICustomItem load(JsonObject json) {
+        return Load(json);
+    }
+
+    @Override
+    protected IFileLoaderComponent<CobaltItem.Builder>[] getLoaders() {
+        return LOADERS;
+    }
 }

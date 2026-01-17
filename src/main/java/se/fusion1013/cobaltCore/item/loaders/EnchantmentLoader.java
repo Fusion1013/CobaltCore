@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EnchantmentLoader implements IItemLoader {
+public class EnchantmentLoader implements IItemLoaderComponent {
     @Override
-    public void Load(YamlConfiguration yaml, CobaltItem.Builder builder) {
+    public void load(YamlConfiguration yaml, CobaltItem.Builder builder) {
         if (!yaml.contains("enchantments")) return;
 
         List<Map<?, ?>> mapList = yaml.getMapList("enchantments");
@@ -20,7 +20,7 @@ public class EnchantmentLoader implements IItemLoader {
     }
 
     @Override
-    public void Load(JsonObject json, CobaltItem.Builder builder) {
+    public void load(JsonObject json, CobaltItem.Builder builder) {
     }
 
     private static EnchantmentWrapper[] FromMapList(List<Map<?, ?>> mapList) {
@@ -36,7 +36,8 @@ public class EnchantmentLoader implements IItemLoader {
             String name = (String) k;
             int level = (int) values.get("level");
             boolean ignoreLevelRestriction = false;
-            if (values.get("ignore_level_restrictions") != null) ignoreLevelRestriction = (boolean) values.get("ignore_level_restrictions");
+            if (values.get("ignore_level_restrictions") != null)
+                ignoreLevelRestriction = (boolean) values.get("ignore_level_restrictions");
 
             EnchantmentWrapper wrapper = EnchantmentManager.getEnchantment(name, level, ignoreLevelRestriction);
             if (wrapper != null) addTo.add(wrapper);

@@ -2,24 +2,15 @@ package se.fusion1013.cobaltCore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import se.fusion1013.cobaltCore.CobaltCore;
+import se.fusion1013.cobaltCore.entity.CustomEntityManager;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
-import se.fusion1013.cobaltCore.item.ICustomItem;
-import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
-import se.fusion1013.cobaltCore.util.FileUtil;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Optional;
 
 public class CobaltCommand {
@@ -36,9 +27,15 @@ public class CobaltCommand {
     private static CommandAPICommand createReloadCommand() {
         return new CommandAPICommand("reload")
                 .withPermission("commands.core.reload")
+                .withSubcommand(new CommandAPICommand("entities")
+                        .executes(CobaltCommand::reloadEntities))
                 .withSubcommand(new CommandAPICommand("items")
                         .withOptionalArguments(new GreedyStringArgument("options"))
                         .executes(CobaltCommand::reloadItems));
+    }
+
+    private static void reloadEntities(CommandSender sender, CommandArguments args) {
+        CustomEntityManager.reloadEntities();
     }
 
     private static void reloadItems(CommandSender sender, CommandArguments args) {

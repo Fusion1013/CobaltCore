@@ -9,10 +9,10 @@ import se.fusion1013.cobaltCore.item.components.IItemComponent;
 import java.util.List;
 import java.util.Map;
 
-public class ComponentLoader implements IItemLoader {
+public class ComponentLoader implements IItemLoaderComponent {
 
     @Override
-    public void Load(YamlConfiguration yaml, CobaltItem.Builder builder) {
+    public void load(YamlConfiguration yaml, CobaltItem.Builder builder) {
         if (!yaml.contains("components")) return;
         List<Map<?, ?>> mapList = yaml.getMapList("components");
         for (Map<?, ?> map : mapList) FromMap(map, builder);
@@ -27,7 +27,7 @@ public class ComponentLoader implements IItemLoader {
     }
 
     @Override
-    public void Load(JsonObject json, CobaltItem.Builder builder) {
+    public void load(JsonObject json, CobaltItem.Builder builder) {
 
     }
 }
