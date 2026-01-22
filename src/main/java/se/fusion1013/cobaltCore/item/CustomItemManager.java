@@ -40,7 +40,6 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
 
     // ----- VARIABLES -----
 
-    private static final Map<String, ItemStack> INBUILT_ITEMS = new HashMap<>(); // Holds all custom items ITEMSTACKS
     private static final Map<String, ICustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
     private static final Map<ItemSection, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
 
@@ -61,7 +60,6 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @return the <code>CustomItem</code>.
      */
     public static ICustomItem register(ICustomItem item) {
-        INBUILT_ITEMS.put(item.getInternalName(), item.getItemStack());
         INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
         if (item.getItemCategory() != null)
             ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
@@ -154,7 +152,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @return an array of item names.
      */
     public static String[] getItemNames() {
-        List<String> itemNames = new ArrayList<>(INBUILT_ITEMS.keySet());
+        List<String> itemNames = new ArrayList<>(INBUILT_CUSTOM_ITEMS.keySet());
         for (Material m : Material.values()) itemNames.add(m.name().toLowerCase());
         return itemNames.toArray(new String[0]);
     }
@@ -169,7 +167,9 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         if (name.startsWith("minecraft:")) name = name.substring(0, 9);
         if (name.startsWith("cobalt:")) name = name.substring(0, 7);
 
-        ItemStack stack = INBUILT_ITEMS.get(name);
+        ICustomItem customItem = INBUILT_CUSTOM_ITEMS.get(name);
+        if (customItem == null) return new ItemStack(Material.valueOf(name.toUpperCase()));
+        ItemStack stack = customItem.getItemStack();
         if (stack == null && isMaterial(name)) stack = new ItemStack(Material.valueOf(name.toUpperCase()));
 
         return stack;
@@ -182,21 +182,19 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         return false;
     }
 
-    public static ItemStack[] getCustomItemStacks() {
-        return INBUILT_ITEMS.values().toArray(new ItemStack[0]);
-    }
-
     public static ICustomItem getCustomItem(String name) {
         return INBUILT_CUSTOM_ITEMS.get(name);
     }
 
     public static ItemStack getCustomItemStack(String name) {
-        return INBUILT_ITEMS.get(name);
+        ICustomItem customItem = INBUILT_CUSTOM_ITEMS.get(name);
+        if (customItem == null) return null;
+        return customItem.getItemStack();
     }
 
     public static String[] getCustomItemNames() {
-        String[] names = new String[INBUILT_ITEMS.size()];
-        List<String> keys = new ArrayList<>(INBUILT_ITEMS.keySet());
+        String[] names = new String[INBUILT_CUSTOM_ITEMS.size()];
+        List<String> keys = new ArrayList<>(INBUILT_CUSTOM_ITEMS.keySet());
         for (int i = 0; i < keys.size(); i++) {
             names[i] = keys.get(i);
         }
@@ -248,8 +246,6 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     public void reload() {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
-
-        // loadItemFiles(CobaltCore.getInstance(), false);
         createItemTickHandler();
     }
 

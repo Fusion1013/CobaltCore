@@ -1,13 +1,19 @@
 package se.fusion1013.cobaltCore.entity;
 
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityRemoveEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
 import se.fusion1013.cobaltCore.entity.loader.EntityLoader;
@@ -23,6 +29,8 @@ import java.util.UUID;
 
 public class CustomEntityManager extends Manager<CobaltCore> implements Listener {
 
+    public static final NamespacedKey CUSTOM_ENTITY_KEY = new NamespacedKey(CobaltCore.getInstance(), "is_custom_entity");
+    public static final NamespacedKey CUSTOM_ENTITY_TYPE_KEY = new NamespacedKey(CobaltCore.getInstance(), "custom_entity_type");
     private static final Map<String, ICustomEntity> CUSTOM_ENTITY_TYPES = new HashMap<>();
     private static final Map<UUID, ICustomEntityInstance> CUSTOM_ENTITY_INSTANCES = new HashMap<>();
     private static final EntityLoader ENTITY_LOADER = new EntityLoader();
@@ -98,6 +106,61 @@ public class CustomEntityManager extends Manager<CobaltCore> implements Listener
 
     }
 
+    private void loadEntity(Entity entity) {
+        if (!isCustomEntity(entity)) return;
+
+        PersistentDataContainer persistentDataContainer = entity.getPersistentDataContainer();
+        if (!persistentDataContainer.has(CUSTOM_ENTITY_TYPE_KEY)) return;
+
+        String internalEntityName = persistentDataContainer.get(CUSTOM_ENTITY_TYPE_KEY, PersistentDataType.STRING);
+        ICustomEntity customEntity = CUSTOM_ENTITY_TYPES.get(internalEntityName);
+        if (customEntity == null) return;
+
+        ICustomEntityInstance instance = customEntity.load(entity);
+        CUSTOM_ENTITY_INSTANCES.put(entity.getUniqueId(), instance);
+    }
+
+    private void unloadEntity(Entity entity) {
+        if (!isCustomEntity(entity)) return;
+
+        PersistentDataContainer persistentDataContainer = entity.getPersistentDataContainer();
+        if (!persistentDataContainer.has(CUSTOM_ENTITY_TYPE_KEY)) return;
+
+        CUSTOM_ENTITY_INSTANCES.remove(entity.getUniqueId());
+    }
+
+    // ----- EVENTS -----
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event) {
+        loadEntity(event.getEntity());
+    }
+
+    @EventHandler
+    public void onEntityChunkLoad(EntitiesLoadEvent event) {
+        event.getEntities().forEach(this::loadEntity);
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        unloadEntity(event.getEntity());
+    }
+
+    @EventHandler
+    public void onEntityUnload(EntitiesUnloadEvent event) {
+        event.getEntities().forEach(this::unloadEntity);
+    }
+
+    @EventHandler
+    public void onEntityRemove(EntityRemoveEvent event) {
+        unloadEntity(event.getEntity());
+    }
+
+    @EventHandler
+    public void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
+        unloadEntity(event.getEntity());
+    }
+
     // ----- REGISTER -----
 
     public static ICustomEntity register(INameProvider entity) {
@@ -110,6 +173,11 @@ public class CustomEntityManager extends Manager<CobaltCore> implements Listener
     }
 
     // ----- GETTERS / SETTERS -----
+
+    public static boolean isCustomEntity(Entity entity) {
+        PersistentDataContainer persistentDataContainer = entity.getPersistentDataContainer();
+        return persistentDataContainer.has(CUSTOM_ENTITY_KEY, PersistentDataType.INTEGER);
+    }
 
     /**
      * Gets a Custom Entity handler class.

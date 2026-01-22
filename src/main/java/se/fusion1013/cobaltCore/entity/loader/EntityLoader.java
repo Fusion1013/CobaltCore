@@ -11,7 +11,9 @@ import se.fusion1013.cobaltCore.loader.IFileLoaderComponent;
 public class EntityLoader extends AbstractFileLoader<ICustomEntity, CustomEntity.Builder> {
 
     private static final IEntityLoaderComponent[] LOADERS = new IEntityLoaderComponent[]{
-
+            new LivingEntityLoader(),
+            new EntityHealthLoader(),
+            new EntityArmorLoader()
     };
 
     @Override

@@ -3,12 +3,15 @@ package se.fusion1013.cobaltCore.util;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -18,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
@@ -146,6 +150,14 @@ public class ItemUtil {
 
     public static ItemStack fixItem(ItemStack item) {
         if (item == null) return null;
+
+        // -- AXE OVERRIDE DAMAGE --
+        ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta.getItemModel() == null && (item.getType() == Material.GOLDEN_AXE || item.getType() == Material.DIAMOND_AXE || item.getType() == Material.IRON_AXE || item.getType() == Material.STONE_AXE || item.getType() == Material.WOODEN_AXE || item.getType() == Material.NETHERITE_AXE)) {
+            itemMeta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_damage"), 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND));
+            itemMeta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_atspeed"), -3.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND));
+        }
+        item.setItemMeta(itemMeta);
 
         ICustomItem customItem = CustomItemManager.getCustomItem(item);
         if (customItem == null) return item;

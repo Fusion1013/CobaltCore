@@ -10,14 +10,21 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
+import se.fusion1013.cobaltCore.entity.settings.IEntitySettings;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static se.fusion1013.cobaltCore.entity.CustomEntityManager.CUSTOM_ENTITY_KEY;
+import static se.fusion1013.cobaltCore.entity.CustomEntityManager.CUSTOM_ENTITY_TYPE_KEY;
 
 public abstract class AbstractCustomEntity implements ICustomEntity {
-
-    private static final NamespacedKey CUSTOM_ENTITY_KEY = new NamespacedKey(CobaltCore.getInstance(), "is_custom_entity");
 
     private final String internalName;
     private final NamespacedKey key;
     private final EntityType entityType;
+
+    protected List<IEntitySettings> entitySettings = new ArrayList<>();
 
     public AbstractCustomEntity(String internalName, EntityType entityType) {
         this.internalName = internalName;
@@ -36,13 +43,20 @@ public abstract class AbstractCustomEntity implements ICustomEntity {
     }
 
     @Override
+    public ICustomEntityInstance load(Entity entity) {
+        entitySettings.forEach(setting -> setting.load(entity));
+        return new CustomEntityInstance(entity);
+    }
+
+    @Override
     public ICustomEntityInstance spawn(World world, Location location) {
         Entity customEntity = world.spawnEntity(location, entityType, CreatureSpawnEvent.SpawnReason.COMMAND, entity -> {
             PersistentDataContainer persistentDataContainer = entity.getPersistentDataContainer();
             persistentDataContainer.set(CUSTOM_ENTITY_KEY, PersistentDataType.INTEGER, 1);
             persistentDataContainer.set(key, PersistentDataType.INTEGER, 1);
+            persistentDataContainer.set(CUSTOM_ENTITY_TYPE_KEY, PersistentDataType.STRING, internalName);
         });
-        return new CustomEntityInstance(customEntity);
+        return load(customEntity);
     }
 
     protected static abstract class Builder<T extends AbstractCustomEntity, B extends Builder> {
@@ -66,6 +80,10 @@ public abstract class AbstractCustomEntity implements ICustomEntity {
 
         protected abstract B getThis();
 
+        public B addEntitySettings(IEntitySettings settings) {
+            obj.entitySettings.add(settings);
+            return getThis();
+        }
     }
 
     // ----- GETTER / SETTER -----

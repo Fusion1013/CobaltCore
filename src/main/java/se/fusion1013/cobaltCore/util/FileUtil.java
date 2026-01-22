@@ -90,6 +90,7 @@ public class FileUtil {
             String name = entries.nextElement().getName();
             // check that element starts with path
             if (name.startsWith(path)) {
+                if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
                 String entry = name.substring(path.length() + 1);
                 String last = name.substring(name.length() - 1);
 
