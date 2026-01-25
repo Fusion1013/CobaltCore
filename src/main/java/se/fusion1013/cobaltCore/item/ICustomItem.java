@@ -4,6 +4,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.util.INameProvider;
@@ -24,6 +25,8 @@ public interface ICustomItem extends INameProvider {
     String[] getTags();
 
     StringPlaceholders getInfo();
+
+    JSONObject toJson();
 
     default void onDisable() {
     }

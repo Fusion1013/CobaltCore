@@ -6,7 +6,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 
-public class EntityArmorSettings implements IEntitySettings {
+public class EntityEquipmentSettings implements IEntitySettings {
 
     protected String helmet;
     protected String chestplate;
@@ -59,10 +59,10 @@ public class EntityArmorSettings implements IEntitySettings {
 
     public static class Builder {
 
-        private final EntityArmorSettings obj;
+        private final EntityEquipmentSettings obj;
 
         public Builder() {
-            obj = new EntityArmorSettings();
+            obj = new EntityEquipmentSettings();
         }
 
         public Builder addHelmet(String helmet) {
@@ -95,7 +95,7 @@ public class EntityArmorSettings implements IEntitySettings {
             return this;
         }
 
-        public EntityArmorSettings build() {
+        public EntityEquipmentSettings build() {
             return obj;
         }
 

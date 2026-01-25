@@ -11,13 +11,14 @@ import se.fusion1013.cobaltCore.loader.IFileLoaderComponent;
 public class EntityLoader extends AbstractFileLoader<ICustomEntity, CustomEntity.Builder> {
 
     private static final IEntityLoaderComponent[] LOADERS = new IEntityLoaderComponent[]{
+            new EntityBaseLoader(),
             new LivingEntityLoader(),
             new EntityHealthLoader(),
-            new EntityArmorLoader()
+            new EntityEquipmentLoader(),
+            new EntityTargetLoader()
     };
 
-    @Override
-    public ICustomEntity load(YamlConfiguration yaml) {
+    public static ICustomEntity loadEntity(YamlConfiguration yaml) {
         String internalName = yaml.getString("internal_name");
         String entityType = yaml.getString("entity_type");
         if (internalName == null || entityType == null) return null;
@@ -25,6 +26,11 @@ public class EntityLoader extends AbstractFileLoader<ICustomEntity, CustomEntity
         var builder = new CustomEntity.Builder(internalName, EntityType.valueOf(entityType));
         for (IEntityLoaderComponent loader : LOADERS) loader.load(yaml, builder);
         return builder.build();
+    }
+
+    @Override
+    public ICustomEntity load(YamlConfiguration yaml) {
+        return loadEntity(yaml);
     }
 
     @Override

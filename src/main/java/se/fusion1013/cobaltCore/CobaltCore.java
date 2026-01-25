@@ -2,8 +2,10 @@ package se.fusion1013.cobaltCore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.fusion1013.cobaltCore.api.ApiServer;
 import se.fusion1013.cobaltCore.commands.*;
 import se.fusion1013.cobaltCore.commands.edit.EditCommand;
+import se.fusion1013.cobaltCore.commands.entity.CSummonCommand;
 import se.fusion1013.cobaltCore.commands.entity.CustomEntityCommand;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
@@ -31,6 +33,7 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
     private static CobaltCore INSTANCE;
     private static Database db;
+    private static ApiServer apiServer;
 
     public CobaltCore() {
         INSTANCE = this;
@@ -42,11 +45,16 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
     @Override
     public void onEnable() {
         registerCobaltPlugin(this);
+        apiServer = new ApiServer(this);
+        getServer().getScheduler().runTaskAsynchronously(this, apiServer::start);
     }
 
     @Override
     public void onDisable() {
         disableCobaltPlugin(this);
+        if (apiServer != null) {
+            apiServer.stop();
+        }
     }
 
     // ##### MANAGERS #####

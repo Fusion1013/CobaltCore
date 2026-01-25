@@ -8,6 +8,7 @@ public class EditCommand {
         new CommandAPICommand("edit")
                 .withPermission("cobalt.core.commands.edit")
                 .withSubcommand(EditItemCommand.register())
+                .withSubcommand(EditEntityCommand.register())
                 .register();
     }
 

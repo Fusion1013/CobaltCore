@@ -2,6 +2,7 @@ package se.fusion1013.cobaltCore.commands.item;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.entity.Player;
@@ -22,6 +23,7 @@ public class CGiveCommand {
         new CommandAPICommand("cgive")
                 .withPermission("commands.core.item")
                 .withArguments(new StringArgument("item").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
+                .withOptionalArguments(new IntegerArgument("amount", 1, 64))
                 .executesPlayer(CGiveCommand::giveItem)
                 .register();
     }
@@ -77,15 +79,17 @@ public class CGiveCommand {
      */
     private static void giveItem(Player player, CommandArguments args) {
         String itemName = (String) args.args()[0];
+        int amount = args.get("amount") != null ? (int) args.get("amount") : 1;
         ItemStack is = CustomItemManager.getCustomItemStack(itemName);
 
         StringPlaceholders placeholders = StringPlaceholders.builder()
-                .addPlaceholder("amount", 1)
+                .addPlaceholder("amount", amount)
                 .addPlaceholder("item", itemName)
                 .addPlaceholder("player", player.getName())
                 .build();
 
         if (is != null) {
+            is.setAmount(amount);
             player.getInventory().addItem(is);
             LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.cgive.success", placeholders);
         } else {

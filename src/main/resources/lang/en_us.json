@@ -37,5 +37,9 @@
   "commands.core.edit.item.getinfo.item_category": "&7 - Item Category: &3%item_category%",
   "commands.core.centity.list.header": "&7Listing Custom Entity Instances",
   "commands.core.centity.list.item": "&7 - &3%uuid%",
-  "core.custom_item.deny_container": "&7%item_name%&7 will not allow that.."
+  "core.custom_item.deny_container": "&7%item_name%&7 will not allow that..",
+  "commands.core.csummon.entity.success": "&7Summoned &3%entity%",
+  "commands.core.csummon.entity.fail": "&7Failed to summon entity &3%entity%",
+  "commands.core.pastebin.entity.test.success": "&7Loaded entity &3%entity% &7from pastebin &3%pastebin%",
+  "commands.core.pastebin.entity.test.error": "&7Could not load entity from pastebin &3%pastebin%"
 }

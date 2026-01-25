@@ -30,7 +30,7 @@ public class ItemPastebinCommand {
 
                     try {
                         YamlConfiguration yaml = FileUtil.loadFromPastebin(pasteId);
-                        ICustomItem item = ItemLoader.Load(yaml);
+                        ICustomItem item = ItemLoader.loadItem(yaml);
                         ItemStack itemStack = item.getItemStack();
                         player.getInventory().addItem(itemStack);
 
@@ -58,7 +58,7 @@ public class ItemPastebinCommand {
 
                     try {
                         YamlConfiguration yaml = FileUtil.loadFromPastebin(pasteId);
-                        ICustomItem item = ItemLoader.Load(yaml);
+                        ICustomItem item = ItemLoader.loadItem(yaml);
                         FileUtil.saveYamlFile(CobaltCore.getInstance(), "items", item.getInternalName(), yaml);
                         CustomItemManager.reloadItems();
 

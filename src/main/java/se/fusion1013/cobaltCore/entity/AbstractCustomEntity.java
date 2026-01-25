@@ -25,6 +25,7 @@ public abstract class AbstractCustomEntity implements ICustomEntity {
     private final EntityType entityType;
 
     protected List<IEntitySettings> entitySettings = new ArrayList<>();
+    protected List<String> noAttackPlayerNames = new ArrayList<>();
 
     public AbstractCustomEntity(String internalName, EntityType entityType) {
         this.internalName = internalName;
@@ -84,6 +85,11 @@ public abstract class AbstractCustomEntity implements ICustomEntity {
             obj.entitySettings.add(settings);
             return getThis();
         }
+
+        public B addNoAttackPlayer(String playerName) {
+            obj.noAttackPlayerNames.add(playerName);
+            return getThis();
+        }
     }
 
     // ----- GETTER / SETTER -----
@@ -102,5 +108,10 @@ public abstract class AbstractCustomEntity implements ICustomEntity {
     @Override
     public String getInternalName() {
         return internalName;
+    }
+
+    @Override
+    public List<String> getNoAttackPlayerNames() {
+        return noAttackPlayerNames;
     }
 }

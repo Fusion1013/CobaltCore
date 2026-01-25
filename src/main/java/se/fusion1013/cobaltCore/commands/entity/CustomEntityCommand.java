@@ -1,11 +1,7 @@
 package se.fusion1013.cobaltCore.commands.entity;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.entity.CustomEntityManager;
@@ -22,20 +18,6 @@ public class CustomEntityCommand {
                 .withPermission(CommandUtil.getPermissionString(CobaltCore.getInstance(), "centity"))
                 .withSubcommand(CustomEntityCommand.createListCommand())
                 .register();
-    }
-
-    public static CommandAPICommand createSummonEntityCommand() {
-        return new CommandAPICommand("entity")
-                .withPermission(CommandUtil.getPermissionString(CobaltCore.getInstance(), "csummon.entity"))
-                .withArguments(new StringArgument("entity").replaceSuggestions(ArgumentSuggestions.strings(CustomEntityManager.getCustomEntityNames())))
-                .executesPlayer(CustomEntityCommand::summonEntity);
-    }
-
-    private static void summonEntity(Player player, CommandArguments commandArguments) {
-        World world = player.getWorld();
-        Location location = player.getLocation();
-        String entity = (String) commandArguments.get("entity");
-        CustomEntityManager.getInstance().spawnEntity(entity, world, location);
     }
 
     private static CommandAPICommand createListCommand() {

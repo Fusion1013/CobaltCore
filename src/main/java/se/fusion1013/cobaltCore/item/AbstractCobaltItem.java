@@ -15,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.components.AbstractItemComponent;
 import se.fusion1013.cobaltCore.item.components.IItemComponent;
@@ -424,6 +426,34 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     }
 
     // ----- GETTERS / SETTERS -----
+
+
+    @Override
+    public JSONObject toJson() {
+        // TODO: This should probably not be done like this
+        JSONObject json = new JSONObject();
+
+        json.put("internal_name", internalName);
+        json.put("amount", amount);
+        json.put("material", material.toString());
+        json.put("model_data", modelData);
+        json.put("item_model", itemModel);
+        json.put("item_name", itemName);
+
+        JSONObject enchantments = new JSONObject();
+        // TODO
+
+        if (rarity != null) json.put("rarity", rarity.getInternalName());
+        JSONArray rarityLore = new JSONArray();
+        rarityExtraLore.forEach(l -> rarityLore.add(l));
+        json.put("rarity_lore", rarityLore);
+
+        JSONArray extraLore = new JSONArray();
+        extraLore.forEach(l -> extraLore.add(l));
+        json.put("extra_lore", extraLore);
+
+        return json;
+    }
 
     @Override
     public String getInternalName() {

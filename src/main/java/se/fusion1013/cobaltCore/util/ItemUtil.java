@@ -154,8 +154,11 @@ public class ItemUtil {
         // -- AXE OVERRIDE DAMAGE --
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta.getItemModel() == null && (item.getType() == Material.GOLDEN_AXE || item.getType() == Material.DIAMOND_AXE || item.getType() == Material.IRON_AXE || item.getType() == Material.STONE_AXE || item.getType() == Material.WOODEN_AXE || item.getType() == Material.NETHERITE_AXE)) {
-            itemMeta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_damage"), 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND));
-            itemMeta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_atspeed"), -3.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND));
+            itemMeta.removeAttributeModifier(Attribute.ATTACK_DAMAGE);
+            itemMeta.removeAttributeModifier(Attribute.ATTACK_SPEED);
+
+            itemMeta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_damage"), 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+            itemMeta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_atspeed"), -3.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         }
         item.setItemMeta(itemMeta);
 

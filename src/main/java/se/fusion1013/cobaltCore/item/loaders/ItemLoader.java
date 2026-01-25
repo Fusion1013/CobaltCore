@@ -19,10 +19,11 @@ public class ItemLoader extends AbstractFileLoader<ICustomItem, CobaltItem.Build
             new MetaEditorLoader(),
             new ComponentLoader(),
             new RecipeLoader(),
-            new ItemToggleLoader()
+            new ItemToggleLoader(),
+            new ArmorTrimLoader()
     };
 
-    public static ICustomItem Load(YamlConfiguration yaml) {
+    public static ICustomItem loadItem(YamlConfiguration yaml) {
         String internalName = yaml.getString("internal_name");
         if (internalName == null) return null;
 
@@ -31,7 +32,7 @@ public class ItemLoader extends AbstractFileLoader<ICustomItem, CobaltItem.Build
         return builder.build();
     }
 
-    public static ICustomItem Load(JsonObject json) {
+    public static ICustomItem loadItem(JsonObject json) {
         String internalName = json.get("internal_name").getAsString();
         if (internalName == null) return null;
 
@@ -42,12 +43,12 @@ public class ItemLoader extends AbstractFileLoader<ICustomItem, CobaltItem.Build
 
     @Override
     public ICustomItem load(YamlConfiguration yaml) {
-        return Load(yaml);
+        return loadItem(yaml);
     }
 
     @Override
     public ICustomItem load(JsonObject json) {
-        return Load(json);
+        return loadItem(json);
     }
 
     @Override

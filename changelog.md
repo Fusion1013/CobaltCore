@@ -1,3 +1,17 @@
+**CobaltCore Version 1.2.0 (UPCOMING)**
+
+- **FEATURE:** Added Attribute Modifier support to Custom Items
+- **FEATURE:** Added Armor Trim support to Custom Items
+- **FEATURE:** Added Custom Name support to Custom Entities
+- **FEATURE:** Added No Gravity support to Custom Entities
+- **FEATURE:** Added Silent support to Custom Entities
+- **FEATURE:** Added Invulnerable support to Custom Entities
+- **FEATURE:** Added Glowing support to Custom Entities
+- **FEATURE:** Added no-aggro list to Custom Entities
+- **COMMAND:** New command: '/edit entity pastebin test [id]'
+- **COMMAND:** New command: '/edit entity pastebin save [id]'
+- **COMMAND:** Updated command: '/cgive [item] <amount>'
+
 **CobaltCore Version 1.1.0**
 
 - **FEATURE:** Introduced the Cobalt Entity System

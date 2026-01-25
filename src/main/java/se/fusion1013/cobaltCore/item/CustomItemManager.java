@@ -20,6 +20,8 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
 import se.fusion1013.cobaltCore.events.PlayerHeldItemTickEvent;
@@ -201,6 +203,15 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         return names;
     }
 
+    public static JSONArray getCustomItemJson() {
+        JSONArray jsonArray = new JSONArray();
+        for (ICustomItem item : INBUILT_CUSTOM_ITEMS.values()) {
+            JSONObject itemJson = item.toJson();
+            jsonArray.add(itemJson);
+        }
+        return jsonArray;
+    }
+
     // ----- ITEM FILE LOADING -----
 
     public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
@@ -223,12 +234,12 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         }, new IFileConstructor() {
             @Override
             public INameProvider createFrom(YamlConfiguration yaml) {
-                return ItemLoader.Load(yaml);
+                return ItemLoader.loadItem(yaml);
             }
 
             @Override
             public INameProvider createFrom(JsonObject json) {
-                return ItemLoader.Load(json);
+                return ItemLoader.loadItem(json);
             }
         }, overwrite);
     }
