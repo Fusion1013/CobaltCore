@@ -212,6 +212,14 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         return jsonArray;
     }
 
+    public static YamlConfiguration getCustomItemYaml() {
+        YamlConfiguration configuration = new YamlConfiguration();
+        for (ICustomItem item : INBUILT_CUSTOM_ITEMS.values()) {
+            configuration.set(item.getInternalName(), item.toYaml());
+        }
+        return configuration;
+    }
+
     // ----- ITEM FILE LOADING -----
 
     public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
@@ -300,7 +308,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
 
         event.setCancelled(true);
         if (event.getWhoClicked() instanceof Player player) {
-            LocaleManager.getInstance().sendMessage("", player, "core.custom_item.deny_container", customItem.getInfo());
+            LocaleManager.getInstance().sendMessage("", player, "core.custom_item.deny_container");
         }
     }
 

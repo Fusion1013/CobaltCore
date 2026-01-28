@@ -3,7 +3,7 @@ package se.fusion1013.cobaltCore.item.crafting;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.yaml.snakeyaml.util.EnumUtils;
@@ -98,7 +98,7 @@ public class ShapedRecipeWrapper implements IRecipeWrapper {
     // ----- LOADING -----
 
     @Override
-    public List<IRecipeWrapper> loadFromFile(YamlConfiguration yaml, String itemName) {
+    public List<IRecipeWrapper> loadFromFile(ConfigurationSection yaml, String itemName) {
         List<IRecipeWrapper> wrappers = new ArrayList<>();
 
         if (yaml.contains("shaped_crafting")) {

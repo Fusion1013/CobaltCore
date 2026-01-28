@@ -2,6 +2,7 @@ package se.fusion1013.cobaltCore.item.crafting;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.yaml.snakeyaml.util.EnumUtils;
@@ -48,7 +49,8 @@ public class RecipeManager extends Manager<CobaltCore> {
 
         if (WRAPPERS_TO_PROCESS.size() > 0) {
             CobaltCore.getInstance().getLogger().warning("Failed to load " + WRAPPERS_TO_PROCESS.size() + " recipes:");
-            for (IRecipeWrapper wrapper : WRAPPERS_TO_PROCESS) CobaltCore.getInstance().getLogger().info(wrapper.getRecipeType() + ": " + wrapper.getItemName());
+            for (IRecipeWrapper wrapper : WRAPPERS_TO_PROCESS)
+                CobaltCore.getInstance().getLogger().info(wrapper.getRecipeType() + ": " + wrapper.getItemName());
         }
     }
 
@@ -68,7 +70,7 @@ public class RecipeManager extends Manager<CobaltCore> {
     /**
      * Attempts to load all recipes from a <code>File</code>.
      *
-     * @param file the <code>File</code> to load the recipe from.
+     * @param file     the <code>File</code> to load the recipe from.
      * @param itemName the name of the result item.
      */
     public static void loadRecipesFromFile(File file, String itemName) {
@@ -82,7 +84,7 @@ public class RecipeManager extends Manager<CobaltCore> {
         loadRecipes(yaml, itemName);
     }
 
-    public static void loadRecipes(YamlConfiguration yaml, String itemName) {
+    public static void loadRecipes(ConfigurationSection yaml, String itemName) {
         for (IRecipeWrapper wrapper : REGISTERED_WRAPPERS) {
             WRAPPERS_TO_PROCESS.addAll(wrapper.loadFromFile(yaml, itemName));
         }

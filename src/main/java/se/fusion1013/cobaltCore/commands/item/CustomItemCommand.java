@@ -10,7 +10,8 @@ import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.util.CommandUtil;
-import se.fusion1013.cobaltCore.util.StringPlaceholders;
+
+import java.util.List;
 
 public class CustomItemCommand {
 
@@ -33,18 +34,7 @@ public class CustomItemCommand {
             return;
         }
 
-        StringPlaceholders placeholders = customItem.getInfo();
-        LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.edit.item.getinfo.header", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.internal_name", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.key", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.amount", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.material", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.model_data", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.item_model", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.item_name", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.rarity", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.rarity_lore", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.extra_lore", placeholders);
-        LocaleManager.getInstance().sendMessage("", player, "commands.core.edit.item.getinfo.item_category", placeholders);
+        List<String> info = customItem.getLocalizedInfo();
+        info.forEach(player::sendMessage);
     }
 }

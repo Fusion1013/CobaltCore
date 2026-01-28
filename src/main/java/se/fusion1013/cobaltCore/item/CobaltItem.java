@@ -1,5 +1,7 @@
 package se.fusion1013.cobaltCore.item;
 
+import org.bukkit.Material;
+
 public class CobaltItem extends AbstractCobaltItem {
 
     /**
@@ -9,6 +11,10 @@ public class CobaltItem extends AbstractCobaltItem {
      */
     public CobaltItem(String internalName) {
         super(internalName);
+    }
+
+    public CobaltItem(String internalName, Material material) {
+        super(internalName, material);
     }
 
     // ----- BUILDER -----

@@ -1,6 +1,7 @@
 package se.fusion1013.cobaltCore.item;
 
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -8,7 +9,8 @@ import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.util.INameProvider;
-import se.fusion1013.cobaltCore.util.StringPlaceholders;
+
+import java.util.List;
 
 public interface ICustomItem extends INameProvider {
 
@@ -24,9 +26,11 @@ public interface ICustomItem extends INameProvider {
 
     String[] getTags();
 
-    StringPlaceholders getInfo();
+    List<String> getLocalizedInfo();
 
     JSONObject toJson();
+
+    ConfigurationSection toYaml();
 
     default void onDisable() {
     }

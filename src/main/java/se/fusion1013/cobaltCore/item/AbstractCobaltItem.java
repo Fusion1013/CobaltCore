@@ -1,35 +1,31 @@
 package se.fusion1013.cobaltCore.item;
 
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import com.google.gson.JsonObject;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.item.components.AbstractItemComponent;
 import se.fusion1013.cobaltCore.item.components.IItemComponent;
-import se.fusion1013.cobaltCore.item.enchantment.EnchantmentWrapper;
+import se.fusion1013.cobaltCore.item.properties.*;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggles;
-import se.fusion1013.cobaltCore.util.HexUtils;
-import se.fusion1013.cobaltCore.util.ItemUtil;
-import se.fusion1013.cobaltCore.util.StringPlaceholders;
+import se.fusion1013.cobaltCore.loader.IObjectProperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractCobaltItem implements ICustomItem {
 
@@ -41,44 +37,23 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     private final String internalName; // Should be unique to every item. Used to generate the NamespacedKey
     private final NamespacedKey key; // Unique for each item. Generated using the internal name
 
-    // -- GENERIC
-    protected int amount = 1;
-
-    // -- ITEM VISUALS
     protected Material material = Material.CLOCK;
-    protected int modelData = 0;
-    protected String itemModel = "";
 
-    // -- ITEM NAME
-    protected String itemName = "default item name";
-
-    // -- ENCHANTMENTS
-    protected List<EnchantmentWrapper> enchantmentWrappers = new ArrayList<>();
-
-    // -- RARITY
-    protected ItemSection rarity;
-    protected List<String> rarityExtraLore = new ArrayList<>(); // Lore to put under the rarity
-
-    // -- EXTRA LORE
-    protected List<String> extraLore = new ArrayList<>();
-
-    // -- SPECIAL ABILITIES
-    protected Map<Attribute, AttributeModifier> attributes = new HashMap<>();
-
-    // -- ITEM CATEGORIES
-    protected ItemSection itemCategory;
-
-    // -- ITEM ATTRIBUTES
-
-    // -- ITEM META
-    protected IItemMetaEditor metaEditor; // Allows for full control over the item's meta
+    protected final List<IObjectProperty<ItemCreationContext, AbstractCobaltItem>> properties = List.of(
+            new ItemEnchantmentProperty(),
+            new ItemTagProperty(),
+            new ItemVisualProperty(),
+            new ItemRarityProperty(),
+            new ItemCategoryProperty(),
+            new ItemAttributeProperty(),
+            new ItemToggleProperty(),
+            new ItemRecipeProperty(),
+            new ItemMetaProperty()
+    );
 
     // -- ITEM ACTIVATORS
     protected final Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsSync = new HashMap<>();
     protected final Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsAsync = new HashMap<>();
-
-    // -- ITEM TAGS
-    protected String[] tags = new String[0];
 
     // -- ITEM COMPONENTS
     protected final Map<String, IItemComponent> itemComponents = new HashMap<>();
@@ -97,6 +72,11 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         // Internals must be set by constructors
         this.internalName = internalName;
         this.key = new NamespacedKey(CobaltCore.getInstance(), this.internalName);
+    }
+
+    public AbstractCobaltItem(String internalName, Material material) {
+        this(internalName);
+        this.material = material;
     }
 
     // ----- ITEM LOADING / DISABLING -----
@@ -118,102 +98,39 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     @Override
     public ItemStack getItemStack() {
         // TODO: Lore strings should automatically get put into new lines based on the length of the strings
-        ItemStack stack = new ItemStack(material, amount);
+        ItemCreationContext context = new ItemCreationContext(key, material);
 
-        // -- ENCHANTMENTS // NOTE: Must be set before getting item meta from itemstack
-        for (EnchantmentWrapper wrapper : enchantmentWrappers)
-            stack = wrapper.add(stack); // TODO: If there is a high number of enchantments, add them in a compact list in the lore (like hypixel)
-
-        ItemMeta meta = stack.getItemMeta();
-        PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
-        List<String> lore = new ArrayList<>();
-
-        // -- INTERNALS
-        persistentDataContainer.set(key, PersistentDataType.INTEGER, 1);
-        for (String tag : tags) {
-            persistentDataContainer.set(new NamespacedKey(CobaltCore.getInstance(), tag), PersistentDataType.INTEGER, 1);
+        for (IObjectProperty<ItemCreationContext, AbstractCobaltItem> property : properties) {
+            property.create(context);
         }
 
-        // -- ITEM VISUALS
-        // meta.setCustomModelData(modelData);
+        return context.finalizeItem();
 
-        if (!itemModel.isEmpty()) {
-            String[] itemModelNamespaceSplit = itemModel.split(":");
-            if (itemModelNamespaceSplit.length > 1)
-                meta.setItemModel(new NamespacedKey(itemModelNamespaceSplit[0], itemModelNamespaceSplit[1]));
-            else meta.setItemModel(new NamespacedKey("minecraft", itemModelNamespaceSplit[0]));
-        }
-
-        // -- ITEM NAME
-        meta.setDisplayName(itemName);
-
+        /*
         // -- ITEM COMPONENT LORE
         itemComponents.values().forEach(k -> lore.addAll(k.getLore()));
         for (IItemComponent component : itemComponents.values())
             component.onItemConstruction(stack, meta, persistentDataContainer);
+         */
+    }
 
-        // -- RARITY
-        if (rarity != null) {
-            persistentDataContainer.set(rarity.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1); // Set rarity key
-
-            // Add rarity lore
-            lore.add(""); // Add a new line
-            lore.add(LegacyComponentSerializer.legacyAmpersand().serialize(rarity.getFormattedName().append(Component.text(" Item").color(rarity.getColor()).decoration(TextDecoration.ITALIC, false))));
-            lore.addAll(rarityExtraLore);
+    protected void loadInternalData(YamlConfiguration yamlConfiguration) {
+        for (IObjectProperty<ItemCreationContext, AbstractCobaltItem> property : properties) {
+            property.fromYaml(yamlConfiguration, this);
         }
+    }
 
-        // -- EXTRA LORE
-        if (!extraLore.isEmpty()) {
-            lore.add(""); // Add a new line
-            lore.addAll(extraLore);
-        }
+    public static ICustomItem load(YamlConfiguration yaml) {
+        String internalName = yaml.getString("internal_name");
+        String materialString = yaml.getString("material");
+        Material material = EnumUtils.findEnumInsensitiveCase(Material.class, materialString);
+        CobaltItem cobaltItem = new CobaltItem(internalName, material);
+        cobaltItem.loadInternalData(yaml);
+        return cobaltItem;
+    }
 
-        // -- ITEM CATEGORY
-        if (itemCategory != null) {
-            persistentDataContainer.set(itemCategory.getNamespacedKey(), PersistentDataType.BYTE, (byte) 1);
-
-            // Add item category lore
-            lore.add(""); // Add a new line
-            lore.add(
-                    LegacyComponentSerializer.legacyAmpersand().serialize(
-                            itemCategory.getFormattedName().color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)
-                    )
-            );
-        }
-
-        // -- ATTRIBUTES
-        for (Attribute attribute : attributes.keySet()) {
-            meta.addAttributeModifier(attribute, attributes.get(attribute));
-        }
-
-        // -- META EDITOR
-        if (metaEditor != null) meta = metaEditor.editMeta(meta);
-
-        // Set meta
-        stack.setItemMeta(meta);
-
-        // Colorize lore
-        for (int i = 0; i < lore.size(); i++) lore.set(i, HexUtils.colorify(lore.get(i)));
-
-        // Set lore
-        if (stack.getLore() != null) {
-            List<String> mergedLore = new ArrayList<>(stack.getLore());
-            mergedLore.addAll(lore);
-            stack.setLore(mergedLore);
-        } else {
-            stack.setLore(lore);
-        }
-
-        // Set enchantment glint if there are enchantments
-        boolean addGlint = enchantmentWrappers.size() > 0;
-        for (EnchantmentWrapper wrapper : enchantmentWrappers)
-            if (wrapper.getEnchantment() != null) {
-                addGlint = false;
-                break;
-            }
-        if (addGlint) stack = ItemUtil.addEnchantmentGlint(stack);
-
-        return stack;
+    public static ICustomItem load(JsonObject json) {
+        return null; // TODO
     }
 
     // ----- ITEM COMPARISON -----
@@ -289,96 +206,6 @@ public abstract class AbstractCobaltItem implements ICustomItem {
             return getThis();
         }
 
-        public B itemModel(String itemModel) {
-            obj.itemModel = itemModel;
-            return getThis();
-        }
-
-        public B modelData(int modelData) {
-            obj.modelData = modelData;
-            return getThis();
-        }
-
-        // -- GENERIC
-
-        public B amount(int amount) {
-            obj.amount = amount;
-            return getThis();
-        }
-
-        // -- ITEM NAME
-
-        public B itemName(String itemName) {
-            obj.itemName = itemName;
-            return getThis();
-        }
-
-        public B itemName(Component itemName) {
-            obj.itemName = LegacyComponentSerializer.legacyAmpersand().serialize(itemName);
-            return getThis();
-        }
-
-        // -- ENCHANTMENTS
-
-        public B enchantments(EnchantmentWrapper... enchantmentWrappers) {
-            obj.enchantmentWrappers.addAll(List.of(enchantmentWrappers));
-            return getThis();
-        }
-
-        // -- RARITY
-
-        public B rarity(ItemSection rarity) {
-            obj.rarity = rarity;
-            return getThis();
-        }
-
-        public B rarityLore(String... rarityLore) {
-            obj.rarityExtraLore.addAll(Arrays.asList(rarityLore));
-            return getThis();
-        }
-
-        public B rarityLore(Component... rarityLore) {
-            for (Component component : rarityLore)
-                obj.rarityExtraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
-            return getThis();
-        }
-
-        // -- EXTRA LORE
-
-        public B extraLore(String... extraLore) {
-            obj.extraLore.addAll(Arrays.asList(extraLore));
-            return getThis();
-        }
-
-        public B extraLore(Component... extraLore) {
-            for (Component component : extraLore)
-                obj.extraLore.add(LegacyComponentSerializer.legacyAmpersand().serialize(component));
-            return getThis();
-        }
-
-        // -- SPECIAL ABILITIES
-
-        // -- ITEM CATEGORIES
-
-        public B category(ItemSection category) {
-            obj.itemCategory = category;
-            return getThis();
-        }
-
-        // -- ITEM ATTRIBUTES
-
-        public B attribute(Attribute attribute, AttributeModifier modifier) {
-            obj.attributes.put(attribute, modifier);
-            return getThis();
-        }
-
-        // -- ITEM META
-
-        public B editMeta(IItemMetaEditor editor) {
-            obj.metaEditor = editor;
-            return getThis();
-        }
-
         // -- ITEM ACTIVATORS
 
         public B itemActivatorSync(ItemActivator activator, IItemActivatorExecutor executor) {
@@ -388,13 +215,6 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         public B itemActivatorAsync(ItemActivator activator, IItemActivatorExecutor executor) {
             obj.itemActivatorExecutorsAsync.put(activator, executor);
-            return getThis();
-        }
-
-        // -- ITEM TAGS
-
-        public B tags(String... tags) {
-            obj.tags = tags;
             return getThis();
         }
 
@@ -429,23 +249,30 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
 
     @Override
+    public YamlConfiguration toYaml() {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.set("internal_name", internalName);
+        yaml.set("material", material.toString());
+
+        for (IObjectProperty<ItemCreationContext, AbstractCobaltItem> property : properties) {
+            property.saveYaml(yaml);
+        }
+
+        return yaml;
+    }
+
+    @Override
     public JSONObject toJson() {
         // TODO: This should probably not be done like this
         JSONObject json = new JSONObject();
 
         json.put("internal_name", internalName);
-        json.put("amount", amount);
         json.put("material", material.toString());
-        json.put("model_data", modelData);
-        json.put("item_model", itemModel);
-        json.put("item_name", itemName);
 
         JSONObject enchantments = new JSONObject();
         // TODO
 
-        if (rarity != null) json.put("rarity", rarity.getInternalName());
         JSONArray rarityLore = new JSONArray();
-        rarityExtraLore.forEach(l -> rarityLore.add(l));
         json.put("rarity_lore", rarityLore);
 
         JSONArray extraLore = new JSONArray();
@@ -467,12 +294,12 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
     @Override
     public ItemSection getItemCategory() {
-        return itemCategory;
+        return null; // TODO
     }
 
     @Override
     public String[] getTags() {
-        return tags;
+        return new String[0]; // TODO
     }
 
     @Override
@@ -480,21 +307,17 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         return toggles;
     }
 
-    @Override
-    public StringPlaceholders getInfo() {
-        StringPlaceholders.Builder placeholders = StringPlaceholders.builder()
-                .addPlaceholder("internal_name", internalName)
-                .addPlaceholder("key", key.getKey() + "." + key.getNamespace())
-                .addPlaceholder("amount", amount)
-                .addPlaceholder("material", material)
-                .addPlaceholder("model_data", modelData)
-                .addPlaceholder("item_model", itemModel)
-                .addPlaceholder("item_name", itemName)
-                .addPlaceholder("rarity", rarity)
-                .addPlaceholder("rarity_lore", rarityExtraLore)
-                .addPlaceholder("extra_lore", extraLore)
-                .addPlaceholder("item_category", itemCategory);
+    public void setItemToggle(ItemToggleType itemToggleType, boolean value) {
+        toggles.setValue(itemToggleType, value);
+        CobaltCore.getInstance().getLogger().info("Set item toggle " + itemToggleType + " for item " + internalName);
+    }
 
-        return placeholders.build();
+    @Override
+    public List<String> getLocalizedInfo() {
+        List<String> info = new ArrayList<>();
+        for (IObjectProperty<ItemCreationContext, AbstractCobaltItem> property : properties) {
+            info.addAll(property.getLocalizedInfo());
+        }
+        return info;
     }
 }

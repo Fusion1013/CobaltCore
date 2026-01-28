@@ -8,9 +8,11 @@
 - **FEATURE:** Added Invulnerable support to Custom Entities
 - **FEATURE:** Added Glowing support to Custom Entities
 - **FEATURE:** Added no-aggro list to Custom Entities
+- **FEATURE:** Created a REST-api that provides all Custom Items
 - **COMMAND:** New command: '/edit entity pastebin test [id]'
 - **COMMAND:** New command: '/edit entity pastebin save [id]'
 - **COMMAND:** Updated command: '/cgive [item] <amount>'
+- **UPDATE:** Completely reworked how Custom Items are loaded and created
 
 **CobaltCore Version 1.1.0**
 

@@ -10,35 +10,15 @@ import se.fusion1013.cobaltCore.loader.IFileLoaderComponent;
 public class ItemLoader extends AbstractFileLoader<ICustomItem, CobaltItem.Builder> {
 
     private static final IItemLoaderComponent[] LOADERS = new IItemLoaderComponent[]{
-            new ItemBaseLoader(),
-            new RarityLoader(),
-            new EnchantmentLoader(),
-            new CategoryLoader(),
-            new LoreLoader(),
-            new AttributeLoader(),
-            new MetaEditorLoader(),
-            new ComponentLoader(),
-            new RecipeLoader(),
-            new ItemToggleLoader(),
-            new ArmorTrimLoader()
+            new ComponentLoader()
     };
 
     public static ICustomItem loadItem(YamlConfiguration yaml) {
-        String internalName = yaml.getString("internal_name");
-        if (internalName == null) return null;
-
-        var builder = new CobaltItem.Builder(internalName);
-        for (IItemLoaderComponent loader : LOADERS) loader.load(yaml, builder);
-        return builder.build();
+        return CobaltItem.load(yaml);
     }
 
     public static ICustomItem loadItem(JsonObject json) {
-        String internalName = json.get("internal_name").getAsString();
-        if (internalName == null) return null;
-
-        var builder = new CobaltItem.Builder(internalName);
-        for (IItemLoaderComponent loader : LOADERS) loader.load(json, builder);
-        return builder.build();
+        return CobaltItem.load(json);
     }
 
     @Override

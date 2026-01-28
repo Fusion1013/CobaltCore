@@ -3,7 +3,7 @@ package se.fusion1013.cobaltCore.api;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.json.simple.JSONArray;
+import org.bukkit.configuration.file.YamlConfiguration;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
@@ -53,10 +53,10 @@ public class ApiServer {
                     return;
                 }
 
-                JSONArray jsonObject = CustomItemManager.getCustomItemJson();
-                String jsonString = jsonObject.toJSONString();
-                exchange.getResponseHeaders().add("Content-Type", "application/json");
-                byte[] response = jsonString.getBytes(StandardCharsets.UTF_8);
+                YamlConfiguration yaml = CustomItemManager.getCustomItemYaml();
+                String yamlString = yaml.saveToString();
+                exchange.getResponseHeaders().add("Content-Type", "text/yaml");
+                byte[] response = yamlString.getBytes(StandardCharsets.UTF_8);
 
                 exchange.sendResponseHeaders(200, response.length);
                 OutputStream os = exchange.getResponseBody();
