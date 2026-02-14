@@ -4,19 +4,20 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.ParticleArgument;
 import dev.jorel.commandapi.wrappers.ParticleData;
 import org.bukkit.Particle;
+import se.fusion1013.cobaltCore.variable.provider.ParticleValueProvider;
 
-public class ParticleVariable extends AbstractVariable<ParticleData, ParticleArgument, ParticleVariable> {
+public class ParticleVariable extends AbstractVariable<ParticleData, ParticleValueProvider, ParticleArgument, ParticleVariable> {
 
     public ParticleVariable(String name, Particle particle) {
-        super(name, new ParticleData(particle, null));
+        super(name, new ParticleValueProvider(name, new ParticleData(particle, null)));
     }
 
     public ParticleVariable(String name) {
-        super(name, new ParticleData(Particle.CRIT, null));
+        super(name, new ParticleValueProvider(name, new ParticleData(Particle.CRIT, null)));
     }
 
     public ParticleVariable(String name, ParticleData defaultValue) {
-        super(name, defaultValue);
+        super(name, new ParticleValueProvider(name, defaultValue));
     }
 
     @Override
@@ -25,7 +26,7 @@ public class ParticleVariable extends AbstractVariable<ParticleData, ParticleArg
     }
 
     public void setParticle(Particle particle) {
-        value = new ParticleData(particle, null);
+        valueGetter.setValue(new ParticleData(particle, null));
     }
 
     public Particle getParticle() {

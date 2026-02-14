@@ -11,6 +11,7 @@ import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.util.INameProvider;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ICustomItem extends INameProvider {
 
@@ -49,11 +50,11 @@ public interface ICustomItem extends INameProvider {
 
     // ----- ITEM ACTIVATOR EVENTS -----
 
-    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, EquipmentSlot slot);
+    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, EquipmentSlot slot, Map<String, Object> context);
 
-    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event);
+    <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, Map<String, Object> context);
 
-    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot);
+    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot, Map<String, Object> context);
 
-    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event);
+    <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, Map<String, Object> context);
 }

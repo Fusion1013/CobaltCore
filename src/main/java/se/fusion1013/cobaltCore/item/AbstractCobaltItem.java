@@ -13,19 +13,17 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.yaml.snakeyaml.util.EnumUtils;
 import se.fusion1013.cobaltCore.CobaltCore;
-import se.fusion1013.cobaltCore.item.components.AbstractItemComponent;
+import se.fusion1013.cobaltCore.components.IComponent;
 import se.fusion1013.cobaltCore.item.components.IItemComponent;
-import se.fusion1013.cobaltCore.item.properties.*;
+import se.fusion1013.cobaltCore.item.properties.ItemCreationContext;
+import se.fusion1013.cobaltCore.item.properties.ItemPropertyManager;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggles;
 import se.fusion1013.cobaltCore.loader.IObjectProperty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractCobaltItem implements ICustomItem {
 
@@ -39,27 +37,17 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
     protected Material material = Material.CLOCK;
 
-    protected final List<IObjectProperty<ItemCreationContext, AbstractCobaltItem>> properties = List.of(
-            new ItemEnchantmentProperty(),
-            new ItemTagProperty(),
-            new ItemVisualProperty(),
-            new ItemRarityProperty(),
-            new ItemCategoryProperty(),
-            new ItemAttributeProperty(),
-            new ItemToggleProperty(),
-            new ItemRecipeProperty(),
-            new ItemMetaProperty()
-    );
-
     // -- ITEM ACTIVATORS
-    protected final Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsSync = new HashMap<>();
-    protected final Map<ItemActivator, IItemActivatorExecutor> itemActivatorExecutorsAsync = new HashMap<>();
+    protected final Map<ItemActivator, List<IComponent>> itemActivatorExecutorsSync = new HashMap<>();
+    protected final Map<ItemActivator, List<IComponent>> itemActivatorExecutorsAsync = new HashMap<>();
 
     // -- ITEM COMPONENTS
     protected final Map<String, IItemComponent> itemComponents = new HashMap<>();
 
     // -- TOGGLES
     protected final IItemToggles toggles = new ItemToggles();
+
+    protected final Collection<IObjectProperty<ItemCreationContext, AbstractCobaltItem>> properties;
 
     // ----- CONSTRUCTORS -----
 
@@ -72,6 +60,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         // Internals must be set by constructors
         this.internalName = internalName;
         this.key = new NamespacedKey(CobaltCore.getInstance(), this.internalName);
+        properties = ItemPropertyManager.getProperties();
     }
 
     public AbstractCobaltItem(String internalName, Material material) {
@@ -146,28 +135,27 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     // ----- ACTIVATORS -----
 
     @Override
-    public void activatorTriggeredAsync(ItemActivator activator, Event event, EquipmentSlot slot) {
-        IItemActivatorExecutor executor = itemActivatorExecutorsAsync.get(activator);
-        if (executor != null) executor.execute(this, event, slot);
+    public <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, EquipmentSlot slot, Map<String, Object> context) {
+        List<IComponent> components = itemActivatorExecutorsAsync.get(activator);
+        if (components == null || components.isEmpty()) return;
+        components.forEach(c -> c.execute(context));
     }
 
     @Override
-    public void activatorTriggeredAsync(ItemActivator activator, Event event) {
-        activatorTriggeredAsync(activator, event, null);
+    public <T extends Event> void activatorTriggeredAsync(ItemActivator activator, T event, Map<String, Object> context) {
+        activatorTriggeredAsync(activator, event, null, context);
     }
 
     @Override
-    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot) {
-        IItemActivatorExecutor executor = itemActivatorExecutorsSync.get(activator);
-        if (executor != null) executor.execute(this, event, slot);
-
-        // Attempt to activate Component events
-        itemComponents.values().forEach(k -> k.onEvent(activator, event, slot));
+    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, EquipmentSlot slot, Map<String, Object> context) {
+        List<IComponent> components = itemActivatorExecutorsSync.get(activator);
+        if (components == null || components.isEmpty()) return;
+        components.forEach(c -> c.execute(context));
     }
 
     @Override
-    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event) {
-        activatorTriggeredSync(activator, event, null);
+    public <T extends Event> void activatorTriggeredSync(ItemActivator activator, T event, Map<String, Object> context) {
+        activatorTriggeredSync(activator, event, null, context);
     }
 
     // ----- BUILDER -----
@@ -203,44 +191,6 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
         public B material(Material material) {
             obj.material = material;
-            return getThis();
-        }
-
-        // -- ITEM ACTIVATORS
-
-        public B itemActivatorSync(ItemActivator activator, IItemActivatorExecutor executor) {
-            obj.itemActivatorExecutorsSync.put(activator, executor);
-            return getThis();
-        }
-
-        public B itemActivatorAsync(ItemActivator activator, IItemActivatorExecutor executor) {
-            obj.itemActivatorExecutorsAsync.put(activator, executor);
-            return getThis();
-        }
-
-        // -- ITEM COMPONENTS
-        public B component(AbstractItemComponent.Builder<?, ?> componentBuilder) {
-            // Build the component
-            AbstractItemComponent component = componentBuilder.build();
-            this.component(component);
-            return getThis();
-        }
-
-        public B component(IItemComponent component) {
-            // Set the owning item
-            component.setOwningItem(internalName);
-
-            // Load events registered by component
-            Map<ItemActivator, IItemActivatorExecutor> activators = component.registerEvents();
-            obj.itemActivatorExecutorsSync.putAll(activators);
-
-            // Add the component
-            obj.itemComponents.put(component.getInternalName(), component);
-            return getThis();
-        }
-
-        public B setToggle(ItemToggleType type, boolean value) {
-            obj.toggles.setValue(type, value);
             return getThis();
         }
     }
@@ -309,7 +259,10 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
     public void setItemToggle(ItemToggleType itemToggleType, boolean value) {
         toggles.setValue(itemToggleType, value);
-        CobaltCore.getInstance().getLogger().info("Set item toggle " + itemToggleType + " for item " + internalName);
+    }
+
+    public void addSyncItemActivator(ItemActivator event, IComponent component) {
+        itemActivatorExecutorsSync.computeIfAbsent(event, k -> new ArrayList<>()).add(component);
     }
 
     @Override

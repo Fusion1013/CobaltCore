@@ -1,7 +1,9 @@
 package se.fusion1013.cobaltCore.util;
+
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import se.fusion1013.cobaltCore.locale.LocaleManager;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -25,10 +27,10 @@ public final class HexUtils {
     /**
      * Sends a CommandSender a colored message
      *
-     * @param sender The CommandSender to send to
+     * @param sender  The CommandSender to send to
      * @param message The message to send
      */
-    public static void sendMessage(Player sender, String message){
+    public static void sendMessage(Player sender, String message) {
         sender.sendMessage(colorify(message));
     }
 
@@ -49,8 +51,9 @@ public final class HexUtils {
      * @param message The message
      * @return A color-replaced message
      */
-    public static String colorify(String message){
+    public static String colorify(String message) {
         String parsed = message;
+        parsed = parseCustomLegacy(parsed);
         parsed = parseRainbow(parsed);
         parsed = parseGradients(parsed);
         parsed = parseHex(parsed);
@@ -58,11 +61,17 @@ public final class HexUtils {
         return parsed;
     }
 
-    private static String parseRainbow(String message){
+    private static String parseCustomLegacy(String parsed) {
+        return parsed
+                .replaceAll("&z", LocaleManager.getInstance().getLocaleMessageRaw("prefix.primary_color"))
+                .replaceAll("&y", LocaleManager.getInstance().getLocaleMessageRaw("prefix.secondary_color"));
+    }
+
+    private static String parseRainbow(String message) {
         String parsed = message;
 
         Matcher matcher = RAINBOW_PATTERN.matcher(parsed);
-        while(matcher.find()){
+        while (matcher.find()) {
             StringBuilder parsedRainbow = new StringBuilder();
 
             String match = matcher.group();
@@ -72,7 +81,7 @@ public final class HexUtils {
             String extraDataContent = match.substring(tagLength, indexOfClose);
 
             double[] extraData;
-            if (!extraDataContent.isEmpty()){
+            if (!extraDataContent.isEmpty()) {
                 extraDataContent = extraDataContent.substring(1);
                 extraData = Arrays.stream(extraDataContent.split(":")).mapToDouble(Double::parseDouble).toArray();
             } else {
@@ -86,7 +95,7 @@ public final class HexUtils {
             String content = parsed.substring(matcher.end(), stop);
             Rainbow rainbow = new Rainbow(content.length(), saturation, brightness);
 
-            for (char c : content.toCharArray()){
+            for (char c : content.toCharArray()) {
                 parsedRainbow.append(translateHex(rainbow.next())).append(c);
             }
 
@@ -99,11 +108,11 @@ public final class HexUtils {
         return parsed;
     }
 
-    private static String parseGradients(String message){
+    private static String parseGradients(String message) {
         String parsed = message;
 
         Matcher matcher = GRADIENT_PATTERN.matcher(parsed);
-        while (matcher.find()){
+        while (matcher.find()) {
             StringBuilder parsedGradient = new StringBuilder();
 
             String match = matcher.group();
@@ -117,7 +126,7 @@ public final class HexUtils {
             String content = parsed.substring(matcher.end(), stop);
             Gradient gradient = new Gradient(hexSteps, content.length());
 
-            for (char c : content.toCharArray()){
+            for (char c : content.toCharArray()) {
                 parsedGradient.append(translateHex(gradient.next())).append(c);
             }
 
@@ -130,12 +139,12 @@ public final class HexUtils {
         return parsed;
     }
 
-    private static String parseHex(String message){
+    private static String parseHex(String message) {
         String parsed = message;
 
-        for (Pattern pattern : HEX_PATTERNS){
+        for (Pattern pattern : HEX_PATTERNS) {
             Matcher matcher = pattern.matcher(parsed);
-            while (matcher.find()){
+            while (matcher.find()) {
                 String color = translateHex(cleanHex(matcher.group()));
                 String before = parsed.substring(0, matcher.start());
                 String after = parsed.substring(matcher.end());
@@ -147,31 +156,31 @@ public final class HexUtils {
         return parsed;
     }
 
-    private static String parseLegacy(String message){
+    private static String parseLegacy(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     /**
      * Returns the index before the color changes
      *
-     * @param content The content to search through
+     * @param content     The content to search through
      * @param searchAfter The index at which to search after
      * @return The index of the color sotp, or the end of the string index if none is found
      */
-    private static int findStop(String content, int searchAfter){
+    private static int findStop(String content, int searchAfter) {
         Matcher matcher = STOP.matcher(content);
-        while (matcher.find()){
-            if (matcher.start() > searchAfter){
+        while (matcher.find()) {
+            if (matcher.start() > searchAfter) {
                 return matcher.start();
             }
         }
         return content.length();
     }
 
-    private static String cleanHex(String hex){
-        if (hex.startsWith("<")){
+    private static String cleanHex(String hex) {
+        if (hex.startsWith("<")) {
             return hex.substring(1, hex.length() - 1);
-        } else if (hex.startsWith("&")){
+        } else if (hex.startsWith("&")) {
             return hex.substring(1);
         } else {
             return hex;
@@ -184,29 +193,29 @@ public final class HexUtils {
      * @param hex The hex color
      * @return The closest ChatColor value
      */
-    private static String translateHex(String hex){
+    private static String translateHex(String hex) {
         return ChatColor.of(hex).toString();
     }
 
-    private static String translateHex(Color color){
+    private static String translateHex(Color color) {
         return ChatColor.of(color).toString();
     }
 
     /**
      * Allows generation of a multi-part gradient with a fixed number of steps
      */
-    public static class Gradient{
+    public static class Gradient {
 
         private final List<Color> colors;
         private final int stepSize;
         private int step, stepIndex;
 
-        public Gradient(List<Color> colors, int totalColors){
-            if (colors.size() < 2){
+        public Gradient(List<Color> colors, int totalColors) {
+            if (colors.size() < 2) {
                 throw new IllegalArgumentException("Must provide at least 2 colors");
             }
 
-            if (totalColors < 1){
+            if (totalColors < 1) {
                 throw new IllegalArgumentException("Must have at least 1 total color");
             }
 
@@ -215,9 +224,9 @@ public final class HexUtils {
             this.step = this.stepIndex = 0;
         }
 
-        public Color next(){
+        public Color next() {
             Color color;
-            if (this.stepIndex + 1 < this.colors.size()){
+            if (this.stepIndex + 1 < this.colors.size()) {
                 Color start = this.colors.get(this.stepIndex);
                 Color end = this.colors.get(this.stepIndex + 1);
                 float interval = (float) this.step / this.stepSize;
@@ -228,7 +237,7 @@ public final class HexUtils {
             }
 
             this.step += 1;
-            if (this.step >= this.stepSize){
+            if (this.step >= this.stepSize) {
                 this.step = 0;
                 this.stepIndex++;
             }
@@ -236,8 +245,8 @@ public final class HexUtils {
             return color;
         }
 
-        public static Color getGradientInterval(Color start, Color end, float interval){
-            if (0 > interval || interval > 1){
+        public static Color getGradientInterval(Color start, Color end, float interval) {
+            if (0 > interval || interval > 1) {
                 throw new IllegalArgumentException("Interval must be between 0 and 1 inclusively.");
             }
 
@@ -249,20 +258,20 @@ public final class HexUtils {
         }
     }
 
-    public static class Rainbow{
+    public static class Rainbow {
         private final float hueStep, saturation, brightness;
         private float hue;
 
-        public Rainbow(int totalColors, float saturation, float brightness){
-            if (totalColors < 1){
+        public Rainbow(int totalColors, float saturation, float brightness) {
+            if (totalColors < 1) {
                 throw new IllegalArgumentException("Must have at least 1 total color");
             }
 
-            if (0.0F > saturation || saturation > 1.0F){
+            if (0.0F > saturation || saturation > 1.0F) {
                 throw new IllegalArgumentException("Saturation must be between 0.0 and 1.0");
             }
 
-            if (0.0F > brightness || brightness > 1.0F){
+            if (0.0F > brightness || brightness > 1.0F) {
                 throw new IllegalArgumentException("Saturation must be between 0.0 and 1.0");
             }
 
@@ -272,11 +281,11 @@ public final class HexUtils {
             this.hue = 0;
         }
 
-        public Rainbow(int totalColors){
+        public Rainbow(int totalColors) {
             this(totalColors, 1.0F, 1.0F);
         }
 
-        public Color next(){
+        public Color next() {
             Color color = Color.getHSBColor(this.hue, this.saturation, this.brightness);
             this.hue += this.hueStep;
             return color;

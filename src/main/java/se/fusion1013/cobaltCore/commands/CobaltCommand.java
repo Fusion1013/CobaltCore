@@ -6,18 +6,19 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import se.fusion1013.cobaltCore.CobaltCore;
+import se.fusion1013.cobaltCore.components.ComponentManager;
 import se.fusion1013.cobaltCore.entity.CustomEntityManager;
 import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class CobaltCommand {
 
     public static void register() {
         new CommandAPICommand("cobalt")
-                .withSubcommand(createLocaleCommand())
                 .withSubcommand(createReloadCommand())
                 .register();
     }
@@ -28,63 +29,71 @@ public class CobaltCommand {
         return new CommandAPICommand("reload")
                 .withPermission("commands.core.reload")
                 .withSubcommand(new CommandAPICommand("entities")
+                        .withOptionalArguments(new GreedyStringArgument("options"))
                         .executes(CobaltCommand::reloadEntities))
                 .withSubcommand(new CommandAPICommand("items")
                         .withOptionalArguments(new GreedyStringArgument("options"))
-                        .executes(CobaltCommand::reloadItems));
+                        .executes(CobaltCommand::reloadItems))
+                .withSubcommand(new CommandAPICommand("locale")
+                        .withOptionalArguments(new GreedyStringArgument("options"))
+                        .executes(CobaltCommand::reloadLocale))
+                .withSubcommand(new CommandAPICommand("components")
+                        .withOptionalArguments(new GreedyStringArgument("options"))
+                        .executes(CobaltCommand::reloadComponents));
     }
 
-    private static void reloadEntities(CommandSender sender, CommandArguments args) {
-        CustomEntityManager.reloadEntities();
+    private static void reloadEntities(CommandSender commandSender, CommandArguments commandArguments) {
+        reload(commandSender, commandArguments, "Entities", CustomEntityManager::reloadEntities, CustomEntityManager::getCustomEntityNames);
     }
 
-    private static void reloadItems(CommandSender sender, CommandArguments args) {
+    private static void reloadItems(CommandSender commandSender, CommandArguments commandArguments) {
+        reload(commandSender, commandArguments, "Items", CustomItemManager::reloadItems, CustomItemManager::getCustomItemNames);
+    }
+
+    private static void reloadComponents(CommandSender commandSender, CommandArguments commandArguments) {
+        reload(commandSender, commandArguments, "Components", () -> {
+            ComponentManager.reloadComponents();
+            CustomItemManager.reloadItems();
+        }, ComponentManager::getComponentNames);
+    }
+
+    private static void reloadLocale(CommandSender commandSender, CommandArguments commandArguments) {
+        reload(commandSender, commandArguments, "Locale", LocaleManager::resetLocale, LocaleManager::getLocaleStrings);
+    }
+
+    private static void reload(CommandSender sender, CommandArguments args, String type, Runnable run, Supplier<String[]> verboseResult) {
         try {
             Optional<Object> options = args.getOptional("options");
             String commandOptions = options.map(o -> (String) o).orElse("");
 
-            boolean verbose = commandOptions.contains("-v") || commandOptions.contains("-verbose");
+            boolean verbose = commandOptions.contains("-v");
 
-            CustomItemManager.reloadItems();
+            run.run();
+
             if (sender instanceof Player player) {
-                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.reload.items");
+                LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), player, "commands.core.reload",
+                        StringPlaceholders.builder()
+                                .addPlaceholder("type", type)
+                                .addPlaceholder("count", verboseResult.get().length)
+                                .build()
+                );
                 if (verbose) {
-                    for (String s : CustomItemManager.getCustomItemNames()) {
-                        LocaleManager.getInstance().sendMessage("", player, "commands.core.reload.items.item", StringPlaceholders.builder().addPlaceholder("item_name", s).build());
+                    for (String s : verboseResult.get()) {
+                        LocaleManager.getInstance().sendMessage("", player, "commands.core.reload.item", StringPlaceholders.builder().addPlaceholder("name", s).build());
                     }
                 }
             }
         } catch (Exception ex) {
-            CobaltCore.getInstance().getLogger().warning("Encountered issue while reloading items: " + ex.getMessage());
+            CobaltCore.getInstance().getLogger().warning("Encountered issue while reloading " + type + ": " + ex.getMessage());
 
             if (sender instanceof Player player) {
                 StringPlaceholders placeholders = StringPlaceholders.builder()
-                        .addPlaceholder("action", "Reloading Items")
+                        .addPlaceholder("action", "Reloading " + type)
                         .addPlaceholder("stacktrace", ex.getMessage())
                         .build();
                 LocaleManager.getInstance().sendMessage(player, "commands.error", placeholders);
             }
         }
-    }
-
-    // ##### LOCALE COMMAND #####
-
-    private static CommandAPICommand createLocaleCommand() {
-        return new CommandAPICommand("locale")
-                .withPermission("commands.core.locale")
-                .withSubcommand(createLocaleResetCommand());
-    }
-
-    private static CommandAPICommand createLocaleResetCommand() {
-        return new CommandAPICommand("reset")
-                .withPermission("commands.core.locale.reset")
-                .executesPlayer((sender, args) -> {
-                    LocaleManager.resetLocale();
-                    StringPlaceholders placeholders = StringPlaceholders.builder()
-                            .addPlaceholder("count", LocaleManager.getLocaleFileCount())
-                            .build();
-                    LocaleManager.getInstance().sendMessage(CobaltCore.getInstance(), sender, "commands.core.locale.reset.result", placeholders);
-                });
     }
 
 }

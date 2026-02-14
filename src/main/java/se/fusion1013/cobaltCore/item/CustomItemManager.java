@@ -1,6 +1,9 @@
 package se.fusion1013.cobaltCore.item;
 
 import com.google.gson.JsonObject;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -20,6 +23,8 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
@@ -203,6 +208,14 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         return names;
     }
 
+    public static String[] getCgiveSuggestions() {
+        List<String> keys = new ArrayList<>();
+        INBUILT_CUSTOM_ITEMS.forEach((key, value) -> {
+            if (!value.getItemToggles().getValue(ItemToggleType.CgiveHide)) keys.add(key);
+        });
+        return keys.toArray(new String[0]);
+    }
+
     public static JSONArray getCustomItemJson() {
         JSONArray jsonArray = new JSONArray();
         for (ICustomItem item : INBUILT_CUSTOM_ITEMS.values()) {
@@ -273,16 +286,36 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         Bukkit.getScheduler().runTaskTimer(CobaltCore.getInstance(), () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 ICustomItem[] items = getPlayerHeldCustomItem(p);
-                if (items[0] != null)
-                    items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND);
+
+                Map<String, Object> context = new HashMap<>();
+                context.put("default_entity", p);
+                context.put("default_location", p.getLocation());
+
+                if (items[0] != null) {
+                    items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND, context);
+                    checkItemHeavy(p, items[0]);
+                }
                 if (items[1] != null)
-                    items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND);
+                    items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND, context);
 
                 for (ICustomItem item : getPlayerCustomItems(p))
                     if (item != null)
                         item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
             }
         }, 0, 1);
+    }
+
+    private void checkItemHeavy(Player player, ICustomItem item) {
+        if (!item.getItemToggles().getValue(ItemToggleType.Heavy)) return;
+        if (player.hasPotionEffect(PotionEffectType.STRENGTH) && player.getPotionEffect(PotionEffectType.STRENGTH).getAmplifier() >= 2)
+            return;
+
+        if (!player.hasPotionEffect(PotionEffectType.SLOWNESS))
+            player.sendMessage(Component.text("You don't feel strong enough to wield this..").decoration(TextDecoration.ITALIC, true).color(NamedTextColor.GRAY));
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 4 * 20, 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 5 * 20, 9));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 5 * 20, 9));
     }
 
     @Override

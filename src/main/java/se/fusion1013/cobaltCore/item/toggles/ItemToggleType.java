@@ -5,7 +5,9 @@ public enum ItemToggleType {
     Glowing("glowing"),
     Invulnerable("invulnerable"),
     Persistent("persistent"),
-    DenyContainer("deny_container");
+    DenyContainer("deny_container"),
+    Heavy("heavy"),
+    CgiveHide("cgive_hide");
 
     private final String key;
 

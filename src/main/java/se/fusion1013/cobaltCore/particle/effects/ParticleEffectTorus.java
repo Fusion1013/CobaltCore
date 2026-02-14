@@ -25,7 +25,7 @@ public class ParticleEffectTorus extends AbstractParticleEffect implements IPart
     @Override
     public void display(Location center, Player player, TransformationPipeline extraPipeline) {
         List<Vector> points = getPoints();
-        display(center, player, particle.getParticle(), points, extraPipeline);
+        display(center, player, particle.getParticle(), particle.getData(), points, extraPipeline);
     }
 
     @Override

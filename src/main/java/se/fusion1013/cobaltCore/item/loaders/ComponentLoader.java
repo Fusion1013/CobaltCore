@@ -22,7 +22,7 @@ public class ComponentLoader implements IItemLoaderComponent {
         map.keySet().forEach(k -> {
             String internalComponentName = (String) k;
             IItemComponent component = ComponentManager.getComponent(internalComponentName, (Map<?, ?>) map.get(k), builder.internalName);
-            if (component != null) builder.component(component);
+//            if (component != null) builder.component(component);
         });
     }
 

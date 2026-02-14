@@ -23,6 +23,7 @@ public class ItemEnchantmentProperty extends AbstractObjectProperties<ItemCreati
 
     @Override
     public void create(ItemCreationContext obj) {
+        obj.itemStack.setItemMeta(obj.itemMeta);
         for (EnchantmentWrapper wrapper : enchantments)
             obj.itemStack = wrapper.add(obj.itemStack);
         obj.itemMeta = obj.itemStack.getItemMeta();

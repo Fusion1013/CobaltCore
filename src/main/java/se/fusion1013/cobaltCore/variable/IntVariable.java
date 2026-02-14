@@ -2,15 +2,16 @@ package se.fusion1013.cobaltCore.variable;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import se.fusion1013.cobaltCore.variable.provider.IntValueProvider;
 
-public class IntVariable extends AbstractVariable<Integer, IntegerArgument, IntVariable> {
+public class IntVariable extends AbstractVariable<Integer, IntValueProvider, IntegerArgument, IntVariable> {
 
     public IntVariable(String name) {
-        super(name, 0);
+        super(name, new IntValueProvider(name, 0));
     }
 
     public IntVariable(String name, int defaultValue) {
-        super(name, defaultValue);
+        super(name, new IntValueProvider(name, defaultValue));
     }
 
     @Override

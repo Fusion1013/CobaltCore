@@ -35,7 +35,7 @@ public class ParticleEffectSpiralConnector extends AbstractParticleEffect
 
     @Override
     public void display(Location center, Player player, TransformationPipeline extraPipeline) {
-        display(new Location(center.getWorld(), 0, 0, 0), player, particle.getParticle(), getPoints(), extraPipeline);
+        display(new Location(center.getWorld(), 0, 0, 0), player, particle.getParticle(), particle.getData(), getPoints(), extraPipeline);
     }
 
     @Override

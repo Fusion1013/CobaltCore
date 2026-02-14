@@ -12,7 +12,6 @@ import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.util.FileUtil;
 import se.fusion1013.cobaltCore.util.HexUtils;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
-import com.google.gson.Gson;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -64,6 +63,18 @@ public class LocaleManager extends Manager {
         }
 
         return localeCount;
+    }
+
+    public static String[] getLocaleStrings() {
+        Set<CobaltPlugin> cobaltPlugins = CobaltCore.getRegisteredCobaltPlugins();
+
+        List<String> localeMessages = new ArrayList<>();
+
+        for (CobaltPlugin plugin : cobaltPlugins) {
+            localeMessages.addAll(Arrays.stream(LocaleManager.getLocaleStrings(plugin)).toList());
+        }
+
+        return localeMessages.toArray(new String[0]);
     }
 
     /**
@@ -143,7 +154,8 @@ public class LocaleManager extends Manager {
     private static Map<String, String> getJsonValues(File file) {
         Map<String, String> values = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+            Type mapType = new TypeToken<Map<String, String>>() {
+            }.getType();
             values = new Gson().fromJson(reader, mapType);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -196,7 +208,7 @@ public class LocaleManager extends Manager {
     /**
      * Gets a localized message from the given key and applies the placeholder values to it.
      *
-     * @param messageKey the key of the message.
+     * @param messageKey         the key of the message.
      * @param stringPlaceholders the placeholders to apply to the message.
      * @return the localized message.
      */
@@ -209,9 +221,19 @@ public class LocaleManager extends Manager {
         return HexUtils.colorify(stringPlaceholders.apply(message));
     }
 
+    public String getLocaleMessageRaw(String messageKey) {
+        Map<String, String> locale = localeMessages.get("en_us");
+        if (locale == null) return ChatColor.RED + "Missing locale file: en_us";
+        String message = locale.get(messageKey);
+        if (messageKey.equalsIgnoreCase("")) message = "";
+        if (message == null) return ChatColor.RED + "Missing message in locale file: " + messageKey;
+        return message;
+    }
+
     /**
      * Gets a localized message from the given key and applies the placeholder value to it.
-     * @param p the player to get the locale from.
+     *
+     * @param p          the player to get the locale from.
      * @param messageKey the key of the message.
      * @return the localized message.
      */
@@ -221,8 +243,9 @@ public class LocaleManager extends Manager {
 
     /**
      * Gets a localized message from the given key and applies the placeholder value to it.
-     * @param p the player to get the locale from.
-     * @param messageKey the key of the message.
+     *
+     * @param p                  the player to get the locale from.
+     * @param messageKey         the key of the message.
      * @param stringPlaceholders the placeholders to apply to the message.
      * @return the localized message.
      */
@@ -252,7 +275,7 @@ public class LocaleManager extends Manager {
     /**
      * Broadcasts a message to the server.
      *
-     * @param plugin the plugin that is broadcasting the message.
+     * @param plugin     the plugin that is broadcasting the message.
      * @param messageKey the key to the message to broadcast.
      */
     public void broadcastMessage(CobaltPlugin plugin, String messageKey) {
@@ -262,7 +285,7 @@ public class LocaleManager extends Manager {
     /**
      * Broadcasts a message to the server.
      *
-     * @param messageKey the key to the message to broadcast.
+     * @param messageKey   the key to the message to broadcast.
      * @param placeholders the placeholders to apply to the message.
      */
     public void broadcastMessage(String messageKey, StringPlaceholders placeholders) {
@@ -272,8 +295,8 @@ public class LocaleManager extends Manager {
     /**
      * Broadcasts a message to the server.
      *
-     * @param plugin the plugin that is broadcasting the message.
-     * @param messageKey the key to the message to broadcast.
+     * @param plugin       the plugin that is broadcasting the message.
+     * @param messageKey   the key to the message to broadcast.
      * @param placeholders the placeholders to apply to the message.
      */
     public void broadcastMessage(CobaltPlugin plugin, String messageKey, StringPlaceholders placeholders) {
@@ -283,7 +306,7 @@ public class LocaleManager extends Manager {
     /**
      * Broadcasts a message to the server.
      *
-     * @param prefix the message prefix.
+     * @param prefix     the message prefix.
      * @param messageKey the key to the message to broadcast.
      */
     public void broadcastMessage(String prefix, String messageKey) {
@@ -293,8 +316,8 @@ public class LocaleManager extends Manager {
     /**
      * Broadcasts a message to the server.
      *
-     * @param prefix the message prefix.
-     * @param messageKey the key to the message to broadcast.
+     * @param prefix       the message prefix.
+     * @param messageKey   the key to the message to broadcast.
      * @param placeholders the placeholders to apply to the message.
      */
     public void broadcastMessage(String prefix, String messageKey, StringPlaceholders placeholders) {
@@ -306,7 +329,7 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param player the player to send the message to.
+     * @param player     the player to send the message to.
      * @param messageKey the key to the message to send.
      */
     public void sendMessage(Player player, String messageKey) {
@@ -316,8 +339,8 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param player the player to send the message to.
-     * @param messageKey the key of the message to send.
+     * @param player       the player to send the message to.
+     * @param messageKey   the key of the message to send.
      * @param placeholders the placeholders to apply to the message.
      */
     public void sendMessage(Player player, String messageKey, StringPlaceholders placeholders) {
@@ -327,8 +350,8 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param plugin the plugin that is sending the message.
-     * @param player the player to send the message to.
+     * @param plugin     the plugin that is sending the message.
+     * @param player     the player to send the message to.
      * @param messageKey the key of the message to send.
      */
     public void sendMessage(CobaltPlugin plugin, Player player, String messageKey) {
@@ -338,9 +361,9 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param plugin the plugin that is sending the message.
-     * @param player the player to send the message to.
-     * @param messageKey the key of the message to send.
+     * @param plugin       the plugin that is sending the message.
+     * @param player       the player to send the message to.
+     * @param messageKey   the key of the message to send.
      * @param placeholders the placeholders to apply to the message.
      */
     public void sendMessage(CobaltPlugin plugin, Player player, String messageKey, StringPlaceholders placeholders) {
@@ -350,8 +373,8 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param prefix the prefix of the message.
-     * @param player the player to send the message to.
+     * @param prefix     the prefix of the message.
+     * @param player     the player to send the message to.
      * @param messageKey the key of the message to send.
      */
     public void sendMessage(String prefix, Player player, String messageKey) {
@@ -361,9 +384,9 @@ public class LocaleManager extends Manager {
     /**
      * Sends a localized message to the player.
      *
-     * @param prefix the prefix of the message.
-     * @param player the player to send the message to.
-     * @param messageKey the key of the message to send.
+     * @param prefix       the prefix of the message.
+     * @param player       the player to send the message to.
+     * @param messageKey   the key of the message to send.
      * @param placeholders the placeholders to apply to the message.
      */
     public void sendMessage(String prefix, Player player, String messageKey, StringPlaceholders placeholders) {
@@ -373,7 +396,7 @@ public class LocaleManager extends Manager {
     /**
      * Sends a message to the specified player.
      *
-     * @param player the player to send the message to.
+     * @param player  the player to send the message to.
      * @param message the message to send.
      */
     private void sendParsedMessage(Player player, String message) {
@@ -393,13 +416,14 @@ public class LocaleManager extends Manager {
     // ----- INSTANCE VARIABLE & METHOD -----
 
     private static LocaleManager INSTANCE = null;
+
     /**
      * Returns the object representing this <code>LocaleManager</code>.
      *
      * @return The object of this class
      */
-    public static LocaleManager getInstance(){
-        if (INSTANCE == null){
+    public static LocaleManager getInstance() {
+        if (INSTANCE == null) {
             INSTANCE = new LocaleManager(CobaltCore.getInstance());
         }
         return INSTANCE;

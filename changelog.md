@@ -1,7 +1,35 @@
-**CobaltCore Version 1.2.0 (UPCOMING)**
+**FEATURE:** Added worldguard flag for taking books from lecterns
+Advancement API
+
+**CobaltCore Version 1.3.0**
+
+- **FEATURE:** Introduced the Cobalt Component System
+- **FEATURE:** Introduced the Cobalt Action System
+- **FEATURE:** New Cobalt Action: Particle
+- **FEATURE:** New Cobalt Action: Potion Effect
+- **FEATURE:** New Cobalt Action: Sound
+- **FEATURE:** New Cobalt Action: Velocity
+- **FEATURE:** New Cobalt Action: Damage
+- **FEATURE:** New Cobalt Action: Location
+- **FEATURE:** Added Cobalt Component support to Custom Items
+- **FEATURE:** Added Max Item Stack support to Custom Items
+- **FEATURE:** Added variable loading
+- **FEATURE:** Added randomization support to some variables
+- **FEATURE:** New variable and value provider: Attribute
+- **FEATURE:** New variable and value provider: Sound
+- **FEATURE:** New variable and value provider: PotionType
+- **FEATURE:** New variable and value provider: Particle
+- **FEATURE:** New variable and value provider: Vector
+- **FEATURE:** Item Attribute Property now uses Variables
+- **COMMANDS:** The '/cobalt reload [option]' command now works the same for all options
+
+**CobaltCore Version 1.2.0**
 
 - **FEATURE:** Added Attribute Modifier support to Custom Items
 - **FEATURE:** Added Armor Trim support to Custom Items
+- **FEATURE:** Added Banner support to Custom Items
+- **FEATURE:** New item toggle: cgive_hide
+- **FEATURE:** New item toggle: heavy
 - **FEATURE:** Added Custom Name support to Custom Entities
 - **FEATURE:** Added No Gravity support to Custom Entities
 - **FEATURE:** Added Silent support to Custom Entities
@@ -9,10 +37,14 @@
 - **FEATURE:** Added Glowing support to Custom Entities
 - **FEATURE:** Added no-aggro list to Custom Entities
 - **FEATURE:** Created a REST-api that provides all Custom Items
+- **FEATURE:** Added Object Properties, providing simpler object creation and file loading
 - **COMMAND:** New command: '/edit entity pastebin test [id]'
 - **COMMAND:** New command: '/edit entity pastebin save [id]'
 - **COMMAND:** Updated command: '/cgive [item] <amount>'
-- **UPDATE:** Completely reworked how Custom Items are loaded and created
+- **UPDATE:** Complete rework of Custom Item loading
+- **UPDATE:** Complete rework of Custom Itemstack creation
+- **UPDATE:** Updated to the new Cobalt Color Profile (tm)
+- **BUGFIX:** Particles requiring additional data throw error when displayed
 
 **CobaltCore Version 1.1.0**
 

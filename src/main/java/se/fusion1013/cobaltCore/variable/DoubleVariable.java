@@ -2,15 +2,16 @@ package se.fusion1013.cobaltCore.variable;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
+import se.fusion1013.cobaltCore.variable.provider.DoubleValueProvider;
 
-public class DoubleVariable extends AbstractVariable<Double, DoubleArgument, DoubleVariable> {
+public class DoubleVariable extends AbstractVariable<Double, DoubleValueProvider, DoubleArgument, DoubleVariable> {
 
     public DoubleVariable(String name) {
-        super(name, 0D);
+        super(name, new DoubleValueProvider(name, 0D));
     }
 
     public DoubleVariable(String name, double defaultValue) {
-        super(name, defaultValue);
+        super(name, new DoubleValueProvider(name, defaultValue));
     }
 
     @Override

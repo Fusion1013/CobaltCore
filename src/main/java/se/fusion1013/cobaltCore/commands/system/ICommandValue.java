@@ -5,7 +5,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 
 public interface ICommandValue<T extends Argument> {
 
-    void setValue(CommandArguments arguments);
+    void setValueGetter(CommandArguments arguments);
 
     T getArgument();
 

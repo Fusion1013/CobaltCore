@@ -114,7 +114,6 @@ public class FileUtil {
     public static void saveYamlFile(CobaltPlugin plugin, String folderName, String fileName, YamlConfiguration yaml) {
         File dataFolder = plugin.getDataFolder();
         File file = new File(dataFolder, folderName + "/" + fileName + ".yml");
-        plugin.getLogger().info("Saving file into folder '" + folderName + "'...");
         try {
             yaml.save(file);
         } catch (IOException e) {
@@ -125,10 +124,14 @@ public class FileUtil {
     public static void loadFilesInto(CobaltPlugin plugin, String folderName, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
         File dataFolder = plugin.getDataFolder();
         File fileFolder = new File(dataFolder, folderName);
-        plugin.getLogger().info("Loading files from folder '" + folderName + "'...");
-        int files = loadFromFolders(plugin, fileFolder, providerStorage, constructor, overwrite);
-        files += loadFromResources(plugin, folderName, providerStorage, constructor, overwrite);
-        plugin.getLogger().info("Loaded " + files + " files from folder '" + folderName + "'");
+        int files = 0;
+        try {
+            files = loadFromFolders(plugin, fileFolder, providerStorage, constructor, overwrite);
+            files += loadFromResources(plugin, folderName, providerStorage, constructor, overwrite);
+        } catch (Exception ex) {
+            CobaltCore.getInstance().getLogger().severe("Failed loading files: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private static int loadFromFolders(CobaltPlugin plugin, File rootFolder, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
@@ -166,19 +169,23 @@ public class FileUtil {
         var provider = loadFile(file, constructor);
         if (provider == null) return false;
 
-        // Check if the provider is already in the map
-        var oldProvider = providerStorage.get(provider.getInternalName());
-        if (oldProvider != null) {
-            if (overwrite) {
-                oldProvider.onDisabled();
-            } else {
-                plugin.getLogger().warning("A provider with the name '" + provider.getInternalName() + "' has already been registered, skipping");
-                return false;
+        try {
+            // Check if the provider is already in the map
+            var oldProvider = providerStorage.get(provider.getInternalName());
+            if (oldProvider != null) {
+                if (overwrite) {
+                    oldProvider.onDisabled();
+                } else {
+                    plugin.getLogger().warning("A provider with the name '" + provider.getInternalName() + "' has already been registered, skipping");
+                    return false;
+                }
             }
-        }
 
-        providerStorage.put(provider.getInternalName(), provider);
-        provider.onEnabled();
+            providerStorage.put(provider.getInternalName(), provider);
+            provider.onEnabled();
+        } catch (Exception ex) {
+            CobaltCore.getInstance().getLogger().severe("Failed loading file " + file.getName() + ": " + ex.getMessage());
+        }
 
         return true;
     }

@@ -2,15 +2,16 @@ package se.fusion1013.cobaltCore.variable;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.TextArgument;
+import se.fusion1013.cobaltCore.variable.provider.StringValueProvider;
 
-public class StringVariable extends AbstractVariable<String, TextArgument, StringVariable> {
+public class StringVariable extends AbstractVariable<String, StringValueProvider, TextArgument, StringVariable> {
 
     public StringVariable(String name) {
-        super(name, "");
+        super(name, new StringValueProvider(name, ""));
     }
 
     public StringVariable(String name, String defaultValue) {
-        super(name, defaultValue);
+        super(name, new StringValueProvider(name, defaultValue));
     }
 
     @Override

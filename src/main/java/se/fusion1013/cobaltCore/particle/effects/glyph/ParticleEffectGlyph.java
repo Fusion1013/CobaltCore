@@ -34,7 +34,7 @@ public class ParticleEffectGlyph extends AbstractParticleEffect implements IPart
 
     @Override
     public void display(Location center, Player player, TransformationPipeline extraPipeline) {
-        display(center, player, particle.getParticle(), getPoints().stream().map(p -> new Vector(p.getX() * scale.getValue(), p.getY() * scale.getValue(), p.getZ() * scale.getValue())).toList(), extraPipeline);
+        display(center, player, particle.getParticle(), particle.getData(), getPoints().stream().map(p -> new Vector(p.getX() * scale.getValue(), p.getY() * scale.getValue(), p.getZ() * scale.getValue())).toList(), extraPipeline);
     }
 
     @Override

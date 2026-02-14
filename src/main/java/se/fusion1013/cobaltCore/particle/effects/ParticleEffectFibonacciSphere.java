@@ -24,7 +24,7 @@ public class ParticleEffectFibonacciSphere extends AbstractParticleEffect
 
     @Override
     public void display(Location center, Player player, TransformationPipeline extraPipeline) {
-        display(center, player, particle.getParticle(), getPoints(), extraPipeline);
+        display(center, player, particle.getParticle(), particle.getData(), getPoints(), extraPipeline);
     }
 
     @Override

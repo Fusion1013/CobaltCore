@@ -22,7 +22,7 @@ public class ParticleCommand {
                 .withPermission("commands.core.cparticle")
                 .withSubcommand(createDisplayCommand())
 //                .withSubcommand(createTestMorph())
-                .withSubcommand(ParticleEffectCommand.createParticleEffectCommand())
+//                .withSubcommand(ParticleEffectCommand.createParticleEffectCommand())
                 .register();
     }
 
@@ -55,7 +55,7 @@ public class ParticleCommand {
     private static void displayParticle(IParticleEffect particleEffect, CommandArguments args, Location location) {
         ICommandValue[] commandValues = particleEffect.getCommandIntegration().getValues();
         for (ICommandValue commandValue : commandValues) {
-            commandValue.setValue(args);
+            commandValue.setValueGetter(args);
         }
 
         TransformationPipeline pipeline = new TransformationPipeline();

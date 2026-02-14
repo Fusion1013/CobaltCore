@@ -22,7 +22,7 @@ public class CGiveCommand {
     public static void createCgiveCommand() {
         new CommandAPICommand("cgive")
                 .withPermission("commands.core.item")
-                .withArguments(new StringArgument("item").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCustomItemNames())))
+                .withArguments(new StringArgument("item").replaceSuggestions(ArgumentSuggestions.strings(info -> CustomItemManager.getCgiveSuggestions())))
                 .withOptionalArguments(new IntegerArgument("amount", 1, 64))
                 .executesPlayer(CGiveCommand::giveItem)
                 .register();

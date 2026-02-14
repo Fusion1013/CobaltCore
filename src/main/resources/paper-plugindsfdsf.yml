@@ -1,0 +1,17 @@
+name: CobaltCore
+version: '${project.version}'
+main: se.fusion1013.cobaltCore.CobaltCore
+bootstrapper: se.fusion1013.cobaltCore.CobaltBootstrap
+api-version: '1.21'
+authors: [ Fusion1013 ]
+dependencies:
+  server:
+    CommandAPI:
+      load: BEFORE
+      required: true
+      join-classpath: true
+  bootstrap:
+    CommandAPI:
+      load: BEFORE
+      required: true
+      join-classpath: true
