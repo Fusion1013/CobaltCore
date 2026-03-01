@@ -1,7 +1,9 @@
 package se.fusion1013.cobaltCore.util;
 
-public interface IProviderStorage {
-    void put(String key, INameProvider provider);
+public interface IProviderStorage<T> {
+    void put(String key, T provider);
+
     boolean has(String key);
-    INameProvider get(String key);
+
+    T get(String key);
 }

@@ -20,6 +20,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
+import se.fusion1013.cobaltCore.commands.system.CommandManager;
 import se.fusion1013.cobaltCore.entity.loader.EntityLoader;
 import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.util.FileUtil;
@@ -53,7 +54,7 @@ public class CustomEntityManager extends Manager<CobaltCore> implements Listener
     // ----- ENTITY FILE LOADING -----
 
     public static void loadEntityFiles(CobaltPlugin plugin, boolean overwrite) {
-        FileUtil.loadFilesInto(plugin, "entities/", new IProviderStorage() {
+        FileUtil.loadFilesInto(plugin, "entities/", new IProviderStorage<INameProvider>() {
             @Override
             public void put(String key, INameProvider provider) {
                 register(provider);
@@ -93,6 +94,7 @@ public class CustomEntityManager extends Manager<CobaltCore> implements Listener
     public void reload() {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         createEntityTickHandler();
+        CommandManager.registerReloadMethod("entities", CustomEntityManager::reloadEntities, CustomEntityManager::getCustomEntityNames);
     }
 
     private void createEntityTickHandler() {

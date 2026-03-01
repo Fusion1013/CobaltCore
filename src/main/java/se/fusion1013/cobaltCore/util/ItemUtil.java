@@ -26,6 +26,7 @@ import se.fusion1013.cobaltCore.item.CustomItemManager;
 import se.fusion1013.cobaltCore.item.ICustomItem;
 import se.fusion1013.cobaltCore.item.enchantment.EnchantmentManager;
 import se.fusion1013.cobaltCore.item.enchantment.EnchantmentWrapper;
+import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -164,6 +165,7 @@ public class ItemUtil {
 
         ICustomItem customItem = CustomItemManager.getCustomItem(item);
         if (customItem == null) return item;
+        if (customItem.getItemToggles().getValue(ItemToggleType.NO_FIX)) return item;
 
         boolean hasGlint = hasEnchantmentGlint(item);
 

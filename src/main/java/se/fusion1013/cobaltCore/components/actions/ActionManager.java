@@ -32,8 +32,15 @@ public class ActionManager extends Manager<CobaltCore> {
 
     }
 
-    private static Supplier<IAction> register(String id, Supplier<IAction> action) {
+    public static Supplier<IAction> register(String id, Supplier<IAction> action) {
         ACTION_FACTORIES.put(id, action);
+        return action;
+    }
+
+    public IAction getNewAction(String id, Map<?, ?> data) {
+        IAction action = getNewAction(id);
+        if (action == null) return null;
+        action.loadFromMap(data);
         return action;
     }
 

@@ -30,7 +30,7 @@ public class ApiServer {
             server.setExecutor(null);
             server.start();
 
-            plugin.getLogger().info("REST API started on port 8080");
+            plugin.getLogger().info("REST API started: http://localhost:" + server.getAddress().getPort());
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to start REST API: " + e.getMessage());
         }

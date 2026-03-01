@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 import org.bukkit.configuration.ConfigurationSection;
 import se.fusion1013.cobaltCore.util.MapUtil;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -45,6 +46,11 @@ public class DoubleValueProvider extends AbstractValueProvider<Double> {
             this.min = value;
             this.max = value;
         }
+    }
+
+    @Override
+    public List<Double> getValueList() {
+        return List.of();
     }
 
     @Override

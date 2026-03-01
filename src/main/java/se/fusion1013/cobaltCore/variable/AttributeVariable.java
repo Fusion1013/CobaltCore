@@ -1,26 +1,23 @@
 package se.fusion1013.cobaltCore.variable;
 
 import dev.jorel.commandapi.arguments.Argument;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import se.fusion1013.cobaltCore.item.properties.ItemCreationContext;
+import se.fusion1013.cobaltCore.util.AttributeContainer;
 import se.fusion1013.cobaltCore.variable.provider.AttributeValueProvider;
 
-import java.util.Map;
-
-public class AttributeVariable extends AbstractVariable<Map<Attribute, AttributeModifier>, AttributeValueProvider, Argument<Map<Attribute, AttributeModifier>>, AttributeVariable> {
+public class AttributeVariable extends AbstractVariable<AttributeContainer, AttributeValueProvider, Argument<AttributeContainer>, AttributeVariable> {
 
     public AttributeVariable(String name) {
         super(name, new AttributeValueProvider(name));
     }
 
-    public AttributeVariable(String name, Map<Attribute, AttributeModifier> defaultValue) {
+    public AttributeVariable(String name, AttributeContainer defaultValue) {
         super(name, new AttributeValueProvider(name, defaultValue));
     }
 
     public void applyToItem(ItemCreationContext context) {
-        for (Attribute attribute : getValue().keySet()) {
-            context.itemMeta.addAttributeModifier(attribute, getValue().get(attribute));
+        for (AttributeContainer attribute : getValueList()) {
+            attribute.apply(context);
         }
     }
 
@@ -30,7 +27,7 @@ public class AttributeVariable extends AbstractVariable<Map<Attribute, Attribute
     }
 
     @Override
-    public Argument<Map<Attribute, AttributeModifier>> getArgument() {
+    public Argument<AttributeContainer> getArgument() {
         return null;
     }
 }

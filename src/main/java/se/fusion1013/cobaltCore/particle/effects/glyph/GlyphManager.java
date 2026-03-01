@@ -2,8 +2,6 @@ package se.fusion1013.cobaltCore.particle.effects.glyph;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import org.bukkit.command.CommandSender;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -63,7 +61,8 @@ public class GlyphManager extends Manager<CobaltCore> {
         JSONArray charactersArray = (JSONArray) json.get("characters");
 
         // Convert using Gson
-        Type listType = new TypeToken<List<GlyphAlphabetCharacter>>(){}.getType();
+        Type listType = new TypeToken<List<GlyphAlphabetCharacter>>() {
+        }.getType();
         List<GlyphAlphabetCharacter> characters = GSON.fromJson(charactersArray.toJSONString(), listType);
 
         // Use filename (without extension) as identifier, or change as needed
@@ -117,8 +116,8 @@ public class GlyphManager extends Manager<CobaltCore> {
                     if (alpha < 10) continue;
 
                     // Compute world position
-                    double px = + (x - xOffset);
-                    double py = + -(y - yOffset);
+                    double px = +(x - xOffset);
+                    double py = +-(y - yOffset);
 
                     Vector position = new Vector(px + 0.5f, py - 0.5f, 0);
                     positions.add(position);
@@ -130,6 +129,12 @@ public class GlyphManager extends Manager<CobaltCore> {
         }
 
         return new GlyphData(category, name, positions, width);
+    }
+
+    public static GlyphData[] getGlyphs(String alphabet) {
+        GlyphAlphabet glyphAlphabet = ALPHABETS.get(alphabet);
+        if (glyphAlphabet == null) return new GlyphData[0];
+        return glyphAlphabet.getGlyphs();
     }
 
     public static GlyphData getGlyphFromName(String namespace) {
@@ -178,5 +183,6 @@ public class GlyphManager extends Manager<CobaltCore> {
         }
         return INSTANCE;
     }
+
     private static GlyphManager INSTANCE;
 }

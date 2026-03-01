@@ -1,0 +1,108 @@
+{
+  "characters": [
+    {
+      "symbol": "a",
+      "path": "galactic.a"
+    },
+    {
+      "symbol": "b",
+      "path": "galactic.b"
+    },
+    {
+      "symbol": "c",
+      "path": "galactic.c"
+    },
+    {
+      "symbol": "d",
+      "path": "galactic.d"
+    },
+    {
+      "symbol": "e",
+      "path": "galactic.e"
+    },
+    {
+      "symbol": "f",
+      "path": "galactic.f"
+    },
+    {
+      "symbol": "g",
+      "path": "galactic.g"
+    },
+    {
+      "symbol": "h",
+      "path": "galactic.h"
+    },
+    {
+      "symbol": "i",
+      "path": "galactic.i"
+    },
+    {
+      "symbol": "j",
+      "path": "galactic.j"
+    },
+    {
+      "symbol": "k",
+      "path": "galactic.k"
+    },
+    {
+      "symbol": "l",
+      "path": "galactic.l"
+    },
+    {
+      "symbol": "m",
+      "path": "galactic.m"
+    },
+    {
+      "symbol": "n",
+      "path": "galactic.n"
+    },
+    {
+      "symbol": "o",
+      "path": "galactic.o"
+    },
+    {
+      "symbol": "p",
+      "path": "galactic.p"
+    },
+    {
+      "symbol": "q",
+      "path": "galactic.q"
+    },
+    {
+      "symbol": "r",
+      "path": "galactic.r"
+    },
+    {
+      "symbol": "s",
+      "path": "galactic.s"
+    },
+    {
+      "symbol": "t",
+      "path": "galactic.t"
+    },
+    {
+      "symbol": "u",
+      "path": "galactic.u"
+    },
+    {
+      "symbol": "v",
+      "path": "galactic.v"
+    },
+    {
+      "symbol": "w",
+      "path": "galactic.w"
+    },
+    {
+      "symbol": "x",
+      "path": "galactic.x"
+    },
+    {
+      "symbol": "y",
+      "path": "galactic.y"
+    },
+    {
+      "symbol": "z",
+      "path": "galactic.z"
+    }
+  ]
+}

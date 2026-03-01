@@ -29,6 +29,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
+import se.fusion1013.cobaltCore.commands.system.CommandManager;
 import se.fusion1013.cobaltCore.events.PlayerHeldItemTickEvent;
 import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
@@ -78,6 +79,14 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     }
 
     // ----- GETTERS / SETTERS -----
+
+    public static boolean compare(ItemStack item1, ItemStack item2) {
+        ICustomItem customItem1 = getCustomItem(item1);
+        if (customItem1 != null) {
+            return customItem1.compareTo(item2);
+        }
+        return item1.getType() == item2.getType();
+    }
 
     public static ItemSection[] getCustomItemCategories() {
         return ITEMS_SORTED_CATEGORY.keySet().toArray(new ItemSection[0]);
@@ -237,7 +246,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
 
     public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
 
-        FileUtil.loadFilesInto(plugin, "items/", new IProviderStorage() {
+        FileUtil.loadFilesInto(plugin, "items/", new IProviderStorage<INameProvider>() {
             @Override
             public void put(String key, INameProvider provider) {
                 register(provider);
@@ -279,6 +288,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
         createItemTickHandler();
+        CommandManager.registerReloadMethod("items", CustomItemManager::reloadItems, CustomItemManager::getCustomItemNames);
     }
 
     private void createItemTickHandler() {
@@ -292,15 +302,19 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
                 context.put("default_location", p.getLocation());
 
                 if (items[0] != null) {
+                    context.put("default_itemstack", p.getInventory().getItemInMainHand());
                     items[0].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.HAND, context);
                     checkItemHeavy(p, items[0]);
                 }
-                if (items[1] != null)
+                if (items[1] != null) {
+                    context.put("default_itemstack", p.getInventory().getItemInOffHand());
                     items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND, context);
+                }
 
                 for (ICustomItem item : getPlayerCustomItems(p))
-                    if (item != null)
+                    if (item != null) {
                         item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
+                    }
             }
         }, 0, 1);
     }

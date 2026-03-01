@@ -1,0 +1,7 @@
+internal_name: silver
+material: purpur_block
+drop_item: silver_nugget
+behaviour: regrow
+conditions:
+  - condition: world
+    world: tenebris

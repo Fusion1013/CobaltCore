@@ -24,7 +24,7 @@ public class LocationAction extends AbstractAction {
 
     @Override
     public void execute(Map<String, Object> context) {
-        for (IAction action : actions.getValue()) {
+        for (IAction action : actions.getValueList()) {
             executeNewAction(action, context);
         }
     }

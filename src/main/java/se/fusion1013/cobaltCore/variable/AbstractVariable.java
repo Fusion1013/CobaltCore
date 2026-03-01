@@ -60,6 +60,10 @@ public abstract class AbstractVariable<VALUE, GETTER extends IValueProvider<VALU
         return valueGetter.getValue();
     }
 
+    public List<VALUE> getValueList() {
+        return valueGetter.getValueList();
+    }
+
     public abstract SELF getSelf();
 
     public SELF optional() {

@@ -39,7 +39,15 @@ public class PotionTypeValueProvider extends AbstractValueProvider<PotionEffectT
 
     @Override
     public void load(ConfigurationSection yaml) {
+        if (!yaml.contains(parameterName)) return;
 
+        if (yaml.get(parameterName) instanceof String value) {
+            this.values.clear();
+            this.values.add(Registry.POTION_EFFECT_TYPE.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, value)));
+        } else if (yaml.get(parameterName) instanceof List<?> list) {
+            this.values.clear();
+            list.forEach(v -> this.values.add(Registry.POTION_EFFECT_TYPE.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, (String) v))));
+        }
     }
 
     @Override
@@ -52,5 +60,10 @@ public class PotionTypeValueProvider extends AbstractValueProvider<PotionEffectT
             this.values.clear();
             values.forEach(v -> this.values.add(Registry.POTION_EFFECT_TYPE.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, v))));
         }
+    }
+
+    @Override
+    public List<PotionEffectType> getValueList() {
+        return List.of();
     }
 }

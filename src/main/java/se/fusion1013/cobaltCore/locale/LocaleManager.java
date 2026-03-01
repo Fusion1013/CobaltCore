@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
+import se.fusion1013.cobaltCore.commands.system.CommandManager;
 import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.util.FileUtil;
 import se.fusion1013.cobaltCore.util.HexUtils;
@@ -407,6 +408,7 @@ public class LocaleManager extends Manager {
 
     @Override
     public void reload() {
+        CommandManager.registerReloadMethod("locale", LocaleManager::resetLocale, LocaleManager::getLocaleStrings);
     }
 
     @Override

@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.List;
 import java.util.Map;
 
 public class LocationValueProvider extends AbstractValueProvider<Location> {
@@ -36,5 +37,10 @@ public class LocationValueProvider extends AbstractValueProvider<Location> {
     @Override
     public void load(Map<?, ?> map) {
 
+    }
+
+    @Override
+    public List<Location> getValueList() {
+        return List.of();
     }
 }

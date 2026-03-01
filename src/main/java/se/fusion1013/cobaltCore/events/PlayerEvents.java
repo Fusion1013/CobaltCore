@@ -18,6 +18,7 @@ public class PlayerEvents implements Listener {
         LocaleManager localeManager = LocaleManager.getInstance();
 
         for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) {
+            if (plugin.isHidden()) continue;
             StringPlaceholders placeholders = StringPlaceholders.builder()
                     .addPlaceholder("plugin", plugin.getName())
                     .addPlaceholder("version", plugin.getDescription().getVersion())

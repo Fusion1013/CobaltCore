@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -77,5 +78,10 @@ public class VectorValueProvider extends AbstractValueProvider<Vector> {
                 this.max.setZ((double) minMax.get("max"));
             }
         }
+    }
+
+    @Override
+    public List<Vector> getValueList() {
+        return List.of();
     }
 }

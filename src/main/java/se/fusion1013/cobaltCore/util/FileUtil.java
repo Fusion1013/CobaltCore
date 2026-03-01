@@ -165,7 +165,7 @@ public class FileUtil {
         return filesLoaded;
     }
 
-    private static boolean tryLoadFile(CobaltPlugin plugin, File file, IProviderStorage providerStorage, IFileConstructor constructor, boolean overwrite) {
+    private static boolean tryLoadFile(CobaltPlugin plugin, File file, IProviderStorage<INameProvider> providerStorage, IFileConstructor constructor, boolean overwrite) {
         var provider = loadFile(file, constructor);
         if (provider == null) return false;
 

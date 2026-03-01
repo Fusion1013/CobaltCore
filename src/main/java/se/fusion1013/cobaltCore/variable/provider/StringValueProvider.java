@@ -46,14 +46,18 @@ public class StringValueProvider extends AbstractValueProvider<String> {
     }
 
     @Override
+    public List<String> getValueList() {
+        return values;
+    }
+
+    @Override
     public void load(ConfigurationSection yaml) {
         if (yaml.get(parameterName) instanceof String value) {
             this.values.clear();
             this.values.add(value);
         } else {
-            ConfigurationSection valueHolder = yaml.getConfigurationSection(parameterName);
             this.values.clear();
-            this.values.addAll(valueHolder.getStringList(parameterName));
+            this.values.addAll(yaml.getStringList(parameterName));
         }
     }
 }

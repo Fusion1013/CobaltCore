@@ -1,6 +1,21 @@
 **FEATURE:** Added worldguard flag for taking books from lecterns
 Advancement API
 
+**CobaltCore Version 1.4.0**
+
+- **FEATURE:** Introduced Cobalt Registries
+- **FEATURE:** Introduced Conditions
+- **FEATURE:** New Condition: Biome
+- **FEATURE:** New Condition: World
+- **FEATURE:** Made various improvements to Variables
+- **FEATURE:** New variable and value provider: Condition
+- **FEATURE:** New variable and value provider: Biome
+- **FEATURE:** New variable and value provider: Material
+- **FEATURE:** New variable and value provider: Vector List
+- **FEATURE:** Introduced an easier method for registering reload methods
+- **FEATURE:** New variable and value provider: Biome
+- **FEATURE:** Added galactic alphabet glyphs
+
 **CobaltCore Version 1.3.0**
 
 - **FEATURE:** Introduced the Cobalt Component System
@@ -20,6 +35,7 @@ Advancement API
 - **FEATURE:** New variable and value provider: PotionType
 - **FEATURE:** New variable and value provider: Particle
 - **FEATURE:** New variable and value provider: Vector
+- **FEATURE:** New variable and value provider: Material
 - **FEATURE:** Item Attribute Property now uses Variables
 - **COMMANDS:** The '/cobalt reload [option]' command now works the same for all options
 

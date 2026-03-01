@@ -6,25 +6,38 @@ public interface CobaltPlugin extends Plugin {
     /**
      * Registers the <code>CobaltCommand</code> of this <code>CobaltPlugin</code> to be handled by CobaltCore's <code>CommandManager</code>.
      */
-    default void registerCommands() {}
+    default void registerCommands() {
+    }
 
-    default void registerSettings() {}
+    default void registerSettings() {
+    }
 
     /**
      * Registers the event Listeners of this <code>CobaltPlugin</code> using Bukkit's event system.
      */
-    default void registerListeners() {}
+    default void registerListeners() {
+    }
 
-    default void reloadManagers() {}
+    default void reloadManagers() {
+    }
 
     @Deprecated
-    default void initDatabaseTables() {}
+    default void initDatabaseTables() {
+    }
 
-    default void preInit() {}
+    default void preInit() {
+    }
 
-    default void postInit() {}
+    default void postInit() {
+    }
 
-    default String getPrefix() { return "prefix.core"; }
+    default String getPrefix() {
+        return "prefix.core";
+    }
 
     String getInternalName();
+
+    default boolean isHidden() {
+        return false;
+    }
 }

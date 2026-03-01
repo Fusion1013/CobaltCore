@@ -4,15 +4,13 @@ import dev.jorel.commandapi.arguments.Argument;
 import se.fusion1013.cobaltCore.components.actions.IAction;
 import se.fusion1013.cobaltCore.variable.provider.ActionValueProvider;
 
-import java.util.List;
-
-public class ActionVariable extends AbstractVariable<List<IAction>, ActionValueProvider, Argument<List<IAction>>, ActionVariable> {
+public class ActionVariable extends AbstractVariable<IAction, ActionValueProvider, Argument<IAction>, ActionVariable> {
 
     public ActionVariable(String name) {
         super(name, new ActionValueProvider(name));
     }
 
-    public ActionVariable(String name, List<IAction> defaultValue) {
+    public ActionVariable(String name, IAction defaultValue) {
         super(name, new ActionValueProvider(name, defaultValue));
     }
 
@@ -22,7 +20,7 @@ public class ActionVariable extends AbstractVariable<List<IAction>, ActionValueP
     }
 
     @Override
-    public Argument<List<IAction>> getArgument() {
+    public Argument<IAction> getArgument() {
         return null;
     }
 }

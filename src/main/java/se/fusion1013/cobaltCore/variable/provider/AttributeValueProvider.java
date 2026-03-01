@@ -4,24 +4,22 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.EquipmentSlot;
-import org.yaml.snakeyaml.util.EnumUtils;
-import se.fusion1013.cobaltCore.CobaltCore;
+import se.fusion1013.cobaltCore.util.AttributeContainer;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Random;
 
-public class AttributeValueProvider extends AbstractValueProvider<Map<Attribute, AttributeModifier>> {
+public class AttributeValueProvider extends AbstractValueProvider<AttributeContainer> {
 
-    private final Map<Attribute, AttributeModifier> attributes = new HashMap<>();
+    private static final Random random = new Random();
+    private final List<AttributeContainer> attributes = new ArrayList<>();
 
-    public AttributeValueProvider(String parameterName, Map<Attribute, AttributeModifier> value) {
+    public AttributeValueProvider(String parameterName, AttributeContainer value) {
         super(parameterName);
-        attributes.putAll(value);
+        attributes.add(value);
     }
 
     public AttributeValueProvider(String parameterName) {
@@ -29,20 +27,21 @@ public class AttributeValueProvider extends AbstractValueProvider<Map<Attribute,
     }
 
     @Override
-    public Map<Attribute, AttributeModifier> getValue() {
-        return attributes;
+    public AttributeContainer getValue() {
+        return attributes.get(random.nextInt(attributes.size()));
     }
 
     @Override
-    public void setValue(Map<Attribute, AttributeModifier> value) {
+    public void setValue(AttributeContainer value) {
         attributes.clear();
-        attributes.putAll(value);
+        attributes.add(value);
     }
 
     @Override
     public void load(ConfigurationSection yaml) {
         if (!yaml.contains(parameterName)) return;
-        attributes.putAll(fromMapList(yaml.getMapList(parameterName)));
+
+        attributes.addAll(fromMapList(yaml.getMapList(parameterName)));
     }
 
     @Override
@@ -50,29 +49,28 @@ public class AttributeValueProvider extends AbstractValueProvider<Map<Attribute,
         // TODO
     }
 
-    private static Map<Attribute, AttributeModifier> fromMapList(List<Map<?, ?>> mapList) {
-        Map<Attribute, AttributeModifier> modifiers = new HashMap<>();
-        for (Map<?, ?> map : mapList) modifiers.putAll(fromMap(map));
+    @Override
+    public List<AttributeContainer> getValueList() {
+        return attributes;
+    }
+
+    private static List<AttributeContainer> fromMapList(List<Map<?, ?>> mapList) {
+        List<AttributeContainer> modifiers = new ArrayList<>();
+        for (Map<?, ?> map : mapList) modifiers.addAll(fromMap(map));
         return modifiers;
     }
 
-    private static Map<Attribute, AttributeModifier> fromMap(Map<?, ?> map) {
-        Map<Attribute, AttributeModifier> modifiers = new HashMap<>();
-        map.keySet().forEach(k -> {
-            Map<?, ?> values = (Map<?, ?>) map.get(k);
-
-            Attribute attribute = Registry.ATTRIBUTE.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, k.toString()));
-
-            double amount = (double) values.get("amount");
-            AttributeModifier.Operation operation = EnumUtils.findEnumInsensitiveCase(AttributeModifier.Operation.class, (String) values.get("operation"));
-            List<String> equipmentSlots = (List<String>) values.get("equipment_slots");
-
-            for (String s : equipmentSlots) {
-                EquipmentSlot slot = EnumUtils.findEnumInsensitiveCase(EquipmentSlot.class, s);
-                AttributeModifier modifier = new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), UUID.randomUUID().toString()), amount, operation, slot.getGroup());
-                modifiers.put(attribute, modifier);
-            }
-        });
-        return modifiers;
+    private static List<AttributeContainer> fromMap(Map<?, ?> map) {
+        if (map.containsKey("attribute")) {
+            return List.of(new AttributeContainer(map));
+        } else {
+            List<AttributeContainer> attributes = new ArrayList<>();
+            map.keySet().forEach(k -> {
+                Map<?, ?> values = (Map<?, ?>) map.get(k);
+                Attribute attribute = Registry.ATTRIBUTE.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, k.toString()));
+                attributes.add(new AttributeContainer(attribute, values));
+            });
+            return attributes;
+        }
     }
 }

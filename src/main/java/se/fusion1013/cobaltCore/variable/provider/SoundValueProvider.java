@@ -55,4 +55,9 @@ public class SoundValueProvider extends AbstractValueProvider<Sound> {
             });
         }
     }
+
+    @Override
+    public List<Sound> getValueList() {
+        return List.of();
+    }
 }

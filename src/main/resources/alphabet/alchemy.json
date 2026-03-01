@@ -1,0 +1,72 @@
+{
+  "characters": [
+    {
+      "symbol": "a",
+      "path": "alchemy.acid"
+    },
+    {
+      "symbol": "b",
+      "path": "alchemy.aether"
+    },
+    {
+      "symbol": "c",
+      "path": "alchemy.air"
+    },
+    {
+      "symbol": "d",
+      "path": "alchemy.copper"
+    },
+    {
+      "symbol": "e",
+      "path": "alchemy.earth"
+    },
+    {
+      "symbol": "f",
+      "path": "alchemy.fire"
+    },
+    {
+      "symbol": "g",
+      "path": "alchemy.greatwork"
+    },
+    {
+      "symbol": "h",
+      "path": "alchemy.iron"
+    },
+    {
+      "symbol": "i",
+      "path": "alchemy.lead"
+    },
+    {
+      "symbol": "j",
+      "path": "alchemy.mercury"
+    },
+    {
+      "symbol": "k",
+      "path": "alchemy.salt"
+    },
+    {
+      "symbol": "l",
+      "path": "alchemy.silver"
+    },
+    {
+      "symbol": "m",
+      "path": "alchemy.sulfur"
+    },
+    {
+      "symbol": "n",
+      "path": "alchemy.sun"
+    },
+    {
+      "symbol": "o",
+      "path": "alchemy.tin"
+    },
+    {
+      "symbol": "p",
+      "path": "alchemy.vinegar"
+    },
+    {
+      "symbol": "q",
+      "path": "alchemy.water"
+    }
+  ]
+}

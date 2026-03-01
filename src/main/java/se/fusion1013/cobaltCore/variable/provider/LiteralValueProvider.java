@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import se.fusion1013.cobaltCore.util.MapUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class LiteralValueProvider extends AbstractValueProvider<String> {
@@ -42,5 +43,10 @@ public class LiteralValueProvider extends AbstractValueProvider<String> {
     public void load(Map<?, ?> map) {
         String newValue = MapUtil.setString(map, parameterName, value == null ? "" : value);
         setValue(newValue);
+    }
+
+    @Override
+    public List<String> getValueList() {
+        return List.of();
     }
 }

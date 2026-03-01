@@ -3,14 +3,17 @@ package se.fusion1013.cobaltCore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import se.fusion1013.cobaltCore.api.ApiServer;
+import se.fusion1013.cobaltCore.block.BlockManager;
 import se.fusion1013.cobaltCore.commands.*;
 import se.fusion1013.cobaltCore.commands.edit.EditCommand;
 import se.fusion1013.cobaltCore.commands.entity.CSummonCommand;
 import se.fusion1013.cobaltCore.commands.entity.CustomEntityCommand;
 import se.fusion1013.cobaltCore.commands.item.CGiveCommand;
 import se.fusion1013.cobaltCore.commands.particle.ParticleCommand;
+import se.fusion1013.cobaltCore.commands.system.CommandManager;
 import se.fusion1013.cobaltCore.components.ComponentManager;
 import se.fusion1013.cobaltCore.components.actions.ActionManager;
+import se.fusion1013.cobaltCore.components.conditions.ConditionManager;
 import se.fusion1013.cobaltCore.database.system.DataManager;
 import se.fusion1013.cobaltCore.database.system.Database;
 import se.fusion1013.cobaltCore.database.system.SQLite;
@@ -107,6 +110,9 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
         this.getManager(this, CustomEntityManager.class);
         this.getManager(this, ActionManager.class);
         this.getManager(this, ComponentManager.class);
+        this.getManager(this, ConditionManager.class);
+        this.getManager(this, CommandManager.class);
+        this.getManager(this, BlockManager.class);
     }
 
     // ##### LISTENERS #####

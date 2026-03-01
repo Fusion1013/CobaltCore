@@ -2,6 +2,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -44,6 +45,11 @@ public class IntValueProvider extends AbstractValueProvider<Integer> {
             this.min = (int) minMax.get("min");
             this.max = (int) minMax.get("max");
         }
+    }
+
+    @Override
+    public List<Integer> getValueList() {
+        return List.of();
     }
 
     @Override

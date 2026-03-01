@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 import org.bukkit.configuration.ConfigurationSection;
 import se.fusion1013.cobaltCore.util.MapUtil;
 
+import java.util.List;
 import java.util.Map;
 
 public class BooleanValueProvider extends AbstractValueProvider<Boolean> {
@@ -31,6 +32,11 @@ public class BooleanValueProvider extends AbstractValueProvider<Boolean> {
     @Override
     public void load(Map<?, ?> map) {
         this.value = MapUtil.setBoolean(map, parameterName, value);
+    }
+
+    @Override
+    public List<Boolean> getValueList() {
+        return List.of();
     }
 
     @Override

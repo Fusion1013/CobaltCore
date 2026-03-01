@@ -7,7 +7,8 @@ public enum ItemToggleType {
     Persistent("persistent"),
     DenyContainer("deny_container"),
     Heavy("heavy"),
-    CgiveHide("cgive_hide");
+    CgiveHide("cgive_hide"),
+    NO_FIX("no_fix");
 
     private final String key;
 

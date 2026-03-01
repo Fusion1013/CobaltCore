@@ -32,7 +32,7 @@ public class ItemSectionManager extends Manager<CobaltCore> {
     // region Loading
 
     public static void load(CobaltPlugin plugin, boolean overwrite) {
-        FileUtil.loadFilesInto(plugin, "item_sections/", new IProviderStorage() {
+        FileUtil.loadFilesInto(plugin, "item_sections/", new IProviderStorage<INameProvider>() {
             @Override
             public void put(String key, INameProvider provider) {
                 REGISTERED_SECTIONS.put(key, (ItemSection) provider);

@@ -5,6 +5,7 @@ import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.yaml.snakeyaml.util.EnumUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public class ParticleValueProvider extends AbstractValueProvider<ParticleData> {
@@ -32,7 +33,10 @@ public class ParticleValueProvider extends AbstractValueProvider<ParticleData> {
 
     @Override
     public void load(ConfigurationSection yaml) {
-
+        if (!yaml.contains(parameterName)) return;
+        String particleName = yaml.getString(parameterName);
+        Particle particle = EnumUtils.findEnumInsensitiveCase(Particle.class, particleName);
+        this.particleData = new ParticleData(particle, null);
     }
 
     @Override
@@ -41,5 +45,10 @@ public class ParticleValueProvider extends AbstractValueProvider<ParticleData> {
             Particle particle = EnumUtils.findEnumInsensitiveCase(Particle.class, value);
             this.particleData = new ParticleData(particle, null);
         }
+    }
+
+    @Override
+    public List<ParticleData> getValueList() {
+        return List.of();
     }
 }

@@ -1,14 +1,15 @@
 package se.fusion1013.cobaltCore.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import se.fusion1013.cobaltCore.CobaltCore;
-import se.fusion1013.cobaltCore.components.ComponentManager;
-import se.fusion1013.cobaltCore.entity.CustomEntityManager;
-import se.fusion1013.cobaltCore.item.CustomItemManager;
+import se.fusion1013.cobaltCore.commands.system.CommandManager;
+import se.fusion1013.cobaltCore.commands.system.ReloadInfo;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
@@ -28,37 +29,13 @@ public class CobaltCommand {
     private static CommandAPICommand createReloadCommand() {
         return new CommandAPICommand("reload")
                 .withPermission("commands.core.reload")
-                .withSubcommand(new CommandAPICommand("entities")
-                        .withOptionalArguments(new GreedyStringArgument("options"))
-                        .executes(CobaltCommand::reloadEntities))
-                .withSubcommand(new CommandAPICommand("items")
-                        .withOptionalArguments(new GreedyStringArgument("options"))
-                        .executes(CobaltCommand::reloadItems))
-                .withSubcommand(new CommandAPICommand("locale")
-                        .withOptionalArguments(new GreedyStringArgument("options"))
-                        .executes(CobaltCommand::reloadLocale))
-                .withSubcommand(new CommandAPICommand("components")
-                        .withOptionalArguments(new GreedyStringArgument("options"))
-                        .executes(CobaltCommand::reloadComponents));
-    }
-
-    private static void reloadEntities(CommandSender commandSender, CommandArguments commandArguments) {
-        reload(commandSender, commandArguments, "Entities", CustomEntityManager::reloadEntities, CustomEntityManager::getCustomEntityNames);
-    }
-
-    private static void reloadItems(CommandSender commandSender, CommandArguments commandArguments) {
-        reload(commandSender, commandArguments, "Items", CustomItemManager::reloadItems, CustomItemManager::getCustomItemNames);
-    }
-
-    private static void reloadComponents(CommandSender commandSender, CommandArguments commandArguments) {
-        reload(commandSender, commandArguments, "Components", () -> {
-            ComponentManager.reloadComponents();
-            CustomItemManager.reloadItems();
-        }, ComponentManager::getComponentNames);
-    }
-
-    private static void reloadLocale(CommandSender commandSender, CommandArguments commandArguments) {
-        reload(commandSender, commandArguments, "Locale", LocaleManager::resetLocale, LocaleManager::getLocaleStrings);
+                .withArguments(new StringArgument("reload").replaceSuggestions(ArgumentSuggestions.strings(c -> CommandManager.getReloadOptions())))
+                .withOptionalArguments(new GreedyStringArgument("options"))
+                .executes((sender, args) -> {
+                    String reloadOption = (String) args.get("reload");
+                    ReloadInfo reloadInfo = CommandManager.getReload(reloadOption);
+                    reload(sender, args, reloadInfo.getInternalName(), reloadInfo.reload(), reloadInfo.verboseResult());
+                });
     }
 
     private static void reload(CommandSender sender, CommandArguments args, String type, Runnable run, Supplier<String[]> verboseResult) {

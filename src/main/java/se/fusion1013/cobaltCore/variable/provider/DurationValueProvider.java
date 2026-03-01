@@ -3,6 +3,7 @@ package se.fusion1013.cobaltCore.variable.provider;
 import org.bukkit.configuration.ConfigurationSection;
 import org.yaml.snakeyaml.util.EnumUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -66,6 +67,11 @@ public class DurationValueProvider extends AbstractValueProvider<Integer> {
             if (body.containsKey("format"))
                 this.format = EnumUtils.findEnumInsensitiveCase(DurationFormat.class, (String) body.get("format"));
         }
+    }
+
+    @Override
+    public List<Integer> getValueList() {
+        return List.of();
     }
 
     private enum DurationFormat {
