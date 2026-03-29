@@ -42,5 +42,9 @@
   "commands.core.csummon.entity.success": "&7Summoned &z%entity%",
   "commands.core.csummon.entity.fail": "&7Failed to summon entity &z%entity%",
   "commands.core.pastebin.entity.test.success": "&7Loaded entity &z%entity% &7from pastebin &z%pastebin%",
-  "commands.core.pastebin.entity.test.error": "&7Could not load entity from pastebin &z%pastebin%"
+  "commands.core.pastebin.entity.test.error": "&7Could not load entity from pastebin &z%pastebin%",
+  "commands.core.cobalt.list.header": "&7Listing &z%item%",
+  "commands.core.cobalt.list.item": "&7 - %item%",
+  "commands.core.cobalt.info.header": "&7Info for &z%type% &z%item%",
+  "commands.core.cobalt.info.item": "&7 - %item%"
 }

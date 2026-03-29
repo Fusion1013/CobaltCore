@@ -5,6 +5,7 @@ import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.particle.effects.glyph.ParticleEffectGlyph;
 import se.fusion1013.cobaltCore.particle.effects.glyph.ParticleEffectText;
+import se.fusion1013.cobaltCore.particle.effects.glyph.ParticleEffectTextFormatted;
 import se.fusion1013.cobaltCore.shape.ShapeUtils;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class ParticleEffectManager extends Manager<CobaltCore> {
             register(new ParticleEffectSpiralConnector(Particle.CRIT));
     public static final IParticleEffect PARTICLE_EFFECT_BEZIER =
             register(new ParticleEffectBezier(Particle.CRIT));
+    public static final IParticleEffect PARTICLE_EFFECT_TEXT_FORMATTED = register(new ParticleEffectTextFormatted(Particle.CRIT));
 
     private static IParticleEffect register(IParticleEffect effect) {
         DEFAULT_PARTICLE_EFFECTS.put(effect.getName(), effect);

@@ -18,11 +18,8 @@ import java.util.List;
 /**
  * Creates particles in the shape of text. Uses the given alphabet.
  */
-public class ParticleEffectText extends AbstractParticleEffect implements IParticleEffect {
+public class ParticleEffectTextFormatted extends AbstractParticleEffect implements IParticleEffect {
 
-    private final StringVariable alphabet = new StringVariable("alphabet")
-            .onValueChange(k -> calculatePoints())
-            .suggestions(() -> GlyphManager.getAlphabetNames().toArray(new String[0]));
     private final StringVariable text = new StringVariable("text")
             .onValueChange(k -> calculatePoints());
     private final DoubleVariable scale = new DoubleVariable("scale")
@@ -43,8 +40,8 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
      *
      * @param particle the particle to use for the effect.
      */
-    public ParticleEffectText(Particle particle) {
-        super("text", particle, new TransformationPipeline());
+    public ParticleEffectTextFormatted(Particle particle) {
+        super("text_formatted", particle, new TransformationPipeline());
         calculatePoints();
     }
 
@@ -73,19 +70,21 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
 
     private List<Vector> calculatePoints(String textSegment, double yOffset) {
         if (textSegment == null) return List.of();
-        double xOffset = spacing.getValue() * (textSegment.length() - 1) / 2f;
+        double xOffset = spacing.getValue() * (textSegment.split(",").length - 1) / 2f;
 
         List<Vector> newPoints = new ArrayList<>();
 
-        for (int i = 0; i < textSegment.length(); i++) {
-            char c = textSegment.charAt(i);
-            newPoints.addAll(calculatePoints(c, i * spacing.getValue() - xOffset, yOffset));
+        String[] splitTextSegment = textSegment.split(",");
+
+        for (int i = 0; i < splitTextSegment.length; i++) {
+            String segment = splitTextSegment[i];
+            newPoints.addAll(calculatePoints(segment, i * spacing.getValue() - xOffset, yOffset));
         }
         return newPoints;
     }
 
-    private List<Vector> calculatePoints(char character, double xOffset, double yOffset) {
-        GlyphData glyphData = GlyphManager.getGlyph(alphabet.getValue(), character);
+    private List<Vector> calculatePoints(String replace, double xOffset, double yOffset) {
+        GlyphData glyphData = GlyphManager.getGlyphFromName(replace);
         if (glyphData == null) return List.of();
         Vector posOffset = VectorUtil.deterministicRandomDirection(xOffset, yOffset, 0).multiply(randomOffset.getValue());
         posOffset = posOffset.multiply(Math.sin(System.currentTimeMillis() * wiggleSpeed.getValue() + xOffset + yOffset));
@@ -95,6 +94,6 @@ public class ParticleEffectText extends AbstractParticleEffect implements IParti
 
     @Override
     public ICommandValue[] getValues() {
-        return new ICommandValue[]{particle, alphabet, text, scale, spacing, randomOffset, wiggleSpeed};
+        return new ICommandValue[]{particle, text, scale, spacing, randomOffset, wiggleSpeed};
     }
 }

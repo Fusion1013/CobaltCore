@@ -192,8 +192,9 @@ public class CobaltCore extends JavaPlugin implements CobaltPlugin {
 
             // Load custom items
             // NOTE: Must be run after manager registration. Otherwise, item components do not work
-            ItemSectionManager.load(plugin, false);
-            CustomItemManager.loadItemFiles(plugin, false);
+//            ItemSectionManager.load(plugin, false);
+//            CustomItemManager.loadItemFiles(plugin, false);
+            CustomItemManager.reloadItems();
             CustomEntityManager.loadEntityFiles(plugin, false);
 
             // Registers all Commands

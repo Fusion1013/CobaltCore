@@ -23,6 +23,15 @@ public abstract class AbstractCondition implements ICondition {
     }
 
     @Override
+    public boolean evaluate(Map<String, Object> context) {
+        boolean result = evaluateCondition(context);
+//        CobaltCore.getInstance().getLogger().info("Evaluated Condition " + getInternalName() + ": " + result);
+        return result;
+    }
+
+    protected abstract boolean evaluateCondition(Map<String, Object> context);
+
+    @Override
     public void loadFromMap(Map<?, ?> map) {
         getVariables().forEach(k -> k.load(map));
         targetLocation.load(map);

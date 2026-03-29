@@ -16,9 +16,9 @@ public class ParticleAction extends AbstractAction {
 
     private final ParticleVariable particle = new ParticleVariable("type", new ParticleData(Particle.CRIT, null));
     private final IntVariable count = new IntVariable("count", 1);
-    private final IntVariable xPosition = new IntVariable("x", 0);
-    private final IntVariable yPosition = new IntVariable("y", 0);
-    private final IntVariable zPosition = new IntVariable("z", 0);
+    private final DoubleVariable xPosition = new DoubleVariable("x", 0);
+    private final DoubleVariable yPosition = new DoubleVariable("y", 0);
+    private final DoubleVariable zPosition = new DoubleVariable("z", 0);
     private final DoubleVariable speed = new DoubleVariable("speed", 0);
 
     @Override

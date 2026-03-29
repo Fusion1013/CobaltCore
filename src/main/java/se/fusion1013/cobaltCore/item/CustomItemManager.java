@@ -1,6 +1,5 @@
 package se.fusion1013.cobaltCore.item;
 
-import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -29,7 +28,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.CobaltPlugin;
-import se.fusion1013.cobaltCore.commands.system.CommandManager;
 import se.fusion1013.cobaltCore.events.PlayerHeldItemTickEvent;
 import se.fusion1013.cobaltCore.item.loaders.ItemLoader;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
@@ -37,18 +35,23 @@ import se.fusion1013.cobaltCore.item.section.ItemSectionManager;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
 import se.fusion1013.cobaltCore.locale.LocaleManager;
 import se.fusion1013.cobaltCore.manager.Manager;
-import se.fusion1013.cobaltCore.util.*;
+import se.fusion1013.cobaltCore.manager.registry.FileLoadedRegistry;
+import se.fusion1013.cobaltCore.util.INameProvider;
+import se.fusion1013.cobaltCore.util.ItemUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomItemManager extends Manager<CobaltCore> implements Listener {
 
     // ----- VARIABLES -----
 
-    private static final Map<String, ICustomItem> INBUILT_CUSTOM_ITEMS = new HashMap<>(); // Holds all custom items CUSTOMITEMS
+    private static final FileLoadedRegistry<ICustomItem> INBUILT_CUSTOM_ITEMS = new FileLoadedRegistry<>(
+            CobaltCore.getInstance(),
+            "items",
+            ItemLoader::loadItem,
+            ItemLoader::loadItem,
+            (p, i) -> p.getInventory().addItem(i.getItemStack())
+    );
     private static final Map<ItemSection, Map<String, ICustomItem>> ITEMS_SORTED_CATEGORY = new HashMap<>(); // Holds all custom items sorted by IItemCategory
 
     // ----- CONSTRUCTOR -----
@@ -68,7 +71,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @return the <code>CustomItem</code>.
      */
     public static ICustomItem register(ICustomItem item) {
-        INBUILT_CUSTOM_ITEMS.put(item.getInternalName(), item);
+        INBUILT_CUSTOM_ITEMS.register(item.getInternalName(), item);
         if (item.getItemCategory() != null)
             ITEMS_SORTED_CATEGORY.computeIfAbsent(item.getItemCategory(), k -> new HashMap<>()).put(item.getInternalName(), item);
         return item;
@@ -168,7 +171,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @return an array of item names.
      */
     public static String[] getItemNames() {
-        List<String> itemNames = new ArrayList<>(INBUILT_CUSTOM_ITEMS.keySet());
+        List<String> itemNames = Arrays.asList(INBUILT_CUSTOM_ITEMS.getNames());
         for (Material m : Material.values()) itemNames.add(m.name().toLowerCase());
         return itemNames.toArray(new String[0]);
     }
@@ -184,7 +187,10 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         if (name.startsWith("cobalt:")) name = name.substring(0, 7);
 
         ICustomItem customItem = INBUILT_CUSTOM_ITEMS.get(name);
-        if (customItem == null) return new ItemStack(Material.valueOf(name.toUpperCase()));
+        if (customItem == null) {
+            if (isMaterial(name)) return new ItemStack(Material.valueOf(name.toUpperCase()));
+            else return null;
+        }
         ItemStack stack = customItem.getItemStack();
         if (stack == null && isMaterial(name)) stack = new ItemStack(Material.valueOf(name.toUpperCase()));
 
@@ -209,18 +215,13 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     }
 
     public static String[] getCustomItemNames() {
-        String[] names = new String[INBUILT_CUSTOM_ITEMS.size()];
-        List<String> keys = new ArrayList<>(INBUILT_CUSTOM_ITEMS.keySet());
-        for (int i = 0; i < keys.size(); i++) {
-            names[i] = keys.get(i);
-        }
-        return names;
+        return INBUILT_CUSTOM_ITEMS.getNames();
     }
 
     public static String[] getCgiveSuggestions() {
         List<String> keys = new ArrayList<>();
-        INBUILT_CUSTOM_ITEMS.forEach((key, value) -> {
-            if (!value.getItemToggles().getValue(ItemToggleType.CgiveHide)) keys.add(key);
+        INBUILT_CUSTOM_ITEMS.values().forEach((value) -> {
+            if (!value.getItemToggles().getValue(ItemToggleType.CgiveHide)) keys.add(value.getInternalName());
         });
         return keys.toArray(new String[0]);
     }
@@ -242,45 +243,13 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         return configuration;
     }
 
-    // ----- ITEM FILE LOADING -----
-
-    public static void loadItemFiles(CobaltPlugin plugin, boolean overwrite) {
-
-        FileUtil.loadFilesInto(plugin, "items/", new IProviderStorage<INameProvider>() {
-            @Override
-            public void put(String key, INameProvider provider) {
-                register(provider);
-            }
-
-            @Override
-            public boolean has(String key) {
-                return getCustomItem(key) != null;
-            }
-
-            @Override
-            public INameProvider get(String key) {
-                return getCustomItem(key);
-            }
-        }, new IFileConstructor() {
-            @Override
-            public INameProvider createFrom(YamlConfiguration yaml) {
-                return ItemLoader.loadItem(yaml);
-            }
-
-            @Override
-            public INameProvider createFrom(JsonObject json) {
-                return ItemLoader.loadItem(json);
-            }
-        }, overwrite);
-    }
-
     // ----- RELOADING / DISABLING -----
 
     public static void reloadItems() {
         for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) {
             ItemSectionManager.load(plugin, true);
-            loadItemFiles(plugin, true);
         }
+        INBUILT_CUSTOM_ITEMS.reload();
     }
 
     @Override
@@ -288,7 +257,6 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
         createItemTickHandler();
-        CommandManager.registerReloadMethod("items", CustomItemManager::reloadItems, CustomItemManager::getCustomItemNames);
     }
 
     private void createItemTickHandler() {

@@ -34,8 +34,8 @@ public class LocationAction extends AbstractAction {
             action.execute(oldContext);
         } else if (type.getValue().equalsIgnoreCase("random_area")) {
             Location oldLocation = getTargetLocation(oldContext);
-            Map<String, Object> newContext = new HashMap<>(oldContext);
             for (int i = 0; i < count.getValue(); i++) {
+                Map<String, Object> newContext = new HashMap<>(oldContext);
                 double x = random.nextDouble(-radius.getValue(), radius.getValue());
                 double y = random.nextDouble(-radius.getValue(), radius.getValue());
                 double z = random.nextDouble(-radius.getValue(), radius.getValue());

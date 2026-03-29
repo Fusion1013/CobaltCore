@@ -266,6 +266,13 @@ public abstract class AbstractCobaltItem implements ICustomItem {
     }
 
     @Override
+    public String[] getInfo() {
+        return new String[]{
+                "Internal Name: " + internalName
+        };
+    }
+
+    @Override
     public List<String> getLocalizedInfo() {
         List<String> info = new ArrayList<>();
         for (IObjectProperty<ItemCreationContext, AbstractCobaltItem> property : properties) {

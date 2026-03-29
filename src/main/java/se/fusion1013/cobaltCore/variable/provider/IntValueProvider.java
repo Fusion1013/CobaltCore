@@ -29,6 +29,14 @@ public class IntValueProvider extends AbstractValueProvider<Integer> {
         return random.nextInt(min, max + 1);
     }
 
+    public Integer getMin() {
+        return min;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
+
     @Override
     public void setValue(Integer value) {
         this.min = value;
@@ -57,8 +65,7 @@ public class IntValueProvider extends AbstractValueProvider<Integer> {
         if (yaml.get(parameterName) instanceof Integer value) {
             this.min = value;
             this.max = value;
-        } else {
-            ConfigurationSection valueHolder = yaml.getConfigurationSection(parameterName);
+        } else if (yaml.get(parameterName) instanceof ConfigurationSection valueHolder) {
             this.min = valueHolder.getInt("min");
             this.min = valueHolder.getInt("max");
         }

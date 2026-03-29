@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import se.fusion1013.cobaltCore.variable.AbstractVariable;
+import se.fusion1013.cobaltCore.variable.BooleanVariable;
 import se.fusion1013.cobaltCore.variable.StringVariable;
 
 import java.util.List;
@@ -13,9 +14,11 @@ public abstract class AbstractAction implements IAction {
 
     private final StringVariable targetLocation = new StringVariable("target_location", "default_location");
     private final StringVariable targetEntity = new StringVariable("target_entity", "default_entity");
+    private final BooleanVariable centerLocation = new BooleanVariable("center_location");
 
     protected Location getTargetLocation(Map<?, ?> context) {
-        return (Location) context.get(targetLocation.getValue());
+        Location location = (Location) context.get(targetLocation.getValue());
+        return centerLocation.getValue() ? location.toCenterLocation() : location;
     }
 
     protected LivingEntity getTargetLivingEntity(Map<?, ?> context) {

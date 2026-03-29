@@ -13,4 +13,6 @@ public interface ICondition extends IRegistryItem {
 
     void loadFromMap(Map<?, ?> map);
 
+    String getDescription();
+
 }

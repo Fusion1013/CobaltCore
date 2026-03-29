@@ -14,7 +14,7 @@ public class BiomeCondition extends AbstractCondition {
     private final BiomeVariable biome = new BiomeVariable("biome");
 
     @Override
-    public boolean evaluate(Map<String, Object> context) {
+    protected boolean evaluateCondition(Map<String, Object> context) {
         Location location = (Location) context.get("default_location");
         if (location == null) return false;
 
@@ -33,5 +33,11 @@ public class BiomeCondition extends AbstractCondition {
     @Override
     protected List<AbstractVariable<?, ?, ?, ?>> getVariables() {
         return List.of(biome);
+    }
+
+    @Override
+    public String getDescription() {
+        String value = String.join(", ", biome.getValueList().stream().map(Biome::translationKey).toArray(String[]::new));
+        return "Requires any Biome in: " + value;
     }
 }

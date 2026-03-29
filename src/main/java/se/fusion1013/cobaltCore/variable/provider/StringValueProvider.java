@@ -24,6 +24,7 @@ public class StringValueProvider extends AbstractValueProvider<String> {
 
     @Override
     public String getValue() {
+        if (values.isEmpty()) return null;
         return values.get(random.nextInt(values.size()));
     }
 

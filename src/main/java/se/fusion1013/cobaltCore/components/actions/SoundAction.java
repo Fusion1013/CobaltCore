@@ -18,7 +18,7 @@ public class SoundAction extends AbstractAction {
 
     @Override
     protected List<AbstractVariable<?, ?, ?, ?>> getVariables() {
-        return List.of(sound);
+        return List.of(sound, volume, pitch);
     }
 
     @Override
@@ -30,6 +30,6 @@ public class SoundAction extends AbstractAction {
 
     @Override
     public String getId() {
-        return "";
+        return "sound";
     }
 }

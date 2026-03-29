@@ -17,6 +17,10 @@ public class ActionManager extends Manager<CobaltCore> {
     private static final Supplier<IAction> VELOCITY_ACTION_FACTORY = register("velocity", VelocityAction::new);
     private static final Supplier<IAction> DAMAGE_ACTION_FACTORY = register("damage", DamageAction::new);
     private static final Supplier<IAction> LOCATION_ACTION_FACTORY = register("location", LocationAction::new);
+    private static final Supplier<IAction> SUMMON_ACTION_FACTORY = register("summon", SummonAction::new);
+    private static final Supplier<IAction> DELAY_ACTION_FACTORY = register("delay", DelayAction::new);
+    private static final Supplier<IAction> SET_BLOCK_ACTION_FACTORY = register("set_block", SetBlockAction::new);
+    private static final Supplier<IAction> NEARBY_ENTITIES_ACTION_FACTORY = register("nearby_entities", NearbyEntitiesAction::new);
 
     public ActionManager(CobaltCore plugin) {
         super(plugin);

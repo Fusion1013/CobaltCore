@@ -13,7 +13,7 @@ public class DurationValueProvider extends AbstractValueProvider<Integer> {
 
     private int min;
     private int max;
-    private DurationFormat format;
+    private DurationFormat format = DurationFormat.TICKS;
 
     public DurationValueProvider(String parameterName, int value) {
         super(parameterName);

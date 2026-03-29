@@ -7,6 +7,11 @@ Advancement API
 - **FEATURE:** Introduced Conditions
 - **FEATURE:** New Condition: Biome
 - **FEATURE:** New Condition: World
+- **FEATURE:** New Condition: Height
+- **FEATURE:** New Condition: Light
+- **FEATURE:** New Condition: Moon Phase
+- **FEATURE:** New Condition: Nearby Block
+- **FEATURE:** New Condition: Time
 - **FEATURE:** Made various improvements to Variables
 - **FEATURE:** New variable and value provider: Condition
 - **FEATURE:** New variable and value provider: Biome
@@ -15,6 +20,10 @@ Advancement API
 - **FEATURE:** Introduced an easier method for registering reload methods
 - **FEATURE:** New variable and value provider: Biome
 - **FEATURE:** Added galactic alphabet glyphs
+- **FEATURE:** New Cobalt Action: Delay
+- **FEATURE:** New Cobalt Action: Set Block
+- **FEATURE:** New Cobalt Action: Summon
+- **UPDATE:** Added new custom alchemy glyphs
 
 **CobaltCore Version 1.3.0**
 

@@ -1,20 +1,19 @@
 package se.fusion1013.cobaltCore.components.conditions;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 import se.fusion1013.cobaltCore.variable.AbstractVariable;
-import se.fusion1013.cobaltCore.variable.StringVariable;
+import se.fusion1013.cobaltCore.variable.IntVariable;
 
 import java.util.List;
 import java.util.Map;
 
-public class WorldCondition extends AbstractCondition {
+public class HeightCondition extends AbstractCondition {
 
-    private final StringVariable world = new StringVariable("world");
+    private final IntVariable height = new IntVariable("height");
 
     @Override
     protected List<AbstractVariable<?, ?, ?, ?>> getVariables() {
-        return List.of(world);
+        return List.of(height);
     }
 
     @Override
@@ -22,20 +21,17 @@ public class WorldCondition extends AbstractCondition {
         Location location = getTargetLocation(context);
         if (location == null) return false;
 
-        World targetWorld = location.getWorld();
-        for (String worldName : world.getValueList()) {
-            if (targetWorld.getName().equalsIgnoreCase(worldName)) return true;
-        }
-        return false;
+        double y = location.getY();
+        return y >= height.getMin() && y <= height.getMax();
     }
 
     @Override
     public String getInternalName() {
-        return "world";
+        return "height";
     }
 
     @Override
     public String getDescription() {
-        return "Requires the world to be " + world.getValue();
+        return "Requires Height Between: " + height.getMax() + " and " + height.getMin();
     }
 }

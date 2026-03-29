@@ -27,4 +27,12 @@ public class IntVariable extends AbstractVariable<Integer, IntValueProvider, Int
     public IntVariable getSelf() {
         return this;
     }
+
+    public Integer getMin() {
+        return valueGetter.getMin();
+    }
+
+    public Integer getMax() {
+        return valueGetter.getMax();
+    }
 }

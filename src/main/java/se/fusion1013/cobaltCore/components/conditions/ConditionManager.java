@@ -11,7 +11,12 @@ public class ConditionManager extends Manager<CobaltCore> {
 
     public static final FactoryRegistry<ICondition> CONDITIONS = FactoryRegistry.forRegistry(
             BiomeCondition::new,
-            WorldCondition::new
+            WorldCondition::new,
+            TimeCondition::new,
+            LightCondition::new,
+            NearbyBlockCondition::new,
+            MoonPhaseCondition::new,
+            HeightCondition::new
     );
 
     public ConditionManager(CobaltCore plugin) {

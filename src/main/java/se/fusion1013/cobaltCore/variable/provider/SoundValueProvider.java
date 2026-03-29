@@ -1,6 +1,5 @@
 package se.fusion1013.cobaltCore.variable.provider;
 
-import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
@@ -46,12 +45,12 @@ public class SoundValueProvider extends AbstractValueProvider<Sound> {
     public void load(Map<?, ?> map) {
         if (map.containsKey(parameterName) && map.get(parameterName) instanceof String value) {
             this.sounds.clear();
-            this.sounds.add(Registry.SOUNDS.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, value)));
+            this.sounds.add(Registry.SOUNDS.get(NamespacedKey.minecraft(value)));
         } else if (map.containsKey(parameterName)) {
             List<String> values = (List<String>) map.get(parameterName);
             this.sounds.clear();
             values.forEach(v -> {
-                this.sounds.add(Registry.SOUNDS.get(new NamespacedKey(Key.MINECRAFT_NAMESPACE, v)));
+                this.sounds.add(Registry.SOUNDS.get(NamespacedKey.minecraft(v)));
             });
         }
     }

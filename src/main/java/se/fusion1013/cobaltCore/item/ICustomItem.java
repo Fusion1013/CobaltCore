@@ -8,12 +8,12 @@ import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
 import se.fusion1013.cobaltCore.item.section.ItemSection;
 import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
-import se.fusion1013.cobaltCore.util.INameProvider;
+import se.fusion1013.cobaltCore.manager.registry.IRegistryItem;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ICustomItem extends INameProvider {
+public interface ICustomItem extends IRegistryItem {
 
     // ----- GENERIC INFO GETTERS -----
 

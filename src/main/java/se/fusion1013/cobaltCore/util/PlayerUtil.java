@@ -93,8 +93,8 @@ public class PlayerUtil {
     /**
      * Sets the vanished state of a player.
      *
-     * @param player the player to set the vanished state of.
-     * @param vanish true to vanish the player.
+     * @param player   the player to set the vanished state of.
+     * @param vanish   true to vanish the player.
      * @param isSilent true to make it unannounced and without effects.
      */
     public static void setVanished(Player player, boolean vanish, boolean isSilent) {
@@ -225,7 +225,7 @@ public class PlayerUtil {
     /**
      * Gets an array of nearby players.
      *
-     * @param location the origin location.
+     * @param location    the origin location.
      * @param maxDistance the maximum distance from the origin that the player can be to be returned. Set to -1 to ignore maximum distance.
      * @return an array of players.
      */
@@ -236,7 +236,7 @@ public class PlayerUtil {
     /**
      * Gets an array of nearby players.
      *
-     * @param location the origin location.
+     * @param location    the origin location.
      * @param minDistance the minimum distane from the origin that the player can be to be returned. Set to 0 to ignore minimum distance.
      * @param maxDistance the maximum distance from the origin that the player can be to be returned. Set to -1 to ignore maximum distance.
      * @return an array of players.
@@ -250,7 +250,7 @@ public class PlayerUtil {
         List<Player> playerList = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
             double dSq = p.getLocation().distanceSquared(location);
-            if (dSq <= maxDistance*maxDistance && dSq >= minDistance) playerList.add(p);
+            if (dSq <= maxDistance * maxDistance && dSq >= minDistance) playerList.add(p);
         }
 
         return playerList.toArray(new Player[0]);
@@ -286,19 +286,20 @@ public class PlayerUtil {
      * Reduces the amount of items in the <code>Player</code>'s hand by the specified amount.
      *
      * @param player the <code>Player</code>.
-     * @param count the amount to reduce the <code>ItemStack</code> by.
+     * @param count  the amount to reduce the <code>ItemStack</code> by.
      */
     public static void reduceHeldItemStack(Player player, int count) {
+        if (player.getGameMode() == GameMode.CREATIVE) return;
         PlayerInventory inventory = player.getInventory();
         ItemStack item = inventory.getItemInMainHand();
-        item.setAmount(item.getAmount()-count);
+        item.setAmount(item.getAmount() - count);
         inventory.setItemInMainHand(item);
     }
 
     /**
      * Drops a percentage of all <code>ItemStack</code>'s in a <code>Player</code>'s inventory on the ground at their <code>Location</code>.
      *
-     * @param player the <code>Player</code> to drop the <code>ItemStack</code>'s of.
+     * @param player  the <code>Player</code> to drop the <code>ItemStack</code>'s of.
      * @param percent the percent chance of an <code>ItemStack</code> being dropped.
      */
     public static void dropPercentageOfInventory(Player player, double percent) {
@@ -327,13 +328,13 @@ public class PlayerUtil {
      * @param level
      * @return
      */
-    public static int getExpToLevelUp(int level){
-        if(level <= 15){
-            return 2*level+7;
-        } else if(level <= 30){
-            return 5*level-38;
+    public static int getExpToLevelUp(int level) {
+        if (level <= 15) {
+            return 2 * level + 7;
+        } else if (level <= 30) {
+            return 5 * level - 38;
         } else {
-            return 9*level-158;
+            return 9 * level - 158;
         }
     }
 
@@ -343,13 +344,13 @@ public class PlayerUtil {
      * @param level
      * @return
      */
-    public static int getExpAtLevel(int level){
-        if(level <= 16){
-            return (int) (Math.pow(level,2) + 6*level);
-        } else if(level <= 31){
-            return (int) (2.5*Math.pow(level,2) - 40.5*level + 360.0);
+    public static int getExpAtLevel(int level) {
+        if (level <= 16) {
+            return (int) (Math.pow(level, 2) + 6 * level);
+        } else if (level <= 31) {
+            return (int) (2.5 * Math.pow(level, 2) - 40.5 * level + 360.0);
         } else {
-            return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
+            return (int) (4.5 * Math.pow(level, 2) - 162.5 * level + 2220.0);
         }
     }
 
@@ -359,7 +360,7 @@ public class PlayerUtil {
      * @param player the <code>Player</code> to get the EXP from.
      * @return the EXP amount.
      */
-    public static int getPlayerExp(Player player){
+    public static int getPlayerExp(Player player) {
         int exp = 0;
         int level = player.getLevel();
 
@@ -376,10 +377,10 @@ public class PlayerUtil {
      * Increases or decreases the <code>Player</code> EXP by the given amount.
      *
      * @param player the <code>Player</code> to change the EXP of.
-     * @param exp the EXP amount to change the <code>Player</code>'s with.
+     * @param exp    the EXP amount to change the <code>Player</code>'s with.
      * @return the new EXP amount.
      */
-    public static int changePlayerExp(Player player, int exp){
+    public static int changePlayerExp(Player player, int exp) {
         // Get player's current exp
         int currentExp = getPlayerExp(player);
 
@@ -399,7 +400,7 @@ public class PlayerUtil {
      * Changes the <code>Player</code>'s EXP to the given amount.
      *
      * @param player the <code>Player</code> to change the EXP of.
-     * @param exp the EXP value to set the value to.
+     * @param exp    the EXP value to set the value to.
      */
     public static void setPlayerExp(Player player, int exp) {
         // Reset player's current exp to 0
@@ -435,13 +436,14 @@ public class PlayerUtil {
 
         /**
          * Creates a new <code>PlayerStorage</code>.
-         * @param uuid the uuid of the player.
-         * @param name the name of the player.
-         * @param world the world the player is currently in.
-         * @param location the current location of the player.
+         *
+         * @param uuid       the uuid of the player.
+         * @param name       the name of the player.
+         * @param world      the world the player is currently in.
+         * @param location   the current location of the player.
          * @param lastJoined the last time the player joined the game.
-         * @param lastLeft the last time the player left the game.
-         * @param playtime the time the player has played on the server.
+         * @param lastLeft   the last time the player left the game.
+         * @param playtime   the time the player has played on the server.
          */
         public PlayerStorage(UUID uuid, String name, World world, Location location, Date lastJoined, Date lastLeft, Duration playtime) {
             this.uuid = uuid;
