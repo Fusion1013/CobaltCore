@@ -8,7 +8,8 @@ public enum ItemToggleType {
     DenyContainer("deny_container"),
     Heavy("heavy"),
     CgiveHide("cgive_hide"),
-    NO_FIX("no_fix");
+    NO_FIX("no_fix"),
+    DropOnLeave("drop_on_leave");
 
     private final String key;
 

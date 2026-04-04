@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,13 +16,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.json.simple.JSONArray;
@@ -38,6 +42,7 @@ import se.fusion1013.cobaltCore.manager.Manager;
 import se.fusion1013.cobaltCore.manager.registry.FileLoadedRegistry;
 import se.fusion1013.cobaltCore.util.INameProvider;
 import se.fusion1013.cobaltCore.util.ItemUtil;
+import se.fusion1013.cobaltCore.util.StringPlaceholders;
 
 import java.util.*;
 
@@ -308,12 +313,34 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     // ----- EVENTS -----
 
     @EventHandler
+    public void playerLeaveEvent(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (player.isOp()) return;
+        
+        World world = player.getWorld();
+        PlayerInventory inventory = player.getInventory();
+        for (int i = inventory.getSize() - 1; i >= 0; i--) {
+            ItemStack item = inventory.getItem(i);
+            if (item == null) continue;
+
+            ICustomItem customItem = getCustomItem(item);
+            if (customItem == null) continue;
+            if (!customItem.getItemToggles().getValue(ItemToggleType.DropOnLeave)) continue;
+
+            inventory.setItem(i, ItemStack.empty());
+            world.dropItemNaturally(player.getLocation(), item);
+        }
+    }
+
+    @EventHandler
     public void inventoryEvent(InventoryClickEvent event) {
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory == null) return;
-        if (clickedInventory.getType() == InventoryType.PLAYER) return;
+        if (!(clickedInventory.getType() == InventoryType.PLAYER && event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY))
+            return;
 
-        ItemStack item = event.getCursor();
+        ItemStack item = event.getCurrentItem();
+        if (item == null) return;
         if (item.getType() == Material.AIR) return;
 
         ICustomItem customItem = getCustomItem(item);
@@ -323,7 +350,8 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
 
         event.setCancelled(true);
         if (event.getWhoClicked() instanceof Player player) {
-            LocaleManager.getInstance().sendMessage("", player, "core.custom_item.deny_container");
+            LocaleManager.getInstance().sendMessage("", player, "core.custom_item.deny_container", StringPlaceholders.builder()
+                    .addPlaceholder("item_name", item.getItemMeta().getDisplayName()).build());
         }
     }
 
