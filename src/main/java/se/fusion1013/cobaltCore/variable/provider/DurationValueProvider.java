@@ -25,6 +25,11 @@ public class DurationValueProvider extends AbstractValueProvider<Integer> {
         super(parameterName);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
     /**
      * Gets the value of this duration in ticks.
      *

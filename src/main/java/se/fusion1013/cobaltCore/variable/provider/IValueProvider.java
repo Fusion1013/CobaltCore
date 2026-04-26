@@ -19,4 +19,6 @@ public interface IValueProvider<T> {
     void load(JsonObject json);
 
     List<T> getValueList();
+
+    boolean isEmpty();
 }

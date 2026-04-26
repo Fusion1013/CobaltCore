@@ -27,6 +27,11 @@ public class PotionTypeValueProvider extends AbstractValueProvider<PotionEffectT
     }
 
     @Override
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    @Override
     public PotionEffectType getValue() {
         return values.get(random.nextInt(values.size()));
     }

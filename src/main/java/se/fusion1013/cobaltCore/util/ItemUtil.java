@@ -1,5 +1,8 @@
 package se.fusion1013.cobaltCore.util;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.FoodProperties;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -161,7 +164,14 @@ public class ItemUtil {
             itemMeta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_damage"), 5, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
             itemMeta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(new NamespacedKey(CobaltCore.getInstance(), "axe_main_hand_atspeed"), -3.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         }
+
         item.setItemMeta(itemMeta);
+
+        // -- EAT PICKLES --
+        if (item.getType() == Material.SEA_PICKLE) {
+            item.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().build());
+            item.setData(DataComponentTypes.FOOD, FoodProperties.food().nutrition(1).saturation(1).build());
+        }
 
         ICustomItem customItem = CustomItemManager.getCustomItem(item);
         if (customItem == null) return item;

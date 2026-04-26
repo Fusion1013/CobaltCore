@@ -22,6 +22,11 @@ public class ParticleValueProvider extends AbstractValueProvider<ParticleData> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public ParticleData getValue() {
         return particleData;
     }

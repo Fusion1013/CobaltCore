@@ -23,6 +23,11 @@ public class EnchantmentValueProvider extends AbstractValueProvider<EnchantmentC
     }
 
     @Override
+    public boolean isEmpty() {
+        return enchantments.isEmpty();
+    }
+
+    @Override
     public EnchantmentContainer getValue() {
         if (enchantments.isEmpty()) return null;
         return enchantments.get(random.nextInt(enchantments.size()));

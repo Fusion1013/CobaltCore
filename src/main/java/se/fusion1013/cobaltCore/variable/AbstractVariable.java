@@ -81,4 +81,12 @@ public abstract class AbstractVariable<VALUE, GETTER extends IValueProvider<VALU
         return getSelf();
     }
 
+    public boolean isEmpty() {
+        return valueGetter.isEmpty();
+    }
+
+    public boolean isPresent() {
+        return !isEmpty();
+    }
+
 }

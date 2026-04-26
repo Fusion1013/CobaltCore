@@ -27,6 +27,11 @@ public class VectorListValueProvider extends AbstractValueProvider<List<Vector>>
     }
 
     @Override
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    @Override
     public void setValue(List<Vector> value) {
         values.clear();
         values.addAll(value);

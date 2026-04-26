@@ -24,6 +24,11 @@ public class ActionValueProvider extends AbstractValueProvider<IAction> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return actions.isEmpty();
+    }
+
+    @Override
     public IAction getValue() {
         return actions.get(random.nextInt(actions.size()));
     }

@@ -18,6 +18,11 @@ public class DoubleValueProvider extends AbstractValueProvider<Double> {
         super(parameterName);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
     public DoubleValueProvider(String parameterName, double value) {
         super(parameterName);
         this.min = value;

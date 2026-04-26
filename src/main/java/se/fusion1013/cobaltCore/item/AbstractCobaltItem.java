@@ -22,6 +22,7 @@ import se.fusion1013.cobaltCore.item.toggles.IItemToggles;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggleType;
 import se.fusion1013.cobaltCore.item.toggles.ItemToggles;
 import se.fusion1013.cobaltCore.loader.IObjectProperty;
+import se.fusion1013.cobaltCore.variable.StringVariable;
 
 import java.util.*;
 
@@ -29,11 +30,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
     // ----- VARIABLES -----
 
-    // NOTE: All things that can be set through a builder must have a default value.
-
-    // -- INTERNALS
-    private final String internalName; // Should be unique to every item. Used to generate the NamespacedKey
-    private final NamespacedKey key; // Unique for each item. Generated using the internal name
+    private final StringVariable internalName = new StringVariable("internal_name");
+    private final NamespacedKey key;
 
     protected Material material = Material.CLOCK;
 
@@ -58,8 +56,8 @@ public abstract class AbstractCobaltItem implements ICustomItem {
      */
     public AbstractCobaltItem(String internalName) {
         // Internals must be set by constructors
-        this.internalName = internalName;
-        this.key = new NamespacedKey(CobaltCore.getInstance(), this.internalName);
+        this.internalName.setValue(internalName);
+        this.key = new NamespacedKey(CobaltCore.getInstance(), this.internalName.getValue());
         properties = ItemPropertyManager.getProperties();
     }
 
@@ -94,13 +92,6 @@ public abstract class AbstractCobaltItem implements ICustomItem {
         }
 
         return context.finalizeItem();
-
-        /*
-        // -- ITEM COMPONENT LORE
-        itemComponents.values().forEach(k -> lore.addAll(k.getLore()));
-        for (IItemComponent component : itemComponents.values())
-            component.onItemConstruction(stack, meta, persistentDataContainer);
-         */
     }
 
     protected void loadInternalData(YamlConfiguration yamlConfiguration) {
@@ -234,7 +225,7 @@ public abstract class AbstractCobaltItem implements ICustomItem {
 
     @Override
     public String getInternalName() {
-        return internalName;
+        return internalName.getValue();
     }
 
     @Override

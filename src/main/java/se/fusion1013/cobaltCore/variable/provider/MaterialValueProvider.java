@@ -17,6 +17,11 @@ public class MaterialValueProvider extends AbstractValueProvider<Material> {
         super(parameterName);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return materials.isEmpty();
+    }
+
     public MaterialValueProvider(String parameterName, Material value) {
         super(parameterName);
         this.materials.add(value);

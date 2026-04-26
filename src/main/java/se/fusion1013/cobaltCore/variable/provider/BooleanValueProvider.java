@@ -20,6 +20,11 @@ public class BooleanValueProvider extends AbstractValueProvider<Boolean> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public Boolean getValue() {
         return value;
     }

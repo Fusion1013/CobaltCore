@@ -29,6 +29,10 @@ public class RuleLogger {
         context.logMessage(message);
     }
 
+    public void logValueSet(String name, Object value) {
+        context.logValueSet(name, value);
+    }
+
     // ##%%##%%## EVALUATE ##%%##%%## //
 
     public void evaluate(String title, Runnable methodCall) {

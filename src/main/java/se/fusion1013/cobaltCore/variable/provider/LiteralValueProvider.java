@@ -55,4 +55,9 @@ public class LiteralValueProvider extends AbstractValueProvider<String> {
     public List<String> getValueList() {
         return values;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
 }

@@ -27,6 +27,11 @@ public class AttributeValueProvider extends AbstractValueProvider<AttributeConta
     }
 
     @Override
+    public boolean isEmpty() {
+        return attributes.isEmpty();
+    }
+
+    @Override
     public AttributeContainer getValue() {
         return attributes.get(random.nextInt(attributes.size()));
     }

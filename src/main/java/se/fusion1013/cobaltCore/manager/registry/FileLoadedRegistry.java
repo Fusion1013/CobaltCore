@@ -42,6 +42,7 @@ public class FileLoadedRegistry<T extends IRegistryItem> extends CobaltRegistry<
     }
 
     private void reloadAll() {
+        content.clear();
         for (CobaltPlugin plugin : CobaltCore.getRegisteredCobaltPlugins()) {
             loadFiles(plugin);
         }

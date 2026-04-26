@@ -24,6 +24,11 @@ public class IntValueProvider extends AbstractValueProvider<Integer> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public Integer getValue() {
         if (min == max) return min;
         return random.nextInt(min, max + 1);

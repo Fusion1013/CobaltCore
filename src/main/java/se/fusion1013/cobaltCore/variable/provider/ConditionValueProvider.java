@@ -25,6 +25,11 @@ public class ConditionValueProvider extends AbstractValueProvider<ICondition> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return conditions.isEmpty();
+    }
+
+    @Override
     public ICondition getValue() {
         return conditions.get(random.nextInt(conditions.size()));
     }

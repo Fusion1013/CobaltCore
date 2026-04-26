@@ -27,6 +27,11 @@ public class VectorValueProvider extends AbstractValueProvider<Vector> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public Vector getValue() {
 
         double x = min.getX() == max.getX() ? min.getX() : random.nextDouble(min.getX(), max.getX() + 1);

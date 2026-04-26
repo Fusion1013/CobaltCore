@@ -26,6 +26,11 @@ public class SoundValueProvider extends AbstractValueProvider<Sound> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return sounds.isEmpty();
+    }
+
+    @Override
     public Sound getValue() {
         return sounds.get(random.nextInt(sounds.size()));
     }

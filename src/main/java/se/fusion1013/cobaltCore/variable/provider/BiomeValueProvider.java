@@ -21,6 +21,11 @@ public class BiomeValueProvider extends AbstractValueProvider<Biome> {
         super(parameterName);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return biomes.isEmpty();
+    }
+
     public BiomeValueProvider(String parameterName, Biome value) {
         super(parameterName);
         this.biomes.add(value);

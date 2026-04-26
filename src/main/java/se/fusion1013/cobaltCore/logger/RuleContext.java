@@ -14,6 +14,10 @@ public class RuleContext {
         rules.add(new RuleLine(currentIndentLevel, "[LOG]: " + message));
     }
 
+    public void logValueSet(String name, Object value) {
+        rules.add(new RuleLine(currentIndentLevel, "[VALUE]: " + name + " set to " + value));
+    }
+
     public void print(CobaltPlugin plugin) {
         for (RuleLine rule : rules) {
             plugin.getLogger().info(" ".repeat(rule.indent * 4) + rule.message);

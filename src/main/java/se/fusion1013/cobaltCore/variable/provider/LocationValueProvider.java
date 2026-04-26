@@ -14,6 +14,11 @@ public class LocationValueProvider extends AbstractValueProvider<Location> {
         super(parameterName);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return value == null;
+    }
+
     public LocationValueProvider(String parameterName, Location value) {
         super(parameterName);
         this.value = value;
