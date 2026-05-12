@@ -23,6 +23,7 @@ public class ActionManager extends Manager<CobaltCore> {
     private static final Supplier<IAction> NEARBY_ENTITIES_ACTION_FACTORY = register("nearby_entities", NearbyEntitiesAction::new);
     private static final Supplier<IAction> EXPLODE_ACTION_FACTORY = register("explode", ExplodeAction::new);
     private static final Supplier<IAction> TELEPORT_ACTION_FACTORY = register("teleport", TeleportAction::new);
+    private static final Supplier<IAction> WEATHER_ACTION_FACTORY = register("weather", WeatherAction::new);
 
     public ActionManager(CobaltCore plugin) {
         super(plugin);

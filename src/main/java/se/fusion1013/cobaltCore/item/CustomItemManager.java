@@ -261,7 +261,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     public void reload() {
         Bukkit.getPluginManager().registerEvents(this, CobaltCore.getInstance());
         Bukkit.getPluginManager().registerEvents(new ItemEventHandler(), CobaltCore.getInstance());
-        createItemTickHandler();
+//        createItemTickHandler();
     }
 
     private void createItemTickHandler() {
@@ -316,7 +316,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
     public void playerLeaveEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (player.isOp()) return;
-        
+
         World world = player.getWorld();
         PlayerInventory inventory = player.getInventory();
         for (int i = inventory.getSize() - 1; i >= 0; i--) {

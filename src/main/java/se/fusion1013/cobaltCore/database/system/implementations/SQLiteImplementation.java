@@ -1,5 +1,7 @@
 package se.fusion1013.cobaltCore.database.system.implementations;
 
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
 import se.fusion1013.cobaltCore.CobaltCore;
 import se.fusion1013.cobaltCore.database.player.IPlayerDao;
 import se.fusion1013.cobaltCore.database.player.PlayerDaoSQLite;
@@ -12,6 +14,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SQLiteImplementation implements IDataImplementation {
 
+    private static ConnectionSource connectionSource;
+    private static final String DATABASE_URL = "jdbc:sqlite:plugins/CobaltCore/cobalt.db";
+
     private static Database sqliteDb;
     private static final Lock sqliteOperationLock = new ReentrantLock();
 
@@ -21,6 +26,38 @@ public class SQLiteImplementation implements IDataImplementation {
             sqliteDb = new SQLite(CobaltCore.getInstance());
             sqliteDb.load();
         }
+    }
+
+    private static void init() {
+        try {
+            if (connectionSource == null) {
+                connectionSource = new JdbcConnectionSource(DATABASE_URL);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to initialize SQLite connection", e);
+        }
+    }
+
+    public static ConnectionSource getConnectionSource() {
+        if (connectionSource == null) {
+            init();
+        }
+        return connectionSource;
+    }
+
+    private static void close() {
+        if (connectionSource != null) {
+            try {
+                connectionSource.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        close();
     }
 
     @Override
