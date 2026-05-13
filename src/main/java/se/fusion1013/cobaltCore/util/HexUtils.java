@@ -24,6 +24,20 @@ public final class HexUtils {
 
     private static final Pattern STOP = Pattern.compile("<(gradient|g)(:#([A-Fa-f0-9]){6})*>|<(rainbow|r)(:\\d*\\.?\\d+){0,2}>|(&[a-f0-9r])|<#([A-Fa-f0-9]){6}>|&#([A-Fa-f0-9]){6}|#([A-Fa-f0-9]){6}|" + org.bukkit.ChatColor.COLOR_CHAR);
 
+    public static String stripColorCodes(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        // Remove hex color codes like §x§3§8§9§c§d§9
+        input = input.replaceAll("(?i)§x(§[0-9A-F]){6}", "");
+
+        // Remove standard color/format codes like §7, §f, §l, etc.
+        input = input.replaceAll("(?i)§[0-9A-FK-OR]", "");
+
+        return input;
+    }
+
     /**
      * Sends a CommandSender a colored message
      *
