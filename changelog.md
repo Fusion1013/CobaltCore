@@ -1,8 +1,9 @@
 **FEATURE:** Added worldguard flag for taking books from lecterns
 Advancement API
 
-**CobaltCore Version 1.4.1**
+**CobaltCore Version 1.6.1**
 
+- **FEATURE:** Added support for ORMLite
 - **BUGFIX:** Fixed an issue that caused lag when lots of people were online
 
 **CobaltCore Version 1.4.0**

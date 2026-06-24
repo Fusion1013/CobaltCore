@@ -176,7 +176,7 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
      * @return an array of item names.
      */
     public static String[] getItemNames() {
-        List<String> itemNames = Arrays.asList(INBUILT_CUSTOM_ITEMS.getNames());
+        List<String> itemNames = new ArrayList<>(Arrays.stream(INBUILT_CUSTOM_ITEMS.getNames()).toList());
         for (Material m : Material.values()) itemNames.add(m.name().toLowerCase());
         return itemNames.toArray(new String[0]);
     }
@@ -284,10 +284,10 @@ public class CustomItemManager extends Manager<CobaltCore> implements Listener {
                     items[1].activatorTriggeredSync(ItemActivator.HELD_TICK, new PlayerHeldItemTickEvent(p), EquipmentSlot.OFF_HAND, context);
                 }
 
-                for (ICustomItem item : getPlayerCustomItems(p))
-                    if (item != null) {
-                        item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
-                    }
+//                for (ICustomItem item : getPlayerCustomItems(p))
+//                    if (item != null) {
+//                        item.activatorTriggeredSync(ItemActivator.TICK, new PlayerHeldItemTickEvent(p), null);
+//                    }
             }
         }, 0, 1);
     }
